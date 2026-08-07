@@ -29,7 +29,7 @@ export class AdaptiveContent {
 
   process(element: HTMLElement, context: MarkdownPostProcessorContext): void {
     if (!context.getSectionInfo(element)) return;
-    requestAnimationFrame(() => { if (!this.destroyed) this.decorate(element); });
+    window.requestAnimationFrame(() => { if (!this.destroyed) this.decorate(element); });
   }
 
   refresh(preview: HTMLElement | null): void {
@@ -60,7 +60,7 @@ export class AdaptiveContent {
     });
     const HTMLElementCtor = section.ownerDocument.defaultView?.HTMLElement;
     Array.from(section.children).forEach((child) => {
-      if (HTMLElementCtor && child instanceof HTMLElementCtor) candidates.add(child);
+      if (HTMLElementCtor && child.instanceOf(HTMLElementCtor)) candidates.add(child);
     });
 
     candidates.forEach((candidate) => {

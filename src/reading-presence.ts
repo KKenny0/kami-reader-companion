@@ -107,7 +107,7 @@ export class ReadingPresence {
   }
 
   private decorate(view: MarkdownView, mode: "preview" | "source"): void {
-    if (!this.target || typeof view.containerEl.querySelector !== "function") return;
+    if (!this.target) return;
     this.decorateMode(view, mode);
     if (mode !== "preview") {
       this.clearReadingDecorations();

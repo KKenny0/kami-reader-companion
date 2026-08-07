@@ -31,7 +31,7 @@ export default class KamiReaderCompanion extends Plugin {
       this.outline.process(element, context);
       this.adaptive.process(element, context);
     });
-    this.register(() => cancelAnimationFrame(this.frame));
+    this.register(() => window.cancelAnimationFrame(this.frame));
     this.app.workspace.onLayoutReady(() => {
       if (this.disposed) return;
       this.ready = true;
@@ -54,8 +54,8 @@ export default class KamiReaderCompanion extends Plugin {
 
   private schedule = (): void => {
     if (!this.ready) return;
-    cancelAnimationFrame(this.frame);
-    this.frame = requestAnimationFrame(() => {
+    window.cancelAnimationFrame(this.frame);
+    this.frame = window.requestAnimationFrame(() => {
       if (!this.ready) return;
       const view = this.app.workspace.getActiveViewOfType(MarkdownView);
       this.presence.configure(view);

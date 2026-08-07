@@ -1,9 +1,9 @@
 {
   "id": "kami-reader-companion",
   "name": "Kami Reader Companion",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "1.13.0",
-  "description": "A continuous Kami-inspired Obsidian shell with Reading Stage, precise Outline sync, and adaptive wide content.",
+  "description": "A continuous Kami-inspired workspace shell with Reading Stage, precise Outline sync, and adaptive wide content.",
   "author": "Kenny Wu",
   "authorUrl": "https://github.com/KKenny0",
   "isDesktopOnly": true

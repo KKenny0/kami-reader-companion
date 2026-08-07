@@ -1,18 +1,27 @@
-import js from "@eslint/js";
+import tsparser from "@typescript-eslint/parser";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import obsidianmd from "eslint-plugin-obsidianmd";
 
-export default tseslint.config(
+export default defineConfig([
   { ignores: ["main.js", ".dev/", "node_modules/", "test-vault/"] },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...obsidianmd.configs.recommended,
   {
     files: ["**/*.mjs"],
-    languageOptions: { globals: globals.node }
+    languageOptions: { globals: globals.node },
+    rules: { "obsidianmd/rule-custom-message": "off" }
   },
   {
     files: ["**/*.ts"],
-    languageOptions: { globals: globals.browser },
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: { project: "./tsconfig.json" },
+      globals: globals.browser
+    },
     rules: { "@typescript-eslint/no-non-null-assertion": "off" }
+  },
+  {
+    files: ["tests/**/*.ts"],
+    rules: { "@typescript-eslint/no-unnecessary-type-assertion": "off" }
   }
-);
+]);

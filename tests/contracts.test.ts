@@ -161,7 +161,8 @@ const fakeElement = (...classes: string[]): HTMLElement => {
       getPropertyValue: (name: string) => styles.get(name) ?? "",
       setProperty: (name: string, value: string) => { styles.set(name, value); },
       removeProperty: (name: string) => styles.delete(name)
-    }
+    },
+    querySelector: () => null
   } as unknown as HTMLElement;
 };
 
