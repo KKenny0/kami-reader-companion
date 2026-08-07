@@ -89,10 +89,12 @@ export class AdaptiveContent {
   private visualWidth(element: HTMLElement): number {
     const svg = element.matches("svg") ? element as unknown as SVGSVGElement : element.querySelector("svg");
     if (svg?.viewBox.baseVal.width) return svg.viewBox.baseVal.width;
-    const image = element.matches("img") ? element as HTMLImageElement : element.querySelector("img");
-    if (image?.naturalWidth) return image.naturalWidth;
-    const canvas = element.matches("canvas") ? element as HTMLCanvasElement : element.querySelector("canvas");
-    return canvas?.width || element.scrollWidth;
+    const image = element.matches("img") ? element : element.querySelector("img");
+    if (image && "naturalWidth" in image && typeof image.naturalWidth === "number" && image.naturalWidth) {
+      return image.naturalWidth;
+    }
+    const canvas = element.matches("canvas") ? element : element.querySelector("canvas");
+    return canvas && "width" in canvas && typeof canvas.width === "number" ? canvas.width || element.scrollWidth : element.scrollWidth;
   }
 
   private contentWidth(element: HTMLElement): number {
