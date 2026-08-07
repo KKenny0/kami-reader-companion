@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kami continuous folio shell prototype</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f4ed;
+      --paper: #f5f4ed;
+      --shell: #f5f4ed;
+      --shell-deep: #f5f4ed;
+      --interactive: #e8e6dc;
+      --line: #e8e6dc;
+      --ink: #141413;
+      --muted: #504e49;
+      --faint: #6b6a64;
+      --accent: #1b365d;
+      --highlight: #f3e3a8;
+      --radius-sm: 4px;
+      --radius-md: 7px;
+      /* Obsidian 1.13.4 reference geometry. Sidebar values model the captured layout, not plugin-enforced widths. */
+      --top-strip-height: 32px;
+      --view-header-height: 32px;
+      --status-height: 22px;
+      --ribbon-width: 32px;
+      --left-rail-width: clamp(176px, 15vw, 220px);
+      --right-margin-width: clamp(232px, 20vw, 288px);
+      --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+      --reading-font: Charter, "Songti SC", "Noto Serif SC", serif;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #141413;
+      --paper: #141413;
+      --shell: #141413;
+      --shell-deep: #141413;
+      --interactive: #30302e;
+      --line: #353330;
+      --ink: #e8e3d2;
+      --muted: #b4b09e;
+      --faint: #6e6855;
+      --accent: #2d5a8a;
+      --highlight: #5a4a1f;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--shell-deep);
+      color: var(--ink);
+      font-family: var(--ui-font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      min-width: 30px;
+      min-height: 30px;
+      border: 0;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+    button:hover { background: var(--interactive); }
+    button:active { transform: scale(.96); }
+    button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    .app {
+      display: grid;
+      grid-template:
+        var(--top-strip-height)
+        var(--view-header-height)
+        minmax(0, 1fr)
+        var(--status-height)
+        / var(--ribbon-width) var(--left-rail-width) minmax(0, 1fr) var(--right-margin-width);
+      height: 100vh;
+      background: var(--canvas);
+    }
+
+    .titlebar {
+      position: relative;
+      grid-row: 1;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: var(--ribbon-width) var(--left-rail-width) minmax(0, 1fr) var(--right-margin-width);
+      align-items: center;
+      background: var(--shell-deep);
+      color: var(--muted);
+      font-size: 11px;
+      z-index: 3;
+    }
+
+    .traffic {
+      position: absolute;
+      inset: 0 auto 0 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 58px;
+      padding-left: 10px;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .traffic i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); opacity: .78; }
+    .traffic i:first-child { background: oklch(64% .13 28); }
+    .traffic i:nth-child(2) { background: oklch(77% .13 83); }
+    .traffic i:nth-child(3) { background: oklch(66% .12 145); }
+
+    .side-tabs {
+      display: flex;
+      align-items: center;
+      height: var(--top-strip-height);
+      min-width: 0;
+    }
+    .side-tabs.left { grid-column: 1 / 3; padding-left: 60px; }
+    .side-tabs.right { grid-column: 4; padding-inline: 4px; }
+    .side-tabs .spacer { flex: 1; }
+    .side-tabs button,
+    .side-toolbar button {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      color: var(--faint);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .side-tabs button.active {
+      position: relative;
+      color: var(--accent);
+    }
+    .side-tabs button.active::after {
+      content: "";
+      position: absolute;
+      inset: auto 5px 0;
+      height: 2px;
+      background: var(--accent);
+    }
+    .tabs { grid-column: 3; display: flex; align-items: stretch; min-width: 0; height: var(--top-strip-height); }
+    .tab {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 250px;
+      padding: 0 12px;
+      color: var(--faint);
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--ink); }
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      inset: auto 12px 0;
+      height: 2px;
+      background: var(--accent);
+    }
+    .tab-mark { color: var(--accent); font-size: 8px; }
+    .side-toolbar {
+      display: flex;
+      align-items: center;
+      height: var(--view-header-height);
+      padding-inline: 7px 5px;
+      background: var(--shell);
+      color: var(--faint);
+    }
+    .side-toolbar.left { grid-row: 2; grid-column: 2; }
+    .side-toolbar.right { grid-row: 2; grid-column: 4; justify-content: flex-end; }
+    .side-toolbar .spacer { flex: 1; }
+
+    .ribbon {
+      grid-row: 2 / 5;
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      padding: 6px 1px 5px;
+      background: var(--shell-deep);
+      color: var(--faint);
+    }
+    .ribbon button { position: relative; width: 30px; height: 30px; font-size: 13px; line-height: 1; opacity: .48; }
+    .ribbon button:is(:hover, :focus-visible), .ribbon .active-tool { opacity: 1; }
+    .ribbon .spacer { flex: 1; }
+    .ribbon .active-tool { color: var(--accent); }
+    .ribbon .active-tool::after {
+      content: "";
+      position: absolute;
+      right: 1px;
+      width: 2px;
+      height: 15px;
+      background: var(--accent);
+    }
+
+    .rail, .margin {
+      grid-row: 3 / 5;
+      min-width: 0;
+      overflow: hidden;
+      background: var(--shell);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .rail { grid-column: 2; }
+    .margin { grid-column: 4; }
+    .tree { padding: 9px 12px 12px 8px; }
+    .tree-label {
+      display: flex;
+      align-items: center;
+      min-height: 31px;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+    }
+    .tree-label span { color: var(--faint); margin-right: 7px; }
+    .tree-label.current {
+      position: relative;
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .tree-label.current::before {
+      content: "";
+      position: absolute;
+      left: 1px;
+      width: 2px;
+      height: 18px;
+      background: var(--accent);
+    }
+    .tree .indent { padding-left: 25px; }
+    .tree .deep { padding-left: 39px; }
+
+    main {
+      position: relative;
+      grid-row: 2 / 5;
+      grid-column: 3;
+      min-width: 0;
+      overflow: auto;
+      background: var(--paper);
+      scrollbar-color: var(--line) transparent;
+    }
+    .note-tools {
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: var(--view-header-height);
+      padding: 0 8px;
+      background: var(--paper);
+      color: var(--faint);
+      font-size: 10px;
+      letter-spacing: .03em;
+      z-index: 2;
+    }
+    .note-tools .history { display: flex; flex: 0 0 auto; gap: 2px; }
+    .note-tools .breadcrumb {
+      display: flex;
+      min-width: 0;
+      margin-right: auto;
+      padding-left: 16px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .note-tools .breadcrumb .crumb { overflow: hidden; text-overflow: clip; }
+    .note-tools .breadcrumb .separator { flex: 0 0 auto; padding-inline: 3px; }
+    .note-tools .mode {
+      flex: 0 0 auto;
+      margin-inline: 12px;
+      font-weight: 600;
+      letter-spacing: .12em;
+    }
+    .note-tools .actions { display: flex; gap: 2px; }
+    .note-tools button { width: 30px; height: 30px; color: var(--faint); }
+
+    article {
+      width: min(700px, calc(100% - 96px));
+      margin: 0 auto;
+      padding: 78px 0 128px;
+      font-family: var(--reading-font);
+      font-size: 16.5px;
+      line-height: 1.62;
+    }
+    article h1 {
+      max-width: 660px;
+      margin: 0 0 20px;
+      font-size: clamp(34px, 4vw, 52px);
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: -.022em;
+      text-wrap: balance;
+    }
+    .dek {
+      max-width: 600px;
+      margin: 0 0 35px;
+      color: var(--muted);
+      font-family: var(--ui-font);
+      font-size: 17px;
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .folio-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 58px;
+      color: var(--faint);
+      font-family: var(--ui-font);
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+    .folio-meta::before { content: ""; width: 32px; height: 2px; background: var(--accent); }
+    article h2 { margin: 52px 0 13px; font-size: 24px; font-weight: 500; line-height: 1.25; letter-spacing: -.012em; }
+    article p { margin: 0 0 1.25em; text-wrap: pretty; }
+    article mark { background: var(--highlight); color: var(--ink); padding: 0 .13em; }
+    blockquote {
+      margin: 37px 0;
+      padding: 3px 0 3px 25px;
+      border-left: 2px solid var(--accent);
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .margin-note {
+      position: relative;
+      margin: 34px 20px 24px;
+      padding: 20px 0 18px;
+      color: var(--muted);
+      line-height: 1.62;
+    }
+    .margin-note::before { content: ""; position: absolute; top: 0; width: 34px; height: 1px; background: var(--line); }
+    .margin-note b { display: block; margin-bottom: 7px; color: var(--ink); font-family: var(--reading-font); font-size: 14px; }
+    .margin-note small { color: var(--faint); }
+
+    .status {
+      grid-row: 4;
+      grid-column: 3 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: var(--shell-deep);
+      color: var(--faint);
+      font-size: 10px;
+      letter-spacing: .02em;
+      z-index: 4;
+    }
+
+    .prototype-controls {
+      position: fixed;
+      right: 18px;
+      bottom: 38px;
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: var(--paper);
+      box-shadow: 0 4px 24px color-mix(in oklch, var(--ink) 18%, transparent);
+      z-index: 20;
+    }
+    .prototype-controls button { min-height: 34px; padding: 0 12px; border-radius: 6px; font-size: 12px; }
+    .prototype-controls button:hover { background: color-mix(in oklch, var(--paper) 13%, transparent); }
+
+    body.stage .app { grid-template-columns: 8px 0 minmax(0, 1fr) 0; }
+    body.stage .titlebar {
+      position: fixed;
+      top: 0;
+      left: 8px;
+      right: 8px;
+      transform: translateY(calc(-100% + 7px));
+      transition: transform 140ms cubic-bezier(.16, 1, .3, 1);
+    }
+    body.stage .titlebar:hover, body.stage .titlebar:focus-within { transform: translateY(0); }
+    body.stage .ribbon {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 32px;
+      transform: translateX(-24px);
+      transition: transform 140ms cubic-bezier(.16, 1, .3, 1);
+      z-index: 5;
+    }
+    body.stage .ribbon:hover, body.stage .ribbon:focus-within { transform: translateX(0); }
+    body.stage .rail, body.stage .margin, body.stage .status, body.stage .side-toolbar { visibility: hidden; }
+    body.stage main { position: fixed; inset: 0; z-index: 4; }
+    body.stage .note-tools { justify-content: center; height: 29px; border: 0; background: var(--paper); }
+    body.stage .note-tools .actions, body.stage .note-tools .history, body.stage .note-tools .breadcrumb { display: none; }
+    body.stage article { padding-top: 70px; }
+
+    @media (max-width: 940px) {
+      .app { grid-template-columns: 32px minmax(160px, 184px) minmax(0, 1fr) 0; }
+      .titlebar { grid-template-columns: 32px minmax(160px, 184px) minmax(0, 1fr) 0; }
+      .margin, .side-tabs.right, .side-toolbar.right { display: none; }
+      article { width: min(680px, calc(100% - 48px)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.stage .titlebar, body.stage .ribbon { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="titlebar">
+      <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+      <nav class="side-tabs left" aria-label="左侧边栏标签">
+        <button class="active" aria-label="文件">▱</button>
+        <button aria-label="搜索">⌕</button>
+        <button aria-label="书签">◇</button>
+        <span class="spacer"></span>
+        <button aria-label="收起左侧边栏">▮</button>
+      </nav>
+      <nav class="tabs" aria-label="打开的笔记">
+        <div class="tab active"><span class="tab-mark">◆</span>沉浸不是隐藏界面</div>
+        <div class="tab"><span class="tab-mark">◇</span>Kami workspace notes</div>
+      </nav>
+      <nav class="side-tabs right" aria-label="右侧边栏标签">
+        <button aria-label="反向链接">↙</button>
+        <button aria-label="出链">↗</button>
+        <button aria-label="标签">◇</button>
+        <button aria-label="属性">▱</button>
+        <button class="active" aria-label="大纲">☷</button>
+        <span class="spacer"></span>
+        <button aria-label="收起右侧边栏">▮</button>
+      </nav>
+    </header>
+
+    <nav class="ribbon" aria-label="Ribbon">
+      <button aria-label="快速切换">▱</button>
+      <button aria-label="关系图谱">⌘</button>
+      <button aria-label="画布">⊞</button>
+      <button aria-label="日记">□</button>
+      <button aria-label="模板">◇</button>
+      <div class="spacer"></div>
+      <button aria-label="帮助">?</button>
+      <button aria-label="设置">⚙</button>
+    </nav>
+
+    <div class="side-toolbar left" aria-label="文件操作">
+      <button aria-label="新建笔记">＋</button>
+      <button aria-label="新建文件夹">▱</button>
+      <button aria-label="排序">↕</button>
+      <span class="spacer"></span>
+      <button aria-label="定位当前文件">⌖</button>
+      <button aria-label="全部收起">⌃</button>
+    </div>
+
+    <aside class="rail">
+      <div class="tree">
+        <div class="tree-label"><span>⌄</span>00 Inbox</div>
+        <div class="tree-label"><span>›</span>Fragments</div>
+        <div class="tree-label"><span>⌄</span>Product</div>
+        <div class="tree-label indent"><span>⌄</span>Kami</div>
+        <div class="tree-label deep">Workspace handoff</div>
+        <div class="tree-label deep current">沉浸不是隐藏界面</div>
+        <div class="tree-label deep">Upstream notes</div>
+        <div class="tree-label"><span>›</span>Writing</div>
+        <div class="tree-label"><span>›</span>Archive</div>
+      </div>
+    </aside>
+
+    <main id="main-content">
+      <div class="note-tools">
+        <div class="history"><button aria-label="后退">‹</button><button aria-label="前进">›</button></div>
+        <span class="breadcrumb" aria-label="Product / Kami / 沉浸不是隐藏界面">
+          <span class="crumb">Product</span><span class="separator">/</span>
+          <span class="crumb">Kami</span><span class="separator">/</span>
+          <span class="crumb">沉浸不是隐藏界面</span>
+        </span>
+        <span class="mode">READING</span>
+        <div class="actions"><button aria-label="编辑">✎</button><button aria-label="更多操作">•••</button></div>
+      </div>
+      <article lang="zh-CN">
+        <h1>沉浸不是隐藏界面，<br>而是让空间拥有同一种呼吸</h1>
+        <p class="dek">真正连续的阅读体验，不要求 Obsidian 消失。它要求每一个非正文区域都知道自己应该退后多远。</p>
+        <div class="folio-meta"><span>DESIGN NOTE 07</span><span>2026.08.05</span><span>6 min read</span></div>
+
+        <p>之前的方案把阅读区做成了主舞台，却没有改变舞台之外的世界。白色正文、灰色侧栏、冷色工具栏仍然互相分离，用户看到的是一张纸嵌在应用里，而不是整个工作区进入阅读状态。</p>
+
+        <blockquote>新的目标不是减少更多元素，而是建立一个连续色域：同一张纸，从中央正文延伸到页边、书库和工具脊柱。</blockquote>
+
+        <h2>一张纸场，不再切割面板</h2>
+        <p>正文、侧栏、Ribbon 与状态栏共享同一张暖米纸。层级来自字号、留白、文字浓度和局部短线，不再依赖大面积背景色块。</p>
+        <p>进入 Reading Stage 时，界面不会突然切换成另一个配色。侧栏只是折叠到纸张边缘，正文仍使用完全相同的纸色、墨色和排版尺度。<mark>模式变化只改变空间，不改变世界。</mark></p>
+
+        <h2>保留空间记忆</h2>
+        <p>左侧仍然是书库，右侧仍然是页边目录，顶部仍然保留打开的稿件。它们变得安静，但不会在用户离开阅读时重新出现于陌生的位置。</p>
+      </article>
+    </main>
+
+    <div class="side-toolbar right" aria-label="大纲操作">
+      <button aria-label="搜索大纲">⌕</button>
+      <button aria-label="自动滚动">▱</button>
+      <button aria-label="全部收起">⌃</button>
+    </div>
+
+    <aside class="margin">
+      <div class="tree">
+        <div class="tree-label current">沉浸不是隐藏界面</div>
+        <div class="tree-label">一张纸场，不再切割面板</div>
+        <div class="tree-label">保留空间记忆</div>
+        <div class="tree-label">验收标准</div>
+      </div>
+      <div class="margin-note">
+        <b>页边批注</b>
+        Stage 不是第二套主题。它只改变空间层级，因此退出后不会产生视觉跳变。
+        <small>Section 02</small>
+      </div>
+    </aside>
+
+    <footer class="status"><span>Kami workspace</span><span>6 backlinks · 1,284 words · 8 min</span></footer>
+  </div>
+
+  <div class="prototype-controls" aria-label="原型控制">
+    <button id="theme-toggle">深色</button>
+    <button id="stage-toggle">进入 Stage</button>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const themeButton = document.querySelector('#theme-toggle');
+    const stageButton = document.querySelector('#stage-toggle');
+
+    themeButton.addEventListener('click', () => {
+      const dark = root.dataset.theme !== 'dark';
+      root.dataset.theme = dark ? 'dark' : 'light';
+      themeButton.textContent = dark ? '浅色' : '深色';
+    });
+
+    stageButton.addEventListener('click', () => {
+      const active = document.body.classList.toggle('stage');
+      stageButton.textContent = active ? '退出 Stage' : '进入 Stage';
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && document.body.classList.contains('stage')) {
+        document.body.classList.remove('stage');
+        stageButton.textContent = '进入 Stage';
+      }
+    });
+  </script>
+</body>
+</html>

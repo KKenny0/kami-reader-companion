@@ -1,0 +1,26 @@
+{
+  "appVersion": "1.13.4",
+  "os": "macOS",
+  "viewport": "984x768",
+  "theme": "Default",
+  "candidate": {
+    "sha256": {
+      "main.js": "5dbea641e29f9e5e798dfbdda8058d4bc03ff6658138131bed05e8f251a53ba9",
+      "styles.css": "8c71b3f38560898f3decb1362ddfee13a097c860836a7e1a57fc52153b1e5a85",
+      "manifest.json": "515c339ee75092a0744ab6c788d4b521fec0849daf6cf15a96d8e8f5d8946c1c"
+    }
+  },
+  "artifacts": [
+    { "file": "01-default-dark-editing-984x768.jpg", "state": "Default Dark Editing" },
+    { "file": "02-default-dark-reading-984x768.jpg", "state": "Default Dark Reading" },
+    { "file": "03-default-dark-long-path-984x768.jpg", "state": "Default Dark long native path" },
+    { "file": "04-default-dark-new-tab-984x768.jpg", "state": "Default Dark New Tab" },
+    { "file": "05-default-dark-reading-stage-984x768.jpg", "state": "Default Dark Reading Stage" },
+    { "file": "06-default-light-editing-984x768.jpg", "state": "Default Light Editing" },
+    { "file": "07-default-light-reading-984x768.jpg", "state": "Default Light Reading" }
+  ],
+  "limitations": {
+    "formal1440x900": false,
+    "note": "The available real-app host window was 984x768; a separate 1440x900 release gate remains pending."
+  }
+}
