@@ -4,16 +4,16 @@
   "viewport": "984x768",
   "theme": "Default",
   "candidate": {
-    "version": "0.1.2",
+    "version": "0.1.3",
     "sha256": {
       "main.js": "dedd82230ac291a9fcb7b2b9209a3a7b07114c8dca0d7028085fc94309f4a1f1",
       "styles.css": "8c71b3f38560898f3decb1362ddfee13a097c860836a7e1a57fc52153b1e5a85",
-      "manifest.json": "fe0868a2d96fa43ad1600f38c6c8a1cc0eafa9521e09daabff5c646cedabb8c8"
+      "manifest.json": "d37ed7b59d69ac9bbaa53fd7f9e744c25f51e1119fd614a81d03ab3056b3ad11"
     }
   },
   "visualBaseline": {
     "version": "0.1.0",
-    "note": "The 0.1.2 delta is non-visual: manifest wording, lint and release configuration, a portable lockfile, plus cross-window-equivalent DOM and animation APIs. The styles.css hash is unchanged, so the accepted 0.1.0 real-app captures are carried forward explicitly."
+    "note": "The 0.1.3 delta is non-visual: manifest wording, lint and release configuration, a portable lockfile, plus cross-window-equivalent DOM and animation APIs. The styles.css hash is unchanged, so the accepted 0.1.0 real-app captures are carried forward explicitly."
   },
   "artifacts": [
     { "file": "01-default-dark-editing-984x768.jpg", "state": "Default Dark Editing" },
