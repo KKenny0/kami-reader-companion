@@ -14,16 +14,6 @@ import {
 import { ReadingPresence } from "../src/reading-presence";
 
 const styles = readFileSync(new URL("../styles.css", import.meta.url), "utf8");
-const packageJson = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8")
-) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
-
-describe("Gallery scan contract", () => {
-  it("keeps Obsidian API types available to production-only source scans", () => {
-    expect(packageJson.dependencies?.obsidian).toBe("1.13.1");
-    expect(packageJson.devDependencies?.obsidian).toBeUndefined();
-  });
-});
 
 describe("folio shell CSS contracts", () => {
   it("owns the prototype shell rhythm without hiding AX nodes or fixing sidebar widths", () => {

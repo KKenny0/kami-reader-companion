@@ -4,16 +4,16 @@
   "viewport": "984x768",
   "theme": "Default",
   "candidate": {
-    "version": "0.1.4",
+    "version": "0.1.5",
     "sha256": {
       "main.js": "80186b544dc4534e411d4709b5c5e3ba448f2820e4d3eaf68f939e0ecb9629ca",
       "styles.css": "8c71b3f38560898f3decb1362ddfee13a097c860836a7e1a57fc52153b1e5a85",
-      "manifest.json": "5f12b7fe3d870572abc4dca75649146db257bded9d6a4cf3f3190b5a5e6bae78"
+      "manifest.json": "f4f673f9bed4ea664d436f6dfbb8e1b730350dcdea057abd364dd6327700e2cd"
     }
   },
   "visualBaseline": {
     "version": "0.1.0",
-    "note": "The 0.1.4 delta is non-visual: it keeps Obsidian API types available to isolated source scans and replaces redundant DOM assertions with equivalent property guards. The styles.css hash is unchanged, so the accepted 0.1.0 real-app captures are carried forward explicitly."
+    "note": "The 0.1.5 delta is dependency-metadata cleanup only: Obsidian returns to devDependencies and the disproven Gallery scan contract test is removed. The runtime main.js and styles.css hashes are unchanged, so the accepted 0.1.0 real-app captures are carried forward explicitly."
   },
   "artifacts": [
     { "file": "01-default-dark-editing-984x768.jpg", "state": "Default Dark Editing" },

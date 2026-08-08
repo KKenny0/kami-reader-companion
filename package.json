@@ -1,6 +1,6 @@
 {
   "name": "kami-reader-companion",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "scripts": {
     "dev": "node esbuild.config.mjs",
@@ -11,9 +11,7 @@
     "check:visual": "node scripts/check-visual-evidence.mjs",
     "dev:injector": "npm run build && node scripts/build-dev-injector.mjs"
   },
-  "dependencies": {
-    "obsidian": "1.13.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@eslint/js": "9.39.4",
     "@types/node": "22.15.17",
@@ -22,6 +20,7 @@
     "eslint-plugin-obsidianmd": "0.4.0",
     "globals": "17.6.0",
     "jiti": "2.6.1",
+    "obsidian": "1.13.1",
     "typescript": "5.8.3",
     "typescript-eslint": "8.59.1",
     "vitest": "4.1.10"
