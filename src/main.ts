@@ -27,6 +27,15 @@ export default class KamiReaderCompanion extends Plugin {
         return true;
       }
     });
+    this.addCommand({
+      id: "toggle-focus-mode",
+      name: "Toggle focus mode",
+      checkCallback: (checking) => {
+        if (!this.presence.canToggleFocus()) return false;
+        if (!checking) this.presence.toggleFocus();
+        return true;
+      }
+    });
     this.registerMarkdownPostProcessor((element, context) => {
       this.outline.process(element, context);
       this.adaptive.process(element, context);

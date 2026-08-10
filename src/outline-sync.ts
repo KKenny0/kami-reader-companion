@@ -3,7 +3,7 @@ import {
   matchSectionHeadings,
   selectActiveLine,
   shouldRevealOutlineRow,
-  validateOutlineRows,
+  matchOutlineRows,
   type HeadingRef,
   type PositionedHeading
 } from "./contracts";
@@ -95,9 +95,9 @@ export class OutlineSync {
     const valid: Array<{ outline: HTMLElement; rows: HTMLElement[]; lines: number[] }> = [];
     this.outlines.forEach((outline) => {
       const rows = Array.from(outline.querySelectorAll<HTMLElement>(ROW_SELECTOR));
-      const lines = validateOutlineRows(cached, rows.map((row) =>
-        row.querySelector<HTMLElement>(".tree-item-inner")?.textContent ?? row.textContent ?? ""
-      ));
+      const lines = matchOutlineRows(cached, rows.map((row) => ({
+        text: row.querySelector<HTMLElement>(".tree-item-inner")?.textContent ?? row.textContent ?? ""
+      })));
       if (!lines) {
         this.failClosed(outline, "Kami Reader Companion: Outline changed; using Obsidian's native highlight.");
         return;

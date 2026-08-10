@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   observerCount: 0,
   observerOptions: null as MutationObserverInit | null,
   workspaceEvents: 0,
-  commandId: ""
+  commandIds: [] as string[]
 }));
 
 vi.mock("obsidian", () => ({
@@ -16,7 +16,7 @@ vi.mock("obsidian", () => ({
     register(): void {}
     registerEvent(): void {}
     registerMarkdownPostProcessor(): void {}
-    addCommand(command: { id: string }): void { mocks.commandId = command.id; }
+    addCommand(command: { id: string }): void { mocks.commandIds.push(command.id); }
   }
 }));
 
@@ -29,7 +29,7 @@ describe("plugin lifecycle", () => {
     mocks.observerCount = 0;
     mocks.observerOptions = null;
     mocks.workspaceEvents = 0;
-    mocks.commandId = "";
+    mocks.commandIds = [];
     mocks.app = {
       metadataCache: { getCache: () => null },
       workspace: {
@@ -57,7 +57,7 @@ describe("plugin lifecycle", () => {
     const PluginUnderTest = KamiReaderCompanion as unknown as new () => KamiReaderCompanion;
     const plugin = new PluginUnderTest();
     plugin.onload();
-    expect(mocks.commandId).toBe("toggle-reading-stage");
+    expect(mocks.commandIds).toEqual(["toggle-reading-stage", "toggle-focus-mode"]);
     plugin.onunload();
     mocks.layoutReady?.();
 

@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   release:
+    environment: visual-review
     runs-on: ubuntu-latest
     steps:
       - name: Check out tag

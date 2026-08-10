@@ -1,5 +1,6 @@
 export type HeadingRef = { line: number; level: number; text: string };
 export type RenderedHeading = { level: number; text: string; lineStart: number; lineEnd: number };
+export type OutlineRowRef = { text: string };
 export type PositionedHeading = { line: number; top: number };
 export type ContentKind = "visual" | "table" | "code" | "embed" | "unknown";
 
@@ -24,14 +25,31 @@ export function matchSectionHeadings(
   });
 }
 
-export function validateOutlineRows(
+export function matchOutlineRows(
   cached: readonly HeadingRef[],
-  rowTexts: readonly string[]
+  rows: readonly OutlineRowRef[]
 ): number[] | null {
-  if (cached.length !== rowTexts.length) return null;
-  return cached.every((heading, index) =>
-    normalizeHeading(heading.text) === normalizeHeading(rowTexts[index] ?? "")
-  ) ? cached.map((heading) => heading.line) : null;
+  const matches = (heading: HeadingRef, row: OutlineRowRef): boolean =>
+    normalizeHeading(heading.text) === normalizeHeading(row.text);
+  const forward: number[] = [];
+  let cursor = 0;
+  for (const row of rows) {
+    while (cursor < cached.length && !matches(cached[cursor], row)) cursor += 1;
+    if (cursor >= cached.length) return null;
+    forward.push(cursor);
+    cursor += 1;
+  }
+  const backward: number[] = [];
+  cursor = cached.length - 1;
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    while (cursor >= 0 && !matches(cached[cursor], rows[index])) cursor -= 1;
+    if (cursor < 0) return null;
+    backward[index] = cursor;
+    cursor -= 1;
+  }
+  return forward.every((cachedIndex, index) => cachedIndex === backward[index])
+    ? forward.map((index) => cached[index].line)
+    : null;
 }
 
 export function selectActiveLine(

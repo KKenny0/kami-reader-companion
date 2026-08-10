@@ -1,9 +1,10 @@
 # Kami Reader Companion immersive workspace handoff
 
-Status: repair implemented and locally accepted on Obsidian 1.13.4 at 984x768.
-Default Dark and Default Light evidence now covers Editing, Reading, New Tab,
-long native paths, and Reading Stage. The separate 1440x900 release matrix is
-still pending. Commit, push, release, and Community Plugin submission remain
+Status: final real-shell alignment is implemented in the local candidate. The
+previous 984x768 evidence is obsolete; the required 1440x900 Default and Kami
+Reader matrix must pass before this candidate is declared visually accepted.
+Patch releases may ship explicitly documented fixes and limitations without
+making that claim. Commit, push, release, and Community Plugin submission remain
 separately authorized.
 
 Date: 2026-08-07
@@ -16,12 +17,12 @@ Turn Kami Reader Companion from a pair of Reading View corrections into a
 small behavioral layer that makes the whole Obsidian workspace feel calmer and
 more continuous while reading or editing Markdown.
 
-The recommended product idea is a persistent **Folio Shell** plus Markdown-only
-**Folio Presence**, not another Focus Mode. While Companion is enabled on
+The product direction is a persistent **Folio Shell** plus Markdown-only
+**Folio Presence**, with an optional CSS-led **Focus Mode**. While Companion is enabled on
 desktop, the Shell keeps the workspace on one continuous canvas across New Tab,
 Markdown, Graph, Canvas, and other root views. An active Markdown leaf adds
-document treatment, Outline context, and the optional Reading Stage. Leaving
-Markdown clears those document enhancements without changing the Shell.
+document treatment, Outline context, optional Focus Mode, and the Reading-only
+Stage. Leaving Markdown clears those document enhancements without changing the Shell.
 
 This document is the approved implementation baseline for local code and visual
 verification. It does not authorize commits, pushes, releases, or Community
@@ -34,7 +35,7 @@ At the time of this handoff:
 - the repository has no commits yet; the existing implementation is untracked;
 - `origin` points to `git@github.com:KKenny0/kami-reader-companion.git`;
 - the manifest targets Obsidian 1.13+ and declares the Folio Shell desktop-only;
-- the plugin has one Reading Stage command and no settings, persistence,
+- the plugin has Reading Stage and Focus Mode commands and no settings, persistence,
   network access, or note writes;
 - `OutlineSync` fixes inaccurate current-heading highlighting in the core
   Outline and fails closed when the Outline DOM no longer matches metadata;
@@ -209,7 +210,7 @@ through plugin lifecycle helpers or explicit paired cleanup. The implementation
 must use each view's `ownerDocument` and pop-out-safe DOM checks instead of
 assuming one global window.
 
-## Approved direction: Reading Stage + Continuous Folio Shell
+## Approved direction: Editorial Folio Workspace + optional Focus Mode
 
 The second real-app pass also failed the intended perceptual bar. A stronger
 shell surface made the active pane easier to locate, but the workspace geometry
@@ -217,25 +218,36 @@ still presented the article as one ordinary pane among tabs, sidebars, Ribbon,
 and status. More color tuning cannot turn that composition into immersion.
 
 The approved replacement keeps automatic **Folio Presence** as the calm default
-across Reading and Editing, and retains explicit **Reading Stage** for deep
+across Reading and Editing, retains explicit **Reading Stage** for deep
 reading. The same Continuous Folio Shell treats tabs, sidebars, Ribbon, status,
 and the active Markdown view as furniture on one canvas. Stage mode temporarily
 lets the active Reading View cover the root workspace while the shell remains
 available from the window edges.
 
+The optional **Focus Mode** changes attention rather than layout. Editing follows
+CodeMirror's active line; Reading reveals the pointed-to or keyboard-focused
+semantic block and its neighbors. It never collapses sidebars, captures content
+clicks, or stores focus state.
+
+Reading Focus starts from a native rendered block wrapper and supports
+`Arrow Up` / `Arrow Down` navigation. Plugin-owned focusability and current-block
+classes must be removed on Focus exit and every target identity change.
+
 ### Activation contract
 
 The Folio Shell is active on every desktop workspace while Companion is enabled.
 Folio Presence activates automatically for an active desktop Markdown Reading
-or Editing View. Reading Stage is available only in Reading View and remains
-user-controlled through one command:
-`Toggle reading stage`. It has no default hotkey, Ribbon icon, timer, or saved
-preference.
+or Editing View. Reading Stage is available only in Reading View through
+`Toggle reading stage`. Focus Mode is available in both Markdown modes through
+`Toggle focus mode`. Neither command has a default hotkey, Ribbon icon, timer,
+or saved preference.
 
 Switching from Reading to Editing exits Stage immediately but keeps the Shell,
-palette, 700px measure, breadcrumb, and an `EDITING` capsule. Editing keeps
+palette, 700px measure, breadcrumb, and an `EDITING` stamp. Editing keeps
 CodeMirror's native caret, selections, gutters, syntax, and controls. Returning
-to Reading restores the `READING` capsule and reading-only display treatment.
+to Reading restores the `READING` stamp and reading-only display treatment.
+Focus Mode is transient and clears when the active file, leaf, mode identity,
+or owner window changes.
 
 Stage mode exits immediately when:
 
@@ -252,7 +264,7 @@ immediate reveal with no transition.
 
 ### State contract
 
-Use four plugin-owned classes and no persisted state. Companion may also add
+Use eight plugin-owned classes and no persisted state. Companion may also add
 ephemeral, plugin-owned labels and folio metadata inside the active Reading
 View; they must be removed on identity change and unload:
 
@@ -262,6 +274,10 @@ View; they must be removed on identity change and unload:
 | `kami-reading-stage` | active `MarkdownView.containerEl` | This leaf owns the continuous Markdown plane. |
 | `kami-reading-stage-open` | the same owner document body | Explicit Reading Stage is active in this window. |
 | `kami-reading-stage-active` | the same active container | This leaf currently covers the root workspace. |
+| `kami-focus-open` | the same owner document body | Optional Focus Mode is active in this window. |
+| `kami-focus-active` | the same active container | This Markdown leaf owns the focus treatment. |
+| `kami-focus-current` | current native Reading block wrapper | Keyboard-owned current Reading block. |
+| `kami-focus-near` | adjacent native Reading block wrappers | Neighbor context around the current Reading block. |
 
 Continue using `kami-companion-outline-active`, `kami-outline-current`,
 `aria-current="location"`, `kami-content-frame`, and
@@ -296,22 +312,53 @@ status line, 32px Tool Spine, and 30px native control boxes. Sidebar widths stay
 user-resizable because the visual system does not require a single fixed width.
 
 Durable real-app bitmap evidence is stored under `visual-evidence/` with a
-candidate manifest that binds the captures to `main.js`, `styles.css`, and
-`manifest.json`. `npm run check:visual` verifies those hashes and capture files.
-The available host window was 984x768, so this evidence does not replace the
-separate 1440x900 release gate.
+candidate manifest that binds the captures to `main.js`, `styles.css`,
+`manifest.json`, and every screenshot. `npm run check:visual` verifies candidate
+version parity, required states, hashes, and exact 1440x900 JPEG dimensions.
 
 These bitmaps are compositional references, not mood boards. Acceptance uses a
 real note with equivalent title, deck, metadata, prose, Outline depth, and
 sidebar density at `1440×900`. Geometry, typography, hierarchy, and palette are
 reviewed together; matching only color and interaction is a failure.
 
+#### Desktop surface ledger
+
+Visual acceptance is whole-window acceptance. A correct article with untreated
+corners, side panes, Settings, or temporary UI is a failure. Every visible core
+Obsidian surface must map to one of five Folio roles: Deep frame, Shell index,
+Paper document, Foreground utility, or Interactive state.
+
+| Surface family | Companion owns | Must preserve |
+| --- | --- | --- |
+| Permanent frame | macOS title-strip background, Tool Spine, all root and side-dock tab strips, View Header, dividers, resize-handle feedback, Vault Profile, status line | native traffic-light controls, hit areas, drag regions, sidebar widths |
+| Library and margin panes | File Explorer, Search, Bookmarks, Outline, Backlinks, Tags, Properties headers, standard rows, active rails, empty/loading states and scroll edges | DOM order, actions, accessible names, plugin-owned pane content |
+| Foreground utilities | Settings shell, Command Palette, Quick Switcher, native menus, submenus, prompts, suggestions, popovers, tooltips, notices and confirmation modals | foreground z-order, Escape ownership and keyboard navigation |
+| Standard Settings controls | native buttons, inputs, dropdowns, toggles, checkboxes, sliders, disabled, focus and danger states | community-plugin custom widgets and plugin-specific layout |
+| Owner-controlled views | only the surrounding Obsidian tab/header Shell | Canvas, Graph, PDF, Bases and community-plugin content surfaces |
+
+The ledger includes easy-to-miss corners: the traffic-light reserve, left and
+right dock strip ends, root New Tab corner, Ribbon top and bottom groups, Vault
+Profile, status-bar tail, stacked side tabs, narrow and wide sidebars, long
+Chinese and English labels, inactive-window chrome, scrollbars, separators,
+drag targets, empty panes, focus rings and disabled controls.
+
+Settings is included as a core Obsidian foreground surface; this does not add a
+Companion settings page or per-element customization. Companion may set the
+Settings modal frame, navigation, content plane, standard typography and native
+controls. It must not target private classes belonging to another plugin.
+
+Foreground surfaces use an explicit elevated Folio token and remain fully
+opaque above Stage. They retain a restrained border and shadow so Settings,
+menus and prompts remain distinguishable from the continuous workspace without
+introducing a second visual language. Danger and disabled states remain
+semantically distinct; the ink-blue accent is not used to erase those meanings.
+
 #### Folio Strip
 
 - Treat root tab headers as a compact manuscript index.
 - Use the prototype's 32px Folio Strip and 30px native control rhythm.
 - The active tab retains full text strength and a 2px bottom ink rail.
-- The active tab does not receive a separate paper-colored fill.
+- The active tab receives the document paper color plus a 2px bottom ink rail.
 - Inactive tab titles use semantic muted text, never container opacity.
 - Close buttons and secondary tab controls become visible on hover, focus, open
   menu, or active state.
@@ -326,7 +373,7 @@ reviewed together; matching only color and interaction is a failure.
 - Preserve the current user-controlled widths of the Library Rail and Margin
   Navigator. Companion owns the Tool Spine and header rhythm.
 - Preserve Obsidian-native DOM order, actions and accessible names. Companion
-  sets native control boxes to 30px, visible SVGs to 14px, and owns color,
+  sets native control boxes to 30px, visible SVGs to 15px, and owns color,
   optical alignment, group spacing and the active 2px ink rail. Do not add
   decorative Library/Margin labels.
 - Right Outline reads as the page margin. The exact current heading keeps its
@@ -376,8 +423,10 @@ Companion-owned 700px reading measure, the current scroll position, the native
 view controls, and the existing wide-content plate behavior.
 
 In Reading View, Companion may turn the inline title into the prototype's
-display anchor, suppress the expanded Properties table, and add an ephemeral
-`READING` stamp, deck, and folio metadata when equivalent source data exists.
+display anchor when no document H1 exists. With an H1, the inline filename
+becomes a quiet context label. Companion preserves the native Properties table
+and adds an ephemeral `READING` stamp, top-level deck, and folio metadata when
+equivalent source data exists.
 Editing View uses the same Shell and active-leaf document measure with an
 `EDITING` stamp, but does not receive these reading-only display decorations.
 It must never write those values into the note.
@@ -441,7 +490,7 @@ floating widget.
 Obsidian workspace events
         |
         v
- shared requestAnimationFrame scheduler and one command
+ shared requestAnimationFrame scheduler and two commands
         |
         +--> ReadingPresence --> presence/stage classes --> styles.css
         |
@@ -465,18 +514,21 @@ Expected implementation files:
 | --- | --- |
 | `KAMI_IMMERSIVE_WORKSPACE_HANDOFF.md` | Own the current application-geometry and evidence contract. |
 | `prototypes/tonal-workspace/index.html` | Model the native breadcrumb and collision-safe Reading/Editing stamp. |
-| `src/reading-presence.ts` | Keep document decoration idempotent and avoid duplicate native information. |
+| `src/main.ts`, `src/reading-presence.ts` | Register the transient Stage and Focus commands, own their lifecycle, and keep document decoration idempotent. |
+| `src/contracts.ts`, `src/outline-sync.ts` | Preserve fail-closed Outline matching and native tree semantics. |
 | `styles.css` | Own component-scoped Shell surfaces and active-leaf treatment without fixing resizable pane widths. |
-| `tests/contracts.test.ts` | Lock surface ownership, active-leaf scope, geometry tokens and AX boundaries. |
-| `tests/reading-presence.test.ts` | Lock idempotent decoration and the flow-positioned stamp. |
+| `tests/contracts.test.ts`, `tests/main-lifecycle.test.ts`, `tests/reading-presence.test.ts` | Lock surface ownership, lifecycle, keyboard ownership, active-leaf scope, geometry tokens and AX boundaries. |
+| `scripts/check-visual-evidence.mjs`, `tests/visual-evidence.test.mjs` | Verify the structural integrity and candidate binding of the required real-app capture matrix. |
 | `visual-evidence/` | Store candidate provenance and real-app captures. |
-| `README.md`, `manifest.json` | State only the compatibility proven by the final matrix. |
+| `package.json`, `package-lock.json` | Keep the JPEG decoder as a development-only verification dependency. |
+| `.github/workflows/release.yml` | Require automated checks and the protected visual-review environment before release; the full matrix remains an independent final-acceptance gate. |
+| `README.md`, `README.zh-CN.md`, `manifest.json` | State only the compatibility proven by the final matrix. |
 
-This repair changes more than eight files once evidence images are included,
-but only two runtime files. It adds no dependency, service, setting schema,
-persistent data shape, private API, credential, or command. The existing command
-and four state classes remain unchanged. The only public contract change is
-marking the plugin desktop-only until mobile receives its own visual matrix.
+Runtime behavior remains in the four peer modules under `src/`; the only new
+dependency is the development-only JPEG verifier. The plugin exposes two
+non-persistent commands, adds no setting schema, service, credential, private
+API, or persistent data shape, and remains desktop-only until mobile receives
+its own visual matrix.
 
 ## Independently mergeable delivery
 
@@ -498,8 +550,11 @@ paired cleanup. Do not use layout restoration or change pane dimensions.
 This change is independently useful on top of the existing Folio Presence and
 can be reverted by removing its two stage classes and command.
 
-Do not combine either change with release automation or Community Plugin
-submission. Those are follow-through actions after the experience is approved.
+The two experience changes remain independently reviewable. Release automation
+runs the code checks and retains the protected manual visual-review gate.
+`npm run check:visual` is the independent final-acceptance gate and must not be
+represented as passing while the carried-forward baseline remains. Community
+Plugin submission remains a separate public action.
 
 ## Verification
 
@@ -571,6 +626,13 @@ themes at narrow, ordinary, and wide pane widths.
 | Switch files/leaves | Shell continuity remains; no document class, current heading, scroll baseline, or width state survives from the previous identity. |
 | Pop-out window | Only the owning window receives Folio Presence; closing it leaves the main window clean. |
 | Modal/menu/settings | Foreground UI remains fully opaque and keyboard-visible. |
+| Settings navigation | Shell navigation and foreground content are continuous; the active category has the same 2px ink rail as Library and Outline. |
+| Settings controls | Standard inputs, dropdowns, toggles and buttons share Folio tokens; focus, disabled and danger states remain unambiguous. |
+| Command Palette/Quick Switcher | Prompt, input and selected suggestion read as one foreground utility and never inherit article typography. |
+| Context menu/tooltip/notice | Temporary UI remains legible above Stage and uses the same border, ink and elevation system. |
+| Search/Bookmarks/Backlinks/Tags/Properties | Headers, rows, matches, empty states and scroll edges remain part of the Shell rather than reverting to an unrelated panel color. |
+| Narrow/stacked side panes | Long Chinese or English labels truncate without moving, clipping or overlapping native controls. |
+| Disabled/danger/focus states | Meaning remains visible and keyboard focus has a 2px accent outline without layout shift. |
 | Outline duplicate headings | The exact clicked/scrolled child row, not its parent or same-name sibling, is current. |
 | Long Outline | The changed current row stays visible while reading; hovering, focusing, or clicking inside Outline suspends automatic reveal. |
 | Mermaid/SVG/image/canvas | Visual centers within the available plate and never clips into sidebars. |
@@ -590,12 +652,15 @@ based on the rendered bitmap, not merely on DOM classes existing.
 
 - no automatic Stage entry, default hotkey, Ribbon command icon, or saved mode;
 - no sidebar collapse, pane maximization, fullscreen API, or saved layout restoration;
-- no dimming of individual paragraphs, editor lines, or entire content panes;
+- no scroll-linked paragraph tracker, click capture, or dimming outside the active
+  Markdown leaf;
 - no reading-progress bar, floating toolbar, ambient background, wallpaper,
   texture, blur, gradient, or animation sequence;
 - no internal redesign of Canvas, Graph, PDF, Bases, or community-plugin views;
 - no mobile promise until the same lifecycle and visual matrix is run on mobile;
-- no setting per UI element and no Style Settings dependency;
+- no Companion settings page, setting per UI element, or Style Settings dependency;
+- no private styling of community-plugin Settings widgets; only the core modal,
+  standard controls and common Obsidian setting rows are Folio-owned;
 - no edits to Kami Reader's `theme.css` for Companion-owned behavior;
 - no release, push, tag, or Community Plugin submission in the implementation
   batch unless separately authorized.
@@ -621,6 +686,42 @@ view can cover the root workspace while staying below Obsidian foreground
 layers. If that fails in 1.13.4, constrain the stage to the root workspace
 bounds; do not fall back to layout mutation.
 
+## Final real-shell alignment contract
+
+The Obsidian 1.13.4 GUI audit invalidated the earlier assumption that styling
+`.titlebar` and generic theme variables was enough to reproduce the prototype.
+On macOS the useful `.titlebar` box can be empty while the visible top surface
+belongs to the left Side Dock tab strip, root tab strip, right Side Dock tab
+strip, and the root View Header. The implementation therefore owns those real
+containers, Ribbon, Vault Profile, and status as one Folio surface. It does not
+set either Side Dock width.
+
+The reference rhythm is 32px for each tab strip, View Header, Ribbon, and Vault
+Profile, with a 22px status bar. Native controls keep 30px hit areas and 15px
+icons. The prototype reserves the macOS traffic-light corner but does not draw
+or grade system-controlled focused or unfocused colors.
+
+Reading and Editing share `clamp(72px, 7vw, 100px)` document top spacing. A
+rendered H1 remains the article title; when it exists, the inline filename is a
+quiet context label rather than a second hero. Only a direct `.el-p > p` may be
+the deck. Properties remain rendered and operable. Focus never applies opacity
+to whole chrome containers; quiet chrome text must retain at least 4.5:1
+contrast.
+
+Outline rows may be a folded or virtualized ordered subset of cached headings.
+The mapping accepts only a unique ordered match, using heading level when the
+native row exposes it. Ambiguous duplicate rows fail closed to native Outline
+highlighting.
+
+Visual evidence is a new 1440x900 baseline, never a carried-forward screenshot
+set. It covers Default and Kami Reader in light and dark, Reading and Editing,
+single and split layouts, plus New Tab, long path, Reading Focus, Editing Focus,
+Stage, wide content with Outline, Settings in both themes, Command Palette,
+Quick Switcher, context menu, notice, Search, and representative secondary
+panes. Every capture keeps both sidebars expanded. The evidence checker validates
+candidate-version parity, required states, JPEG dimensions, source hashes, and
+image hashes; rendered bitmap review remains the final acceptance gate.
+
 ## Rollback and failure handling
 
 - Leaving Markdown clears document Presence and Stage while preserving the Shell;
@@ -638,14 +739,14 @@ bounds; do not fall back to layout mutation.
 
 ## Decision summary for the next discussion
 
-- **Building:** automatic Continuous Folio Shell plus explicit Reading Stage,
-  edge-reveal Folio/Library/Margin/Tool/Status surfaces, exact Outline, and
+- **Building:** automatic Editorial Folio Workspace, explicit Reading Stage,
+  optional Focus Mode, edge-reveal Stage surfaces, exact Outline, and
   intentional wide-content plates.
 - **Not building:** layout mutation, saved UI state, automatic Stage entry,
   progress tracking, decorative ambience, or per-element settings.
-- **Approach:** four plugin-owned classes, one command, paired Escape lifecycle,
-  component-scoped CSS variables, native Header ownership, and the existing
-  shared scheduler.
+- **Approach:** eight plugin-owned classes, two commands, paired Escape lifecycle,
+  CSS-native focus states, component-scoped variables, native Header ownership,
+  and the existing shared scheduler.
 - **Key decisions:** active paper plane before chrome dimming; shell stays
   readable; Stage overlays rather than rearranges; keyboard changes are
   immediate; pointer reveals animate only transform/opacity; foreground UI wins.

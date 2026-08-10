@@ -4,41 +4,56 @@ body:not(.is-mobile) {
   --kami-folio-view-header-height: 32px;
   --kami-folio-status-height: 22px;
   --kami-folio-ribbon-width: 32px;
+  --kami-folio-document-top: clamp(72px, 7vw, 100px);
+  --kami-folio-canvas: #dfddd4;
   --kami-folio-paper: #f5f4ed;
-  --kami-folio-interactive: #e8e6dc;
-  --kami-folio-line: #e8e6dc;
+  --kami-folio-shell: #e9e6dc;
+  --kami-folio-shell-deep: #dedbd0;
+  --kami-folio-foreground: #fbfaf4;
+  --kami-folio-interactive: #d9d5ca;
+  --kami-folio-line: #cbc7bb;
+  --kami-folio-paper-shadow: rgba(45, 42, 34, 0.08);
   --kami-folio-ink: #141413;
   --kami-folio-muted: #504e49;
   --kami-folio-faint: #6b6a64;
   --kami-folio-accent: #1b365d;
+  --kami-folio-danger: #9f3a38;
   --kami-folio-highlight: #f3e3a8;
-  --kami-folio-reading-font: Charter, Georgia, "TsangerJinKai02", "LXGW WenKai Screen",
-    "Source Han Serif SC", "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", STSong,
-    SimSun, serif;
+  --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 7%, var(--kami-folio-paper));
+  --kami-folio-reading-font: Charter, "Iowan Old Style", Georgia, "Source Han Serif SC",
+    "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", STSong, SimSun, serif;
   --header-height: var(--kami-folio-strip-height);
   --ribbon-width: var(--kami-folio-ribbon-width);
-  --titlebar-background: var(--kami-folio-paper);
-  --titlebar-background-focused: var(--kami-folio-paper);
+  --titlebar-background: var(--kami-folio-shell-deep);
+  --titlebar-background-focused: var(--kami-folio-shell-deep);
   --titlebar-border-width: 0px;
-  --tab-container-background: var(--kami-folio-paper);
+  --tab-container-background: var(--kami-folio-shell);
   --tab-outline-width: 0px;
-  --ribbon-background: var(--kami-folio-paper);
-  --ribbon-background-collapsed: var(--kami-folio-paper);
-  --status-bar-background: var(--kami-folio-paper);
+  --ribbon-background: var(--kami-folio-shell-deep);
+  --ribbon-background-collapsed: var(--kami-folio-shell-deep);
+  --status-bar-background: var(--kami-folio-shell-deep);
   --status-bar-border-color: transparent;
   --status-bar-border-width: 0px;
   --status-bar-text-color: var(--kami-folio-faint);
+  background-color: var(--kami-folio-shell-deep);
 }
 
 body.theme-dark:not(.is-mobile) {
-  --kami-folio-paper: #141413;
-  --kami-folio-interactive: #30302e;
-  --kami-folio-line: #353330;
+  --kami-folio-canvas: #0b0b0a;
+  --kami-folio-paper: #151513;
+  --kami-folio-shell: #1c1b18;
+  --kami-folio-shell-deep: #0c0c0b;
+  --kami-folio-foreground: #211f1b;
+  --kami-folio-interactive: #302e29;
+  --kami-folio-line: #39362f;
+  --kami-folio-paper-shadow: rgba(0, 0, 0, 0.38);
   --kami-folio-ink: #e8e3d2;
   --kami-folio-muted: #b4b09e;
-  --kami-folio-faint: #6e6855;
+  --kami-folio-faint: #817b68;
   --kami-folio-accent: #2d5a8a;
+  --kami-folio-danger: #d86d68;
   --kami-folio-highlight: #5a4a1f;
+  --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 10%, var(--kami-folio-paper));
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -54,25 +69,92 @@ body.kami-reading-presence:not(.is-mobile)
   --divider-color: var(--kami-folio-line);
 }
 
+body:not(.is-mobile) :is(.workspace, .workspace-split.mod-root) {
+  background-color: var(--kami-folio-canvas);
+}
+
+body:not(.is-mobile) .workspace {
+  --divider-color: var(--kami-folio-line);
+  --divider-color-hover: var(--kami-folio-accent);
+}
+
+body:not(.is-mobile) .workspace-split.mod-root {
+  position: relative;
+  z-index: 1;
+  box-shadow:
+    -1px 0 0 var(--kami-folio-line),
+    1px 0 0 var(--kami-folio-line),
+    0 0 28px var(--kami-folio-paper-shadow);
+}
+
 body:not(.is-mobile)
-  :is(
-    .titlebar,
-    .workspace,
-    .workspace-ribbon,
-    .workspace-tab-header-container,
-    .status-bar,
-    .workspace-split.mod-left-split,
-    .workspace-split.mod-right-split
-  ),
+  :is(.titlebar, .workspace-ribbon, .workspace-sidedock-vault-profile, .status-bar) {
+  background-color: var(--kami-folio-shell-deep);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-sidedock-vault-profile, .status-bar) {
+  color: var(--kami-folio-faint);
+}
+
+body:not(.is-mobile) .workspace-tab-header-container,
 body:not(.is-mobile)
   :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
-  :is(.workspace-tabs, .workspace-leaf, .workspace-leaf-content),
+  :is(.workspace-tabs, .workspace-leaf, .view-header) {
+  background-color: var(--kami-folio-shell);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  .workspace-leaf-content:is(
+    [data-type="file-explorer"],
+    [data-type="outline"],
+    [data-type="search"],
+    [data-type="backlink"],
+    [data-type="bookmarks"],
+    [data-type="tag"],
+    [data-type="all-properties"]
+  ) {
+  --background-primary: var(--kami-folio-shell);
+  --background-secondary: var(--kami-folio-shell);
+  --nav-item-color: var(--kami-folio-muted);
+  --nav-item-color-hover: var(--kami-folio-ink);
+  --nav-item-color-active: var(--kami-folio-ink);
+  --nav-item-background-active: var(--kami-folio-focus-wash);
+  background-color: var(--kami-folio-shell);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  .workspace-leaf-content:is(
+    [data-type="file-explorer"],
+    [data-type="outline"],
+    [data-type="search"],
+    [data-type="backlink"],
+    [data-type="bookmarks"],
+    [data-type="tag"],
+    [data-type="all-properties"]
+  )
+  .view-content {
+  background-color: var(--kami-folio-shell);
+}
+
 body:not(.is-mobile)
   .workspace-split.mod-root
-  :is(.workspace-leaf, .workspace-leaf-content, .view-header),
+  :is(.workspace-tabs, .workspace-leaf, .view-header) {
+  background-color: var(--kami-folio-canvas);
+}
+
 body:not(.is-mobile)
   .workspace-leaf-content.kami-reading-stage
   .view-content {
+  background-color: var(--kami-folio-paper);
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
+  .workspace-leaf-content[data-type="markdown"]
+  :is(.view-header, .view-content) {
   background-color: var(--kami-folio-paper);
 }
 
@@ -87,9 +169,18 @@ body:not(.is-mobile) .workspace-ribbon {
   padding: 6px 1px 5px;
 }
 
+body:not(.is-mobile) .workspace-sidedock-vault-profile {
+  min-height: 32px;
+  height: 32px;
+  padding: 1px 5px;
+  color: var(--kami-folio-muted);
+  box-shadow: inset 0 1px 0 var(--kami-folio-line);
+}
+
 body:not(.is-mobile) .workspace-tab-header-container {
   min-height: var(--kami-folio-strip-height);
   height: var(--kami-folio-strip-height);
+  box-shadow: inset 0 -1px 0 var(--kami-folio-line);
 }
 
 body:not(.is-mobile)
@@ -97,9 +188,19 @@ body:not(.is-mobile)
   .workspace-tab-header {
   min-height: var(--kami-folio-strip-height);
   max-width: 250px;
+  margin: 0;
   padding-inline: 12px;
+  border-radius: 0;
   color: var(--kami-folio-faint);
   font-size: 11px;
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
+  .workspace-tab-header-inner {
+  height: 100%;
+  border-radius: 0;
+  background: transparent;
 }
 
 body:not(.is-mobile)
@@ -116,8 +217,8 @@ body:not(.is-mobile)
   .workspace-tab-header.is-active {
   position: relative;
   color: var(--kami-folio-ink);
-  background: transparent;
-  box-shadow: none;
+  background: var(--kami-folio-paper);
+  box-shadow: inset 1px 0 0 var(--kami-folio-line), inset -1px 0 0 var(--kami-folio-line);
 }
 
 body:not(.is-mobile)
@@ -165,6 +266,13 @@ body:not(.is-mobile) .view-header {
   height: var(--kami-folio-view-header-height);
   padding-inline: 8px;
   color: var(--kami-folio-faint);
+  box-shadow: inset 0 -1px 0 color-mix(in oklch, var(--kami-folio-line) 72%, transparent);
+}
+
+body:not(.is-mobile) .workspace-split.mod-root .view-header {
+  display: flex;
+  align-items: center;
+  gap: 0;
 }
 
 body:not(.is-mobile) .nav-header {
@@ -173,8 +281,28 @@ body:not(.is-mobile) .nav-header {
   padding-inline: 7px 5px;
 }
 
-body.kami-reading-presence:not(.is-mobile) .view-header-title-container {
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .view-header-title-container {
+  --file-header-justify: flex-start;
+  flex: 1 1 auto;
   min-width: 0;
+  overflow: hidden;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .view-header-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  :is(.view-header-left, .view-actions) {
+  flex: 0 0 auto;
 }
 
 body.kami-reading-presence:not(.is-mobile) .kami-folio-mode-label {
@@ -190,7 +318,13 @@ body.kami-reading-presence:not(.is-mobile) .kami-folio-mode-label {
 }
 
 body:not(.is-mobile)
-  :is(.titlebar, .workspace-ribbon, .nav-header, .workspace-tab-header-container)
+  :is(
+    .titlebar,
+    .workspace-ribbon,
+    .nav-header,
+    .workspace-tab-header-container,
+    .workspace-sidedock-vault-profile
+  )
   .clickable-icon {
   min-width: 30px;
   width: 30px;
@@ -202,14 +336,20 @@ body:not(.is-mobile)
 }
 
 body:not(.is-mobile)
-  :is(.titlebar, .workspace-ribbon, .nav-header, .workspace-tab-header-container)
+  :is(
+    .titlebar,
+    .workspace-ribbon,
+    .nav-header,
+    .workspace-tab-header-container,
+    .workspace-sidedock-vault-profile
+  )
   .clickable-icon svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
 }
 
 body:not(.is-mobile) .workspace-ribbon .clickable-icon {
-  opacity: 0.48;
+  opacity: 0.62;
   transition: opacity 140ms ease-out, transform 100ms ease-out;
 }
 
@@ -258,7 +398,13 @@ body:not(.is-mobile)
 }
 
 body:not(.is-mobile)
-  :is(.titlebar, .workspace-ribbon, .nav-header, .workspace-tab-header-container)
+  :is(
+    .titlebar,
+    .workspace-ribbon,
+    .nav-header,
+    .workspace-tab-header-container,
+    .workspace-sidedock-vault-profile
+  )
   .clickable-icon:is(:hover, :focus-visible, .has-active-menu, [aria-expanded="true"]) {
   color: var(--kami-folio-ink);
   background: var(--kami-folio-interactive);
@@ -266,7 +412,13 @@ body:not(.is-mobile)
 }
 
 body:not(.is-mobile)
-  :is(.titlebar, .workspace-ribbon, .nav-header, .workspace-tab-header-container)
+  :is(
+    .titlebar,
+    .workspace-ribbon,
+    .nav-header,
+    .workspace-tab-header-container,
+    .workspace-sidedock-vault-profile
+  )
   .clickable-icon.is-active {
   color: var(--kami-folio-accent);
   background: transparent;
@@ -291,6 +443,229 @@ body:not(.is-mobile)
 }
 
 body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  :is(.search-input-container, .search-row, .search-result-container, .backlink-pane, .outgoing-link-pane) {
+  color: var(--kami-folio-muted);
+  background: var(--kami-folio-shell);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  :is(.search-input-container input, .tree-item-self, .nav-file-title, .nav-folder-title) {
+  border-radius: 2px;
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  :is(.search-result-file-title, .search-result-file-match, .backlink-pane > .tree-item-self) {
+  color: var(--kami-folio-muted);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  :is(.search-result-file-match, .search-result-file-title):is(:hover, :focus-within, .is-active) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-interactive);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  .search-result-file-matched-text {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-highlight);
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  :is(.pane-empty, .search-empty-state, .nav-folder.mod-root > .nav-folder-title) {
+  color: var(--kami-folio-faint);
+}
+
+/* Foreground surfaces share the Folio palette without taking ownership of
+   community-plugin content inside their custom views. */
+body:not(.is-mobile) :is(.modal-container, .prompt, .suggestion-container, .menu, .popover) {
+  --background-primary: var(--kami-folio-foreground);
+  --background-secondary: var(--kami-folio-shell);
+  --background-primary-alt: var(--kami-folio-interactive);
+  --background-modifier-border: var(--kami-folio-line);
+  --background-modifier-hover: var(--kami-folio-interactive);
+  --background-modifier-active-hover: var(--kami-folio-focus-wash);
+  --text-normal: var(--kami-folio-ink);
+  --text-muted: var(--kami-folio-muted);
+  --text-faint: var(--kami-folio-faint);
+  --text-accent: var(--kami-folio-accent);
+  --interactive-accent: var(--kami-folio-accent);
+  --divider-color: var(--kami-folio-line);
+}
+
+body:not(.is-mobile) :is(.modal-container .modal, .prompt, .suggestion-container, .menu, .popover) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-foreground);
+  border: 1px solid var(--kami-folio-line);
+  border-radius: 4px;
+  box-shadow: 0 14px 40px var(--kami-folio-paper-shadow);
+}
+
+body:not(.is-mobile) .modal-bg {
+  background: color-mix(in srgb, var(--kami-folio-canvas) 78%, transparent);
+  backdrop-filter: none;
+}
+
+body:not(.is-mobile) :is(.prompt-input, .search-input-container input) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-paper);
+  border-color: var(--kami-folio-line);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+body:not(.is-mobile) :is(.prompt-input, .search-input-container input):focus {
+  border-color: var(--kami-folio-accent);
+  box-shadow: 0 0 0 1px var(--kami-folio-accent);
+}
+
+body:not(.is-mobile) :is(.suggestion-item, .menu-item) {
+  color: var(--kami-folio-muted);
+  border-radius: 2px;
+}
+
+body:not(.is-mobile) :is(.suggestion-item, .menu-item):is(:hover, .is-selected, :focus-visible) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-interactive);
+}
+
+body:not(.is-mobile) :is(.suggestion-item, .menu-item).is-disabled {
+  color: var(--kami-folio-faint);
+  background: transparent;
+}
+
+body:not(.is-mobile) .menu-separator {
+  border-color: var(--kami-folio-line);
+}
+
+body:not(.is-mobile) :is(.tooltip, .notice) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-foreground);
+  border: 1px solid var(--kami-folio-line);
+  border-radius: 3px;
+  box-shadow: 0 8px 24px var(--kami-folio-paper-shadow);
+}
+
+body:not(.is-mobile) .notice.mod-error {
+  border-color: var(--kami-folio-danger);
+}
+
+/* Settings is a foreground reading surface: quiet navigation, paper content,
+   standard native controls. Plugin-specific setting widgets remain untouched. */
+body:not(.is-mobile) .modal.mod-settings {
+  background: var(--kami-folio-foreground);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-header {
+  color: var(--kami-folio-muted);
+  background: var(--kami-folio-shell);
+  border-right: 1px solid var(--kami-folio-line);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-content-container {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-foreground);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item {
+  min-height: 31px;
+  color: var(--kami-folio-muted);
+  border-radius: 2px;
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  .vertical-tab-nav-item:is(:hover, :focus-visible, .is-active) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-interactive);
+}
+
+body:not(.is-mobile) .modal.mod-settings .vertical-tab-nav-item.is-active {
+  box-shadow: inset 2px 0 0 var(--kami-folio-accent);
+}
+
+body:not(.is-mobile) .modal.mod-settings :is(.setting-item, .setting-item-heading) {
+  border-color: var(--kami-folio-line);
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-item-name {
+  color: var(--kami-folio-ink);
+}
+
+body:not(.is-mobile) .modal.mod-settings .setting-item-description {
+  color: var(--kami-folio-muted);
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  :is(input[type="text"], input[type="search"], input[type="number"], textarea, select, .dropdown) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-paper);
+  border: 1px solid var(--kami-folio-line);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  :is(input[type="text"], input[type="search"], input[type="number"], textarea, select, .dropdown):focus {
+  border-color: var(--kami-folio-accent);
+  box-shadow: 0 0 0 1px var(--kami-folio-accent);
+  outline: none;
+}
+
+body:not(.is-mobile) .modal.mod-settings button:not(.mod-cta):not(.mod-warning) {
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-shell);
+  border: 1px solid var(--kami-folio-line);
+  border-radius: 3px;
+  box-shadow: none;
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  button:not(.mod-cta):not(.mod-warning):is(:hover, :focus-visible) {
+  background: var(--kami-folio-interactive);
+  border-color: var(--kami-folio-accent);
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  :is(button.mod-cta, .toggle.is-enabled, .checkbox-container.is-enabled) {
+  color: white;
+  background: var(--kami-folio-accent);
+}
+
+body:not(.is-mobile) .modal.mod-settings :is(button.mod-warning, .mod-destructive) {
+  color: white;
+  background: var(--kami-folio-danger);
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  :is(.toggle, .checkbox-container):not(.is-enabled) {
+  background: var(--kami-folio-interactive);
+  border-color: var(--kami-folio-line);
+}
+
+body:not(.is-mobile)
+  .modal.mod-settings
+  :is(input, button, select, textarea, .dropdown, .toggle, .checkbox-container):focus-visible,
+body:not(.is-mobile) .modal.mod-settings .checkbox-container:focus-within {
+  outline: 2px solid var(--kami-folio-accent);
+  outline-offset: 2px;
+}
+
+body:not(.is-mobile) .modal.mod-settings input[type="range"] {
+  accent-color: var(--kami-folio-accent);
+}
+
+body:not(.is-mobile)
   :is(.nav-file-title, .nav-folder-title, .tree-item-self):is(
     :hover,
     :focus-within,
@@ -307,7 +682,7 @@ body:not(.is-mobile)
   .kami-companion-outline-active
   .tree-item-self.kami-outline-current {
   color: var(--kami-folio-ink);
-  background: transparent;
+  background: color-mix(in oklch, var(--kami-folio-accent) 7%, var(--kami-folio-shell));
   font-weight: var(--font-semibold, 600);
   box-shadow: inset 2px 0 0 var(--kami-folio-accent);
 }
@@ -323,13 +698,60 @@ body:not(.is-mobile)
 body.kami-reading-presence:not(.is-mobile)
   .workspace-leaf-content.kami-reading-stage
   .markdown-preview-view {
-  padding: 100px clamp(48px, 6vw, 96px) 128px;
+  padding: var(--kami-folio-document-top) clamp(48px, 6vw, 96px) 128px;
   color: var(--kami-folio-ink);
   font-family: var(--kami-folio-reading-font);
-  font-size: 16.5px;
-  line-height: 1.62;
+  font-size: 17px;
+  line-height: 1.68;
   font-variant-numeric: lining-nums tabular-nums;
   scrollbar-color: var(--kami-folio-line) transparent;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-source-view.mod-cm6 {
+  --file-line-width: 700px;
+  color: var(--kami-folio-ink);
+  background: var(--kami-folio-paper);
+  font-family: var(--kami-folio-reading-font);
+  font-size: 17px;
+  line-height: 1.68;
+  font-variant-numeric: lining-nums tabular-nums;
+  scrollbar-color: var(--kami-folio-line) transparent;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-source-view.mod-cm6
+  .cm-contentContainer {
+  padding-block: var(--kami-folio-document-top) 128px;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-source-view.mod-cm6
+  :is(.cm-line, .cm-header, .inline-title) {
+  font-family: var(--kami-folio-reading-font);
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-source-view.mod-cm6
+  .inline-title {
+  margin-bottom: 36px;
+  color: var(--kami-folio-ink);
+  font-size: clamp(32px, 3.5vw, 46px);
+  font-weight: 500;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-source-view.mod-cm6
+  :is(.HyperMD-header, .cm-header) {
+  color: var(--kami-folio-ink);
+  font-weight: 500;
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -349,6 +771,17 @@ body.kami-reading-presence:not(.is-mobile) .kami-folio-inline-title {
   font-weight: 500;
   line-height: 1.1;
   text-wrap: balance;
+}
+
+body.kami-reading-presence:not(.is-mobile) .kami-folio-inline-title-context {
+  max-width: 700px;
+  margin: 0 0 28px;
+  color: var(--kami-folio-faint);
+  font-family: var(--font-interface-theme);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
 }
 
 body.kami-reading-presence:not(.is-mobile) .kami-folio-meta {
@@ -374,7 +807,11 @@ body.kami-reading-presence:not(.is-mobile) .kami-folio-meta::before {
 body.kami-reading-presence:not(.is-mobile)
   .workspace-leaf-content.kami-reading-stage
   .metadata-container {
-  display: none;
+  margin-block: 0 42px;
+  padding-block: 12px;
+  border-block: 1px solid var(--kami-folio-line);
+  color: var(--kami-folio-muted);
+  background: transparent;
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -440,24 +877,192 @@ body.kami-reading-presence:not(.is-mobile)
   background: var(--kami-folio-highlight);
 }
 
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  :is(.markdown-preview-view, .markdown-source-view.mod-cm6)
+  :is(.callout, pre, table) {
+  border-color: var(--kami-folio-line);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  :is(.markdown-preview-view, .markdown-source-view.mod-cm6)
+  .callout {
+  background: color-mix(in oklch, var(--kami-folio-paper) 82%, var(--kami-folio-shell));
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  :is(.markdown-preview-view, .markdown-source-view.mod-cm6)
+  :is(pre, code) {
+  background: var(--kami-folio-shell);
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  :is(.markdown-preview-view, .markdown-source-view.mod-cm6)
+  :is(img, svg, canvas) {
+  border-radius: 3px;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  :is(
+    .titlebar,
+    .workspace-ribbon,
+    .workspace-split.mod-left-split,
+    .workspace-split.mod-right-split,
+    .status-bar,
+    .workspace-split.mod-root > .workspace-tabs > .workspace-tab-header-container
+  ) {
+  color: var(--kami-folio-muted);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  :is(
+    .titlebar,
+    .workspace-ribbon,
+    .workspace-split.mod-left-split,
+    .workspace-split.mod-right-split,
+    .status-bar,
+    .workspace-split.mod-root > .workspace-tabs > .workspace-tab-header-container
+  ):is(:hover, :focus-within) {
+  color: var(--kami-folio-ink);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  :is(
+    .workspace-ribbon,
+    .workspace-split.mod-left-split,
+    .workspace-split.mod-right-split,
+    .status-bar,
+    .workspace-split.mod-root > .workspace-tabs > .workspace-tab-header-container
+  )
+  :is(.clickable-icon, .workspace-tab-header-inner-title, .nav-file-title, .nav-folder-title, .tree-item-self, .status-bar-item) {
+  color: var(--kami-folio-muted);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  :is(
+    .workspace-ribbon,
+    .workspace-split.mod-left-split,
+    .workspace-split.mod-right-split,
+    .status-bar,
+    .workspace-split.mod-root > .workspace-tabs > .workspace-tab-header-container
+  )
+  :is(.clickable-icon, .workspace-tab-header, .nav-file-title, .nav-folder-title, .tree-item-self, .status-bar-item):is(
+    :hover,
+    :focus-visible,
+    :focus-within,
+    .is-active,
+    .has-active-menu
+  ) {
+  color: var(--kami-folio-ink);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-folio-mode-label {
+  color: var(--kami-folio-accent);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-focus-block {
+  position: relative;
+  opacity: 0.62;
+  transition: opacity 160ms ease-out;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-focus-block:is(:hover, :focus-within, .kami-focus-current) {
+  opacity: 1;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-focus-block:is(:hover, :focus-within, .kami-focus-current)::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -24px;
+  width: 1px;
+  background: var(--kami-folio-accent);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-focus-block:has(
+    + .kami-focus-block:is(:hover, :focus-within, .kami-focus-current)
+  ),
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-focus-block:is(:hover, :focus-within, .kami-focus-current)
+  + .kami-focus-block,
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .kami-focus-block.kami-focus-near {
+  opacity: 0.78;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .markdown-source-view.mod-cm6
+  .cm-line {
+  opacity: 0.62;
+  transition: opacity 160ms ease-out;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .markdown-source-view.mod-cm6
+  .cm-line:is(.cm-activeLine, .cm-active, :hover, :focus-within) {
+  opacity: 1;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .markdown-source-view.mod-cm6
+  .cm-line:is(.cm-activeLine, .cm-active) {
+  box-shadow: inset 1px 0 0 var(--kami-folio-accent);
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .markdown-source-view.mod-cm6
+  .cm-line:has(+ :is(.cm-activeLine, .cm-active)),
+body.kami-focus-open:not(.is-mobile)
+  .workspace-leaf-content.kami-focus-active
+  .markdown-source-view.mod-cm6
+  .cm-line:is(.cm-activeLine, .cm-active)
+  + .cm-line {
+  opacity: 0.78;
+}
+
 body:not(.is-mobile) .workspace-leaf-resize-handle {
   background: transparent;
 }
 
-body:not(.is-mobile) .workspace-leaf-resize-handle:hover {
-  background: var(--kami-folio-line);
+body:not(.is-mobile) .workspace-leaf-resize-handle:is(:hover, :active) {
+  background: var(--kami-folio-accent);
 }
 
 body:not(.is-mobile) .status-bar {
   min-height: var(--kami-folio-status-height);
   height: var(--kami-folio-status-height);
   padding-inline: 10px;
+  border: 0;
+  border-radius: 0;
   color: var(--kami-folio-faint);
   font-size: 10px;
   letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 var(--kami-folio-line);
 }
 
 body:not(.is-mobile) .status-bar-item {
+  min-height: var(--kami-folio-status-height);
+  padding-inline: 5px;
   color: inherit;
 }
 
@@ -476,6 +1081,7 @@ body:not(.is-mobile)
 body:not(.is-mobile)
   .status-bar-item:is(:hover, :focus-visible, :focus-within, .has-active-menu) {
   color: var(--kami-folio-ink);
+  background: var(--kami-folio-interactive);
 }
 
 body.kami-reading-stage-open:not(.is-mobile)
@@ -647,7 +1253,19 @@ body.kami-reading-stage-open:not(.is-mobile)
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body:not(.is-mobile) .workspace-ribbon .clickable-icon {
+  body:not(.is-mobile) .workspace-ribbon .clickable-icon,
+  body.kami-focus-open:not(.is-mobile)
+    :is(
+      .titlebar,
+      .workspace-ribbon,
+      .workspace-split.mod-left-split,
+      .workspace-split.mod-right-split,
+      .status-bar,
+      .workspace-split.mod-root > .workspace-tabs > .workspace-tab-header-container
+    ),
+  body.kami-focus-open:not(.is-mobile)
+    .workspace-leaf-content.kami-focus-active
+    :is(.kami-focus-block, .markdown-source-view.mod-cm6 .cm-line) {
     transition: none;
   }
 }

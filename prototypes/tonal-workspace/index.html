@@ -7,43 +7,49 @@
   <style>
     :root {
       color-scheme: light;
-      --canvas: #f5f4ed;
+      --canvas: #dfddd4;
       --paper: #f5f4ed;
-      --shell: #f5f4ed;
-      --shell-deep: #f5f4ed;
-      --interactive: #e8e6dc;
-      --line: #e8e6dc;
+      --shell: #e9e6dc;
+      --shell-deep: #dedbd0;
+      --interactive: #d9d5ca;
+      --line: #cbc7bb;
+      --paper-shadow: rgba(45, 42, 34, .08);
       --ink: #141413;
       --muted: #504e49;
       --faint: #6b6a64;
       --accent: #1b365d;
       --highlight: #f3e3a8;
-      --radius-sm: 4px;
-      --radius-md: 7px;
+      --focus-wash: color-mix(in oklch, var(--accent) 7%, var(--paper));
+      --radius-sm: 3px;
+      --radius-md: 5px;
+      --icon-size: 15px;
       /* Obsidian 1.13.4 reference geometry. Sidebar values model the captured layout, not plugin-enforced widths. */
       --top-strip-height: 32px;
       --view-header-height: 32px;
       --status-height: 22px;
       --ribbon-width: 32px;
+      --document-top: clamp(72px, 7vw, 100px);
       --left-rail-width: clamp(176px, 15vw, 220px);
       --right-margin-width: clamp(232px, 20vw, 288px);
       --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
-      --reading-font: Charter, "Songti SC", "Noto Serif SC", serif;
+      --reading-font: Charter, "Iowan Old Style", Georgia, "Source Han Serif SC", "Noto Serif CJK SC", "Songti SC", serif;
     }
 
     html[data-theme="dark"] {
       color-scheme: dark;
-      --canvas: #141413;
-      --paper: #141413;
-      --shell: #141413;
-      --shell-deep: #141413;
-      --interactive: #30302e;
-      --line: #353330;
+      --canvas: #0b0b0a;
+      --paper: #151513;
+      --shell: #1c1b18;
+      --shell-deep: #0c0c0b;
+      --interactive: #302e29;
+      --line: #39362f;
+      --paper-shadow: rgba(0, 0, 0, .38);
       --ink: #e8e3d2;
       --muted: #b4b09e;
-      --faint: #6e6855;
+      --faint: #817b68;
       --accent: #2d5a8a;
       --highlight: #5a4a1f;
+      --focus-wash: color-mix(in oklch, var(--accent) 10%, var(--paper));
     }
 
     * { box-sizing: border-box; }
@@ -58,18 +64,29 @@
     }
 
     button {
-      min-width: 30px;
-      min-height: 30px;
+      min-width: 32px;
+      min-height: 32px;
       border: 0;
       border-radius: var(--radius-md);
       background: transparent;
       color: inherit;
       font: inherit;
       cursor: pointer;
+      transition: color 120ms ease-out, background-color 120ms ease-out, opacity 120ms ease-out, transform 100ms ease-out;
     }
     button:hover { background: var(--interactive); }
     button:active { transform: scale(.96); }
     button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    button svg {
+      display: block;
+      width: var(--icon-size);
+      height: var(--icon-size);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
     .app {
       display: grid;
@@ -93,6 +110,7 @@
       background: var(--shell-deep);
       color: var(--muted);
       font-size: 11px;
+      box-shadow: inset 0 -1px 0 var(--line);
       z-index: 3;
     }
 
@@ -107,10 +125,8 @@
       pointer-events: none;
       z-index: 2;
     }
-    .traffic i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); opacity: .78; }
-    .traffic i:first-child { background: oklch(64% .13 28); }
-    .traffic i:nth-child(2) { background: oklch(77% .13 83); }
-    .traffic i:nth-child(3) { background: oklch(66% .12 145); }
+    /* Position reference only: macOS owns the real traffic-light colors and focus state. */
+    .traffic i { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); opacity: .58; }
 
     .side-tabs {
       display: flex;
@@ -128,7 +144,6 @@
       width: 30px;
       height: 30px;
       color: var(--faint);
-      font-size: 14px;
       line-height: 1;
     }
     .side-tabs button.active {
@@ -151,9 +166,14 @@
       max-width: 250px;
       padding: 0 12px;
       color: var(--faint);
+      font-size: 11px;
       white-space: nowrap;
     }
-    .tab.active { color: var(--ink); }
+    .tab.active {
+      color: var(--ink);
+      background: var(--paper);
+      box-shadow: inset 1px 0 0 var(--line), inset -1px 0 0 var(--line);
+    }
     .tab.active::after {
       content: "";
       position: absolute;
@@ -169,6 +189,7 @@
       padding-inline: 7px 5px;
       background: var(--shell);
       color: var(--faint);
+      box-shadow: inset 0 -1px 0 var(--line);
     }
     .side-toolbar.left { grid-row: 2; grid-column: 2; }
     .side-toolbar.right { grid-row: 2; grid-column: 4; justify-content: flex-end; }
@@ -184,8 +205,9 @@
       padding: 6px 1px 5px;
       background: var(--shell-deep);
       color: var(--faint);
+      box-shadow: inset -1px 0 0 var(--line);
     }
-    .ribbon button { position: relative; width: 30px; height: 30px; font-size: 13px; line-height: 1; opacity: .48; }
+    .ribbon button { position: relative; width: 30px; height: 30px; line-height: 1; opacity: .62; }
     .ribbon button:is(:hover, :focus-visible), .ribbon .active-tool { opacity: 1; }
     .ribbon .spacer { flex: 1; }
     .ribbon .active-tool { color: var(--accent); }
@@ -206,9 +228,10 @@
       color: var(--muted);
       font-size: 12px;
     }
-    .rail { grid-column: 2; }
-    .margin { grid-column: 4; }
-    .tree { padding: 9px 12px 12px 8px; }
+    .rail { grid-column: 2; display: flex; flex-direction: column; box-shadow: inset -1px 0 0 var(--line); }
+    .margin { grid-column: 4; box-shadow: inset 1px 0 0 var(--line); }
+    .tree { min-height: 0; padding: 9px 12px 12px 8px; overflow: auto; }
+    .rail .tree { flex: 1 1 auto; }
     .tree-label {
       display: flex;
       align-items: center;
@@ -221,6 +244,7 @@
       position: relative;
       color: var(--ink);
       font-weight: 600;
+      background: color-mix(in oklch, var(--accent) 7%, var(--shell));
     }
     .tree-label.current::before {
       content: "";
@@ -241,6 +265,7 @@
       overflow: auto;
       background: var(--paper);
       scrollbar-color: var(--line) transparent;
+      box-shadow: inset 1px 0 0 var(--line), inset -1px 0 0 var(--line), 0 0 28px var(--paper-shadow);
     }
     .note-tools {
       position: sticky;
@@ -254,6 +279,7 @@
       color: var(--faint);
       font-size: 10px;
       letter-spacing: .03em;
+      box-shadow: inset 0 -1px 0 color-mix(in oklch, var(--line) 72%, transparent);
       z-index: 2;
     }
     .note-tools .history { display: flex; flex: 0 0 auto; gap: 2px; }
@@ -270,6 +296,7 @@
     .note-tools .mode {
       flex: 0 0 auto;
       margin-inline: 12px;
+      color: var(--muted);
       font-weight: 600;
       letter-spacing: .12em;
     }
@@ -279,10 +306,10 @@
     article {
       width: min(700px, calc(100% - 96px));
       margin: 0 auto;
-      padding: 78px 0 128px;
+      padding: var(--document-top) 0 144px;
       font-family: var(--reading-font);
-      font-size: 16.5px;
-      line-height: 1.62;
+      font-size: 17px;
+      line-height: 1.68;
     }
     article h1 {
       max-width: 660px;
@@ -324,6 +351,33 @@
       font-size: 19px;
     }
 
+    .focus-block {
+      position: relative;
+      transition: opacity 160ms ease-out, color 160ms ease-out, background-color 160ms ease-out;
+    }
+    .focus-block::before {
+      content: "";
+      position: absolute;
+      inset: 5px auto 5px -28px;
+      width: 1px;
+      background: transparent;
+    }
+    body.focus-mode .focus-block {
+      opacity: .62;
+      cursor: pointer;
+    }
+    body.focus-mode .focus-block.is-near { opacity: .78; }
+    body.focus-mode .focus-block.is-focus { opacity: 1; }
+    body.focus-mode .focus-block.is-focus::before { background: var(--accent); }
+    body.focus-mode :is(.titlebar, .ribbon, .rail, .margin, .status, .side-toolbar) { color: var(--muted); }
+    body.focus-mode :is(.titlebar, .ribbon, .rail, .margin, .status, .side-toolbar):is(:hover, :focus-within) { color: var(--ink); }
+    body.focus-mode .note-tools {
+      color: color-mix(in oklch, var(--faint) 68%, transparent);
+    }
+    body.focus-mode .note-tools .mode {
+      color: var(--accent);
+    }
+
     .margin-note {
       position: relative;
       margin: 34px 20px 24px;
@@ -349,6 +403,21 @@
       z-index: 4;
     }
 
+    .vault-profile {
+      flex: 0 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      height: 32px;
+      padding: 1px 5px 1px 12px;
+      background: var(--shell-deep);
+      color: var(--muted);
+      box-shadow: inset 0 1px 0 var(--line);
+    }
+    .vault-profile span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vault-profile button { flex: 0 0 30px; width: 30px; height: 30px; color: var(--faint); }
+
     .prototype-controls {
       position: fixed;
       right: 18px;
@@ -356,10 +425,11 @@
       display: flex;
       gap: 6px;
       padding: 5px;
-      border-radius: 10px;
+      border: 1px solid color-mix(in oklch, var(--paper) 14%, transparent);
+      border-radius: 8px;
       background: var(--ink);
       color: var(--paper);
-      box-shadow: 0 4px 24px color-mix(in oklch, var(--ink) 18%, transparent);
+      box-shadow: 0 8px 28px color-mix(in oklch, var(--ink) 20%, transparent);
       z-index: 20;
     }
     .prototype-controls button { min-height: 34px; padding: 0 12px; border-radius: 6px; font-size: 12px; }
@@ -390,7 +460,7 @@
     body.stage .note-tools .actions, body.stage .note-tools .history, body.stage .note-tools .breadcrumb { display: none; }
     body.stage article { padding-top: 70px; }
 
-    @media (max-width: 940px) {
+    @media (max-width: 1100px) {
       .app { grid-template-columns: 32px minmax(160px, 184px) minmax(0, 1fr) 0; }
       .titlebar { grid-template-columns: 32px minmax(160px, 184px) minmax(0, 1fr) 0; }
       .margin, .side-tabs.right, .side-toolbar.right { display: none; }
@@ -398,54 +468,81 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      body.stage .titlebar, body.stage .ribbon { transition: none; }
+      button, .focus-block, body.stage .titlebar, body.stage .ribbon { transition: none; }
     }
   </style>
 </head>
 <body>
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6.5h6l2 2h10v9.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 9h18"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+      <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4z"/></symbol>
+      <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="m9.5 14.5 5-5"/><path d="M7.2 17.8 5.7 19.3a3.5 3.5 0 0 1-5-5l3.1-3.1a3.5 3.5 0 0 1 5 0" transform="translate(3)"/><path d="m16.8 6.2 1.5-1.5a3.5 3.5 0 0 1 5 5l-3.1 3.1a3.5 3.5 0 0 1-5 0" transform="translate(-3)"/></symbol>
+      <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20 13 13 20l-9-9V4h7z"/><circle cx="8.5" cy="8.5" r="1"/></symbol>
+      <symbol id="i-archive" viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M3 4h18v3H3zM9 11h6"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></symbol>
+      <symbol id="i-network" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><path d="m7.7 7 3.2 8.8M16.3 7l-3.2 8.8M8 6h8"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+      <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.7 2c-1 .6-1.5 1.2-1.5 2.2M12 17h.01"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.6-.6-1.4 1-1.8-2.1-2.1-1.8 1-1.5-.6-.5-2h-3l-.6 2-1.4.6-1.8-1-2.1 2.1 1 1.8L3 10v3l2 .6.6 1.4-1 1.8 2.1 2.1 1.8-1 1.5.6.5 2h3l.6-2 1.4-.6 1.8 1 2.1-2.1-1-1.8z"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 6h10M8 12h7M8 18h4M4 4v16M2 18l2 2 2-2"/></symbol>
+      <symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+      <symbol id="i-collapse" viewBox="0 0 24 24"><path d="m7 15 5-5 5 5M7 20l5-5 5 5"/></symbol>
+      <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m4 20 4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10zM14 7l3 3"/></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+      <symbol id="i-focus" viewBox="0 0 24 24"><path d="M8 3H4a1 1 0 0 0-1 1v4M16 3h4a1 1 0 0 1 1 1v4M8 21H4a1 1 0 0 1-1-1v-4M16 21h4a1 1 0 0 0 1-1v-4"/><circle cx="12" cy="12" r="3"/></symbol>
+    </defs>
+  </svg>
   <div class="app">
     <header class="titlebar">
       <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
       <nav class="side-tabs left" aria-label="左侧边栏标签">
-        <button class="active" aria-label="文件">▱</button>
-        <button aria-label="搜索">⌕</button>
-        <button aria-label="书签">◇</button>
+        <button class="active" aria-label="文件"><svg><use href="#i-folder"/></svg></button>
+        <button aria-label="搜索"><svg><use href="#i-search"/></svg></button>
+        <button aria-label="书签"><svg><use href="#i-bookmark"/></svg></button>
         <span class="spacer"></span>
-        <button aria-label="收起左侧边栏">▮</button>
+        <button aria-label="收起左侧边栏"><svg><use href="#i-panel"/></svg></button>
       </nav>
       <nav class="tabs" aria-label="打开的笔记">
         <div class="tab active"><span class="tab-mark">◆</span>沉浸不是隐藏界面</div>
         <div class="tab"><span class="tab-mark">◇</span>Kami workspace notes</div>
       </nav>
       <nav class="side-tabs right" aria-label="右侧边栏标签">
-        <button aria-label="反向链接">↙</button>
-        <button aria-label="出链">↗</button>
-        <button aria-label="标签">◇</button>
-        <button aria-label="属性">▱</button>
-        <button class="active" aria-label="大纲">☷</button>
+        <button aria-label="反向链接"><svg><use href="#i-link"/></svg></button>
+        <button aria-label="出链"><svg><use href="#i-link"/></svg></button>
+        <button aria-label="标签"><svg><use href="#i-tag"/></svg></button>
+        <button aria-label="属性"><svg><use href="#i-archive"/></svg></button>
+        <button class="active" aria-label="大纲"><svg><use href="#i-list"/></svg></button>
         <span class="spacer"></span>
-        <button aria-label="收起右侧边栏">▮</button>
+        <button aria-label="收起右侧边栏"><svg><use href="#i-panel"/></svg></button>
       </nav>
     </header>
 
     <nav class="ribbon" aria-label="Ribbon">
-      <button aria-label="快速切换">▱</button>
-      <button aria-label="关系图谱">⌘</button>
-      <button aria-label="画布">⊞</button>
-      <button aria-label="日记">□</button>
-      <button aria-label="模板">◇</button>
+      <button aria-label="快速切换"><svg><use href="#i-folder"/></svg></button>
+      <button aria-label="关系图谱"><svg><use href="#i-network"/></svg></button>
+      <button aria-label="画布"><svg><use href="#i-grid"/></svg></button>
+      <button aria-label="日记"><svg><use href="#i-calendar"/></svg></button>
+      <button aria-label="模板"><svg><use href="#i-layers"/></svg></button>
       <div class="spacer"></div>
-      <button aria-label="帮助">?</button>
-      <button aria-label="设置">⚙</button>
+      <button aria-label="帮助"><svg><use href="#i-help"/></svg></button>
+      <button aria-label="设置"><svg><use href="#i-settings"/></svg></button>
     </nav>
 
     <div class="side-toolbar left" aria-label="文件操作">
-      <button aria-label="新建笔记">＋</button>
-      <button aria-label="新建文件夹">▱</button>
-      <button aria-label="排序">↕</button>
+      <button aria-label="新建笔记"><svg><use href="#i-plus"/></svg></button>
+      <button aria-label="新建文件夹"><svg><use href="#i-folder"/></svg></button>
+      <button aria-label="排序"><svg><use href="#i-sort"/></svg></button>
       <span class="spacer"></span>
-      <button aria-label="定位当前文件">⌖</button>
-      <button aria-label="全部收起">⌃</button>
+      <button aria-label="定位当前文件"><svg><use href="#i-locate"/></svg></button>
+      <button aria-label="全部收起"><svg><use href="#i-collapse"/></svg></button>
     </div>
 
     <aside class="rail">
@@ -460,48 +557,54 @@
         <div class="tree-label"><span>›</span>Writing</div>
         <div class="tree-label"><span>›</span>Archive</div>
       </div>
+      <div class="vault-profile"><span>knowledge-vaults</span><button aria-label="设置"><svg><use href="#i-settings"/></svg></button></div>
     </aside>
 
     <main id="main-content">
       <div class="note-tools">
-        <div class="history"><button aria-label="后退">‹</button><button aria-label="前进">›</button></div>
+        <div class="history"><button aria-label="后退"><svg><use href="#i-chevron-left"/></svg></button><button aria-label="前进"><svg><use href="#i-chevron-right"/></svg></button></div>
         <span class="breadcrumb" aria-label="Product / Kami / 沉浸不是隐藏界面">
           <span class="crumb">Product</span><span class="separator">/</span>
           <span class="crumb">Kami</span><span class="separator">/</span>
           <span class="crumb">沉浸不是隐藏界面</span>
         </span>
         <span class="mode">READING</span>
-        <div class="actions"><button aria-label="编辑">✎</button><button aria-label="更多操作">•••</button></div>
+        <div class="actions"><button aria-label="编辑"><svg><use href="#i-pencil"/></svg></button><button aria-label="更多操作"><svg><use href="#i-more"/></svg></button></div>
       </div>
       <article lang="zh-CN">
         <h1>沉浸不是隐藏界面，<br>而是让空间拥有同一种呼吸</h1>
         <p class="dek">真正连续的阅读体验，不要求 Obsidian 消失。它要求每一个非正文区域都知道自己应该退后多远。</p>
         <div class="folio-meta"><span>DESIGN NOTE 07</span><span>2026.08.05</span><span>6 min read</span></div>
 
-        <p>之前的方案把阅读区做成了主舞台，却没有改变舞台之外的世界。白色正文、灰色侧栏、冷色工具栏仍然互相分离，用户看到的是一张纸嵌在应用里，而不是整个工作区进入阅读状态。</p>
+        <section class="focus-block is-focus">
+          <p>之前的方案把阅读区做成了主舞台，却没有改变舞台之外的世界。白色正文、灰色侧栏、冷色工具栏仍然互相分离，用户看到的是一张纸嵌在应用里，而不是整个工作区进入阅读状态。</p>
+          <blockquote>新的目标不是减少更多元素，而是建立一个连续色域：正文是纸，侧栏是索引，Ribbon 是装订边。</blockquote>
+        </section>
 
-        <blockquote>新的目标不是减少更多元素，而是建立一个连续色域：同一张纸，从中央正文延伸到页边、书库和工具脊柱。</blockquote>
+        <section class="focus-block">
+          <h2>纸面与索引，形成安静的景深</h2>
+          <p>中央稿件保留 Kami 的暖米纸，侧栏和工具脊柱退入更深一层的暖灰。层级来自明度、字号、留白和文字浓度，不依赖卡片、玻璃或装饰纹理。</p>
+          <p>进入 Reading Stage 时，界面不会突然切换成另一个配色。侧栏只是折叠到纸张边缘，正文仍使用完全相同的纸色、墨色和排版尺度。<mark>模式变化只改变空间，不改变世界。</mark></p>
+        </section>
 
-        <h2>一张纸场，不再切割面板</h2>
-        <p>正文、侧栏、Ribbon 与状态栏共享同一张暖米纸。层级来自字号、留白、文字浓度和局部短线，不再依赖大面积背景色块。</p>
-        <p>进入 Reading Stage 时，界面不会突然切换成另一个配色。侧栏只是折叠到纸张边缘，正文仍使用完全相同的纸色、墨色和排版尺度。<mark>模式变化只改变空间，不改变世界。</mark></p>
-
-        <h2>保留空间记忆</h2>
-        <p>左侧仍然是书库，右侧仍然是页边目录，顶部仍然保留打开的稿件。它们变得安静，但不会在用户离开阅读时重新出现于陌生的位置。</p>
+        <section class="focus-block">
+          <h2>保留空间记忆，也保留注意力</h2>
+          <p>左侧仍然是书库，右侧仍然是页边目录，顶部仍然保留打开的稿件。可选的 Focus 模式只让当前章节保持完整墨色，邻近内容和工具自然退后。</p>
+        </section>
       </article>
     </main>
 
     <div class="side-toolbar right" aria-label="大纲操作">
-      <button aria-label="搜索大纲">⌕</button>
-      <button aria-label="自动滚动">▱</button>
-      <button aria-label="全部收起">⌃</button>
+      <button aria-label="搜索大纲"><svg><use href="#i-search"/></svg></button>
+      <button aria-label="自动滚动"><svg><use href="#i-locate"/></svg></button>
+      <button aria-label="全部收起"><svg><use href="#i-collapse"/></svg></button>
     </div>
 
     <aside class="margin">
       <div class="tree">
         <div class="tree-label current">沉浸不是隐藏界面</div>
-        <div class="tree-label">一张纸场，不再切割面板</div>
-        <div class="tree-label">保留空间记忆</div>
+        <div class="tree-label">纸面与索引，形成安静的景深</div>
+        <div class="tree-label">保留空间记忆，也保留注意力</div>
         <div class="tree-label">验收标准</div>
       </div>
       <div class="margin-note">
@@ -516,18 +619,58 @@
 
   <div class="prototype-controls" aria-label="原型控制">
     <button id="theme-toggle">深色</button>
+    <button id="focus-toggle">专注模式</button>
     <button id="stage-toggle">进入 Stage</button>
   </div>
 
   <script>
     const root = document.documentElement;
     const themeButton = document.querySelector('#theme-toggle');
+    const focusButton = document.querySelector('#focus-toggle');
     const stageButton = document.querySelector('#stage-toggle');
+    const focusBlocks = [...document.querySelectorAll('.focus-block')];
+
+    function setFocusedBlock(index, shouldScroll = false) {
+      focusBlocks.forEach((block, blockIndex) => {
+        block.classList.toggle('is-focus', blockIndex === index);
+        block.classList.toggle('is-near', Math.abs(blockIndex - index) === 1);
+      });
+      if (shouldScroll) focusBlocks[index].scrollIntoView({ block: 'center' });
+    }
+
+    const previewState = new URLSearchParams(window.location.search);
+    if (previewState.get('theme') === 'dark') {
+      root.dataset.theme = 'dark';
+      themeButton.textContent = '浅色';
+    }
+    if (previewState.get('focus') === '1') {
+      document.body.classList.add('focus-mode');
+      focusButton.textContent = '退出专注';
+      focusButton.setAttribute('aria-pressed', 'true');
+      setFocusedBlock(0);
+    }
+    if (previewState.get('stage') === '1') {
+      document.body.classList.add('stage');
+      stageButton.textContent = '退出 Stage';
+    }
 
     themeButton.addEventListener('click', () => {
       const dark = root.dataset.theme !== 'dark';
       root.dataset.theme = dark ? 'dark' : 'light';
       themeButton.textContent = dark ? '浅色' : '深色';
+    });
+
+    focusButton.addEventListener('click', () => {
+      const active = document.body.classList.toggle('focus-mode');
+      focusButton.textContent = active ? '退出专注' : '专注模式';
+      focusButton.setAttribute('aria-pressed', String(active));
+      if (active) setFocusedBlock(focusBlocks.findIndex(block => block.classList.contains('is-focus')));
+    });
+
+    focusBlocks.forEach((block, index) => {
+      block.addEventListener('click', () => {
+        if (document.body.classList.contains('focus-mode')) setFocusedBlock(index);
+      });
     });
 
     stageButton.addEventListener('click', () => {
@@ -539,6 +682,20 @@
       if (event.key === 'Escape' && document.body.classList.contains('stage')) {
         document.body.classList.remove('stage');
         stageButton.textContent = '进入 Stage';
+        return;
+      }
+      if (event.key === 'Escape' && document.body.classList.contains('focus-mode')) {
+        document.body.classList.remove('focus-mode');
+        focusButton.textContent = '专注模式';
+        focusButton.setAttribute('aria-pressed', 'false');
+        return;
+      }
+      if (document.body.classList.contains('focus-mode') && ['ArrowUp', 'ArrowDown'].includes(event.key)) {
+        event.preventDefault();
+        const current = focusBlocks.findIndex(block => block.classList.contains('is-focus'));
+        const offset = event.key === 'ArrowDown' ? 1 : -1;
+        const next = Math.max(0, Math.min(focusBlocks.length - 1, current + offset));
+        setFocusedBlock(next, true);
       }
     });
   </script>
