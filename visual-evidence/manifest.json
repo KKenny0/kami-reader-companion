@@ -1,31 +1,38 @@
 {
   "appVersion": "1.13.4",
   "os": "macOS",
-  "viewport": "984x768",
-  "theme": "Default",
+  "viewport": { "width": 1440, "height": 900 },
+  "deviceScaleFactor": 2,
   "candidate": {
-    "version": "0.1.5",
+    "version": "0.1.7",
     "sha256": {
-      "main.js": "80186b544dc4534e411d4709b5c5e3ba448f2820e4d3eaf68f939e0ecb9629ca",
-      "styles.css": "8c71b3f38560898f3decb1362ddfee13a097c860836a7e1a57fc52153b1e5a85",
-      "manifest.json": "f4f673f9bed4ea664d436f6dfbb8e1b730350dcdea057abd364dd6327700e2cd"
+      "main.js": "1462f9eff993cf29bf2630916c071d78dad6690a833867e136a2ad8065f955c4",
+      "manifest.json": "9297a06d83732ae87d2a7beeacd396f55ea5a01955da951d562e70afac4e372d",
+      "styles.css": "9bcd1284839a90fd2de01dd371483a7e4165ce2bb26a507caaecafc5a3cc2a9c"
     }
   },
-  "visualBaseline": {
-    "version": "0.1.0",
-    "note": "The 0.1.5 delta is dependency-metadata cleanup only: Obsidian returns to devDependencies and the disproven Gallery scan contract test is removed. The runtime main.js and styles.css hashes are unchanged, so the accepted 0.1.0 real-app captures are carried forward explicitly."
-  },
   "artifacts": [
-    { "file": "01-default-dark-editing-984x768.jpg", "state": "Default Dark Editing" },
-    { "file": "02-default-dark-reading-984x768.jpg", "state": "Default Dark Reading" },
-    { "file": "03-default-dark-long-path-984x768.jpg", "state": "Default Dark long native path" },
-    { "file": "04-default-dark-new-tab-984x768.jpg", "state": "Default Dark New Tab" },
-    { "file": "05-default-dark-reading-stage-984x768.jpg", "state": "Default Dark Reading Stage" },
-    { "file": "06-default-light-editing-984x768.jpg", "state": "Default Light Editing" },
-    { "file": "07-default-light-reading-984x768.jpg", "state": "Default Light Reading" }
-  ],
-  "limitations": {
-    "formal1440x900": false,
-    "note": "The available real-app host window was 984x768; a separate 1440x900 release gate remains pending."
-  }
+    { "id": "default-light-reading-single", "theme": "Default", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "file": "default-light-reading-single.jpg", "sha256": "339087aa2c94143d2ce565a649230fdb312facdb58db2d44478b818fad00c266" },
+    { "id": "default-light-editing-split", "theme": "Default", "colorScheme": "light", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "file": "default-light-editing-split.jpg", "sha256": "6a6cfbcab6d4164c36647ade4622e893df37832fba381f7e68a89a097c3602fb" },
+    { "id": "default-dark-reading-single", "theme": "Default", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "file": "default-dark-reading-single.jpg", "sha256": "e11b4cd680ca713bd56efc4d6fb430259a6d78f9f321a9a45d15fde469002a33" },
+    { "id": "default-dark-editing-split", "theme": "Default", "colorScheme": "dark", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "file": "default-dark-editing-split.jpg", "sha256": "ec6d38a6ad740e505da0cc57792552ce825d2bf8608a20efd5fcd62d5098b7b1" },
+    { "id": "kami-light-reading-single", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "file": "kami-light-reading-single.jpg", "sha256": "690f34ea390670b206035ae345425d64d0f5388fa18e784803da51fa1d85860e" },
+    { "id": "kami-light-editing-split", "theme": "Kami Reader", "colorScheme": "light", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "file": "kami-light-editing-split.jpg", "sha256": "bfdfa80ff06a290a98f0a6370f53ef18910bd7bf7aef7608abe929afc88cc23e" },
+    { "id": "kami-dark-reading-single", "theme": "Kami Reader", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "file": "kami-dark-reading-single.jpg", "sha256": "c44c7847f79a15584d14c63468516bf79faaa0493b6f66d1487466b8e8e14029" },
+    { "id": "kami-dark-editing-split", "theme": "Kami Reader", "colorScheme": "dark", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "file": "kami-dark-editing-split.jpg", "sha256": "b1dd6e75901490970bd7a006c7aa1dcee042ab9811707668b9ffb93632d9ad34" },
+    { "id": "kami-light-new-tab", "theme": "Kami Reader", "colorScheme": "light", "mode": "new-tab", "layout": "single", "scenario": "new-tab", "sidebars": "expanded", "file": "kami-light-new-tab.jpg", "sha256": "12b8cb2fd315a3ff2175f776883addd5c75a4a4e9831cb1e8c957b256603ba31" },
+    { "id": "kami-light-long-path", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "long-path", "sidebars": "expanded", "file": "kami-light-long-path.jpg", "sha256": "5f8974608defd75ed3ae933ea5281542dab1c9f828c13382a28d137a4f328ab5" },
+    { "id": "kami-light-reading-focus", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "focus", "sidebars": "expanded", "file": "kami-light-reading-focus.jpg", "sha256": "4a9365756ca009a7d8e6b6f5f861fe034157f0a43a73fde242415fdf4fa159b9" },
+    { "id": "kami-dark-editing-focus", "theme": "Kami Reader", "colorScheme": "dark", "mode": "editing", "layout": "single", "scenario": "focus", "sidebars": "expanded", "file": "kami-dark-editing-focus.jpg", "sha256": "79d926212bbefe2c4b4bc3f44a9cdb06cf245b9dd561f2b5a1280ed732040429" },
+    { "id": "kami-light-reading-stage", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "stage", "sidebars": "expanded", "file": "kami-light-reading-stage.jpg", "sha256": "3375a65473100bcc7202e35e120a5c779655834fbf4f0041dda61cfe4d27fd37" },
+    { "id": "kami-dark-wide-content-outline", "theme": "Kami Reader", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "wide-content", "sidebars": "expanded", "file": "kami-dark-wide-content-outline.jpg", "sha256": "5991929c983672c9a204d511a15e775760e60b17e28ef3d38e4e86d54b16e410" },
+    { "id": "kami-light-settings", "theme": "Kami Reader", "colorScheme": "light", "mode": "settings", "layout": "single", "scenario": "settings", "sidebars": "expanded", "file": "kami-light-settings.jpg", "sha256": "6ad58e07388b2f2560795a68301aabd62101e11334522158ff13682adfb37844" },
+    { "id": "kami-dark-settings", "theme": "Kami Reader", "colorScheme": "dark", "mode": "settings", "layout": "single", "scenario": "settings", "sidebars": "expanded", "file": "kami-dark-settings.jpg", "sha256": "584f310b2d7959dedb8211956c6829c03a0d581bf8b87ba079025ba53c0ac96e" },
+    { "id": "kami-light-command-palette", "theme": "Kami Reader", "colorScheme": "light", "mode": "command-palette", "layout": "single", "scenario": "foreground", "sidebars": "expanded", "file": "kami-light-command-palette.jpg", "sha256": "24431e1b18b5ce13a7bf7efe4684a52854162130f17f1650c0101fb9491a0cdc" },
+    { "id": "kami-dark-quick-switcher", "theme": "Kami Reader", "colorScheme": "dark", "mode": "quick-switcher", "layout": "single", "scenario": "foreground", "sidebars": "expanded", "file": "kami-dark-quick-switcher.jpg", "sha256": "7915fd1c9a2fa110c1f317cd3cabac75c52e46f2ffc66786c68ea752ec898921" },
+    { "id": "kami-light-context-menu", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "context-menu", "sidebars": "expanded", "file": "kami-light-context-menu.jpg", "sha256": "2adbeec4bcda1a03e3f11dcdd89276482e0b0b8ab26962b17575006c0e796ac5" },
+    { "id": "kami-dark-notice", "theme": "Kami Reader", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "notice", "sidebars": "expanded", "file": "kami-dark-notice.jpg", "sha256": "1b06403db2aabdb152df967b4faa0c51dca81fc61d1552e011041eae66d4fec4" },
+    { "id": "kami-light-search-sidebar", "theme": "Kami Reader", "colorScheme": "light", "mode": "search", "layout": "split", "scenario": "side-pane", "sidebars": "expanded", "file": "kami-light-search-sidebar.jpg", "sha256": "10cc7619b4968d64a69d7ccf7b1b33a2b1b38a0283b0f10dd25df1f427590ae1" },
+    { "id": "kami-dark-secondary-panes", "theme": "Kami Reader", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "side-pane", "sidebars": "expanded", "file": "kami-dark-secondary-panes.jpg", "sha256": "517a3b758d30f266c5156959188be389920680e275ea55c64372c03f39e2c99f" }
+  ]
 }

@@ -33,33 +33,32 @@ CodeMirror 当前编辑行；Reading View 会突出指针或键盘焦点所在�
 两种模式可以组合：Reading Stage 管理空间，Focus Mode 管理注意力。按下
 `Escape` 会先退出 Reading Stage，再退出 Focus Mode。两种模式均不会持久化。
 
-下方 Showcase 仍是 `0.1.0` 在 macOS、Obsidian 1.13.4 和 Default Theme
-下通过验收的 984x768 基线，包含 Editing、Reading、New Tab、较长的原生
-breadcrumb 和 Reading Stage。新的表面层级与 Focus Mode 在完成并审查新的
-1440x900 Default/Kami Reader 截图矩阵前，会有意让独立验收命令
-`npm run check:visual` 失败。明确记录视觉限制的补丁版本不宣称已通过最终视觉验收。
-该矩阵还必须覆盖双主题 Settings、Command Palette、Quick Switcher、右键菜单、
-Notice、Search 和具有代表性的其他侧栏。
+视觉基线是在 macOS 的 Obsidian 1.13.4 中，以 1440x900 逻辑视口
+（Retina 2x）真实捕获并逐张审查的矩阵。22 个独立状态覆盖 Default 与
+Kami Reader 主题、明暗配色、Reading 与 Editing、单双 pane、Focus Mode、
+Reading Stage、New Tab、Settings、Command Palette、Quick Switcher、
+右键菜单、Notice、Search 和其他代表性侧栏。`npm run check:visual`
+只负责确保已审截图与本次发布资产精确绑定，不能代替人工位图验收。
 
 ## 效果展示
 
-### Editing 与 Reading 共享同一种视觉语言
+### Reading 与 Editing 共享同一种视觉语言
 
-| Editing View · 深色 | Reading View · 深色 |
+| Reading View · 深色 | Editing View · 深色 · 双 pane |
 |---|---|
-| ![深色 Editing View](./visual-evidence/01-default-dark-editing-984x768.jpg) | ![深色 Reading View](./visual-evidence/02-default-dark-reading-984x768.jpg) |
+| ![深色 Reading View](./visual-evidence/kami-dark-reading-single.jpg) | ![深色双 pane Editing View](./visual-evidence/kami-dark-editing-split.jpg) |
 
 ### 离开正文后，Workspace 外壳仍然连续
 
-| New Tab | Reading Stage |
+| New Tab · 浅色 | Reading Stage · 浅色 |
 |---|---|
-| ![深色 New Tab](./visual-evidence/04-default-dark-new-tab-984x768.jpg) | ![深色 Reading Stage](./visual-evidence/05-default-dark-reading-stage-984x768.jpg) |
+| ![浅色 New Tab](./visual-evidence/kami-light-new-tab.jpg) | ![浅色 Reading Stage](./visual-evidence/kami-light-reading-stage.jpg) |
 
-### 浅色模式保留同样的层级
+### 前景浮层与设置界面仍属于同一个 Workspace
 
-| Editing View · 浅色 | Reading View · 浅色 |
+| Command Palette · 浅色 | Settings · 深色 |
 |---|---|
-| ![浅色 Editing View](./visual-evidence/06-default-light-editing-984x768.jpg) | ![浅色 Reading View](./visual-evidence/07-default-light-reading-984x768.jpg) |
+| ![浅色 Command Palette](./visual-evidence/kami-light-command-palette.jpg) | ![深色 Settings](./visual-evidence/kami-dark-settings.jpg) |
 
 ## 本地开发
 

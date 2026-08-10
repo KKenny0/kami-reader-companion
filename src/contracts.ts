@@ -56,10 +56,8 @@ export function selectActiveLine(
   headings: readonly PositionedHeading[],
   anchor: number,
   direction: "up" | "down",
-  currentLine?: number,
-  clickedLine?: number
+  currentLine?: number
 ): number | null {
-  if (clickedLine !== undefined) return clickedLine;
   if (headings.length === 0) return currentLine ?? null;
   let candidateIndex = -1;
   for (let index = 0; index < headings.length; index += 1) {
@@ -92,10 +90,3 @@ export function computeFrameWidth(articleWidth: number, paneWidth: number, natur
 
 export const isOverflowing = (naturalWidth: number, inlineWidth: number): boolean =>
   naturalWidth > inlineWidth + 2;
-
-export const shouldRevealOutlineRow = (
-  previousLine: number | undefined,
-  nextLine: number,
-  interacting: boolean,
-  clicked: boolean
-): boolean => previousLine !== nextLine && !interacting && !clicked;

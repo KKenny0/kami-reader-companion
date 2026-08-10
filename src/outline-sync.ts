@@ -2,7 +2,6 @@ import type { App, HeadingCache, MarkdownPostProcessorContext, MarkdownView } fr
 import {
   matchSectionHeadings,
   selectActiveLine,
-  shouldRevealOutlineRow,
   matchOutlineRows,
   type HeadingRef,
   type PositionedHeading
@@ -16,14 +15,13 @@ export class OutlineSync {
   private preview: HTMLElement | null = null;
   private outlines: HTMLElement[] = [];
   private observer: MutationObserver | null = null;
-  private clickDocument: Document | null = null;
   private filePath: string | null = null;
   private currentLine?: number;
   private lastScrollTop = 0;
   private warned = false;
   private markedHeadings = new Set<HTMLElement>();
 
-  constructor(private app: App, private schedule: () => void) {}
+  constructor(private app: App, private schedule: (ownerWindow?: NonNullable<Document["defaultView"]>) => void) {}
 
   process(element: HTMLElement, context: MarkdownPostProcessorContext): void {
     const section = context.getSectionInfo(element);
@@ -47,7 +45,7 @@ export class OutlineSync {
         this.markedHeadings.add(heading);
       }
     });
-    this.schedule();
+    this.schedule(element.ownerDocument.defaultView ?? undefined);
   }
 
   configure(view: MarkdownView | null): void {
@@ -67,12 +65,6 @@ export class OutlineSync {
     }
 
     const ownerDocument = preview?.ownerDocument ?? null;
-    if (ownerDocument !== this.clickDocument) {
-      this.clickDocument?.removeEventListener("click", this.onClick);
-      this.clickDocument = ownerDocument;
-      this.clickDocument?.addEventListener("click", this.onClick);
-    }
-
     const outlines = ownerDocument
       ? Array.from(ownerDocument.querySelectorAll<HTMLElement>(OUTLINE_SELECTOR))
       : [];
@@ -81,13 +73,15 @@ export class OutlineSync {
       this.clearOutlines();
       this.outlines = outlines;
       if (outlines.length > 0) {
-        this.observer = new MutationObserver(this.schedule);
+        this.observer = new MutationObserver(() =>
+          this.schedule(ownerDocument?.defaultView ?? undefined)
+        );
         outlines.forEach((outline) => this.observer?.observe(outline, { childList: true, subtree: true }));
       }
     }
   }
 
-  refresh(clickedLine?: number): void {
+  refresh(): void {
     if (!this.preview || !this.filePath || this.outlines.length === 0) return;
     [...this.markedHeadings].filter((heading) => !heading.isConnected)
       .forEach((heading) => this.markedHeadings.delete(heading));
@@ -119,12 +113,11 @@ export class OutlineSync {
       .sort((a, b) => a.line - b.line);
     const direction = this.preview.scrollTop >= this.lastScrollTop ? "down" : "up";
     this.lastScrollTop = this.preview.scrollTop;
-    const line = selectActiveLine(positioned, anchor, direction, this.currentLine, clickedLine);
+    const line = selectActiveLine(positioned, anchor, direction, this.currentLine);
     if (line === null) {
       valid.forEach(({ outline }) => this.clearOutline(outline));
       return;
     }
-    const previousLine = this.currentLine;
     this.currentLine = line;
     valid.forEach(({ outline, rows }) => {
       rows.forEach((row) => {
@@ -136,34 +129,20 @@ export class OutlineSync {
           row.removeAttribute("aria-current");
         }
       });
-      const currentRow = rows.find((row) => Number(row.dataset.kamiHeadingLine) === line);
-      if (currentRow && shouldRevealOutlineRow(
-        previousLine,
-        line,
-        outline.matches(":hover, :focus-within"),
-        clickedLine !== undefined
-      )) currentRow.scrollIntoView({ block: "nearest", inline: "nearest" });
     });
   }
 
   destroy(): void {
     this.preview?.removeEventListener("scroll", this.onScroll);
-    this.clickDocument?.removeEventListener("click", this.onClick);
     this.observer?.disconnect();
     this.clearOutlines();
     this.markedHeadings.forEach((heading) => heading.removeAttribute("data-kami-heading-line"));
     this.markedHeadings.clear();
     this.preview = null;
-    this.clickDocument = null;
   }
 
-  private onScroll = (): void => this.schedule();
-  private onClick = (event: MouseEvent): void => {
-    const row = (event.target as Element | null)?.closest<HTMLElement>(ROW_SELECTOR);
-    if (!row || !this.outlines.some((outline) => outline.contains(row))) return;
-    const line = Number(row.dataset.kamiHeadingLine);
-    if (Number.isFinite(line)) this.refresh(line);
-  };
+  private onScroll = (): void =>
+    this.schedule(this.preview?.ownerDocument.defaultView ?? undefined);
 
   private cachedHeadings(path: string): HeadingRef[] {
     const headings: HeadingCache[] = this.app.metadataCache.getCache(path)?.headings ?? [];

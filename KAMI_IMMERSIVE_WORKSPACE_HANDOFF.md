@@ -1,11 +1,11 @@
 # Kami Reader Companion immersive workspace handoff
 
 Status: final real-shell alignment is implemented in the local candidate. The
-previous 984x768 evidence is obsolete; the required 1440x900 Default and Kami
-Reader matrix must pass before this candidate is declared visually accepted.
-Patch releases may ship explicitly documented fixes and limitations without
-making that claim. Commit, push, release, and Community Plugin submission remain
-separately authorized.
+obsolete 984x768 evidence has been replaced by a manually reviewed 22-state
+Default/Kami Reader matrix captured from Obsidian 1.13.4 at a 1440x900 logical
+viewport (Retina 2x). Its integrity gate passes against the `0.1.7` release
+assets. Commit, push, release, and Community Plugin submission remain separately
+authorized.
 
 Date: 2026-08-07
 
@@ -73,8 +73,8 @@ shared background, quiet controls, and short rails. Bitmap review rejected that
 result because the real app retained native Obsidian geometry and hierarchy.
 On 2026-08-05 the visual contract was reopened: prototype parity now outranks
 the previous constraint that Companion must yield all shell geometry and
-reading typography to the active theme. README remains intentionally unchanged
-until the broader release matrix passes.
+reading typography to the active theme. The README now uses representative
+captures from the completed broader release matrix.
 
 The parity implementation owns the prototype palette, active-leaf 700px document
 measure, Reading display title, deck and folio metadata, a flow-positioned
@@ -85,10 +85,9 @@ not synthesize a second file path or absolutely position text over the View
 Header. Ephemeral
 labels and metadata are derived from the current file and rendered DOM, are
 removed on identity change or unload, and never write to the note. Automated
-verification passes 21 tests. These tests prove selectors and lifecycle, while
-the repository's 984x768 visual evidence proves the repaired Default Theme
-composition in the states listed above. The required `1440×900` release matrix
-has not passed.
+verification passes 47 tests. These tests prove selectors and lifecycle; the
+separate 22-state `1440×900` real-app matrix provides the rendered composition
+evidence and is bound to the candidate assets by `npm run check:visual`.
 
 The 2026-08-07 boundary correction makes the desktop Shell a stylesheet-owned
 baseline rather than an active-Markdown state. This prevents New Tab and other
@@ -311,10 +310,31 @@ rails. Companion owns the prototype's 32px Folio Strip, 32px View Header, 22px
 status line, 32px Tool Spine, and 30px native control boxes. Sidebar widths stay
 user-resizable because the visual system does not require a single fixed width.
 
+The 32px strip is mapped to native Obsidian containers rather than simulated
+with replacement controls. Root tabs retain Obsidian's flexible
+`flex: 1 1 0` and `--tab-width` contract, then add 12px inline padding and an
+8px marker-to-title gap. The left dock reserves 28px after the 32px Ribbon; the
+right dock keeps a 4px edge inset and continues the strip divider through its
+fixed toggle button. Each dock toolbar owns one 32px action row, while
+`.nav-header` itself remains auto-height so native Search filters expand below
+that row without overlapping the pane content. Tab hover is painted by the full
+outer tab slot while the native inner hover layer stays transparent. The 22px
+status line spans from the live root-pane edge to the right window edge; the
+triggering owner window's scheduler and `ResizeObserver` update
+`--kami-folio-status-left` as sidebars are dragged. Its empty visual span does
+not receive pointer events outside Stage, so underlying scroll and resize
+targets remain native; status items remain interactive. These rules must not
+fix sidebar widths, reorder native controls, or replace drag and AX targets.
+
 Durable real-app bitmap evidence is stored under `visual-evidence/` with a
 candidate manifest that binds the captures to `main.js`, `styles.css`,
 `manifest.json`, and every screenshot. `npm run check:visual` verifies candidate
-version parity, required states, hashes, and exact 1440x900 JPEG dimensions.
+version parity, required states, hashes, and a 1440x900 logical viewport at the
+manifest's declared device scale factor.
+After copying built assets into a Vault, disable and re-enable Companion before
+capturing evidence. An app `Command-R` alone may leave the plugin-owned style
+element stale; DevTools must confirm that the loaded stylesheet contains the
+candidate shell contract before a screenshot can be accepted.
 
 These bitmaps are compositional references, not mood boards. Acceptance uses a
 real note with equivalent title, deck, metadata, prose, Outline depth, and
@@ -449,17 +469,13 @@ The Outline is the persistent reading margin, not a second navigation panel.
 - Keep only the exact current row highlighted.
 - Preserve ancestor rows as ordinary readable context; never highlight the
   parent as a substitute for the child.
-- Express the current row with the existing 2px ink-blue inset edge and active
-  semantic text color. Under Folio Presence, remove the filled active
-  background; the rail is the location signal.
+- Express the current row with the existing 2px ink-blue inset edge, active
+  semantic text color, and the shared low-contrast focus wash.
 - Quiet inactive rows through semantic text colors, not opacity, hierarchy
   changes, or collapsed branches.
-- Clicking a row must update immediately; subsequent scrolling resumes normal
-  position ownership.
-- When document scrolling moves the current row outside the visible Outline,
-  reveal it with `scrollIntoView({ block: "nearest", inline: "nearest" })` only
-  when the row changes and the Outline is not hovered or keyboard-focused.
-  Clicking a row never triggers this reveal path.
+- Leave row clicks, native active state, and Outline viewport movement to
+  Obsidian. Companion only mirrors the document scroll position with its
+  `kami-outline-current` reading marker.
 - If metadata and rendered rows disagree, clear Companion state and return to
   Obsidian's native highlight.
 
@@ -594,10 +610,10 @@ The tests must cover:
 - mobile bodies do not enter Folio Presence;
 - plugin unload clears all tracked bodies, leaves, headings, Outline rows, and
   content frames;
-- duplicate headings, virtualized sections, scroll direction, and click
-  ownership retain their current contract;
-- a changed current Outline row reveals only when the Outline is not hovered or
-  focused, and clicked rows never enter the reveal path;
+- duplicate headings, virtualized sections, and scroll direction retain their
+  current contract;
+- Outline click state and viewport movement remain owned by Obsidian; Companion
+  never scrolls or repositions the Outline;
 - wide-content classification, minimum spare width, maximum width, and
   no-oscillation measurement retain their current contract.
 
@@ -633,8 +649,8 @@ themes at narrow, ordinary, and wide pane widths.
 | Search/Bookmarks/Backlinks/Tags/Properties | Headers, rows, matches, empty states and scroll edges remain part of the Shell rather than reverting to an unrelated panel color. |
 | Narrow/stacked side panes | Long Chinese or English labels truncate without moving, clipping or overlapping native controls. |
 | Disabled/danger/focus states | Meaning remains visible and keyboard focus has a 2px accent outline without layout shift. |
-| Outline duplicate headings | The exact clicked/scrolled child row, not its parent or same-name sibling, is current. |
-| Long Outline | The changed current row stays visible while reading; hovering, focusing, or clicking inside Outline suspends automatic reveal. |
+| Outline duplicate headings | The exact scrolled child row, not its parent or same-name sibling, is current. |
+| Long Outline | Obsidian retains viewport and click ownership; Companion changes only the current-row marker. |
 | Mermaid/SVG/image/canvas | Visual centers within the available plate and never clips into sidebars. |
 | Table/code/embed | Content expands only when needed and retains horizontal fallback scrolling. |
 | Resize repeatedly | No inline/expanded oscillation and no cumulative layout shift. |

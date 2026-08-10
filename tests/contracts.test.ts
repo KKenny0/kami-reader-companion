@@ -8,12 +8,12 @@ import {
   matchOutlineRows,
   matchSectionHeadings,
   selectActiveLine,
-  shouldRevealOutlineRow,
   type HeadingRef
 } from "../src/contracts";
 import { ReadingPresence } from "../src/reading-presence";
 
 const styles = readFileSync(new URL("../styles.css", import.meta.url), "utf8");
+const outlineSyncSource = readFileSync(new URL("../src/outline-sync.ts", import.meta.url), "utf8");
 const releaseWorkflow = readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
 const visualCheck = readFileSync(new URL("../scripts/check-visual-evidence.mjs", import.meta.url), "utf8");
 
@@ -30,10 +30,29 @@ describe("folio shell CSS contracts", () => {
     expect(styles).toMatch(/\.clickable-icon svg\s*\{[^}]*width:\s*15px;[^}]*height:\s*15px;/s);
     expect(styles).toMatch(/\.workspace-tab-header:is\(\.is-active, \.has-active-menu\)\s*\{[^}]*background-color:\s*transparent;/s);
     expect(styles).toMatch(/\.workspace-split\.mod-root\s+\.workspace-tab-header\s*\{[^}]*margin:\s*0;[^}]*border-radius:\s*0;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-root[^{]+\.workspace-tab-header-container-inner\s*\{[^}]*margin:\s*0;[^}]*padding:\s*0;[^}]*gap:\s*0;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-left-split[^{]+\.workspace-tab-header-container-inner\s*\{[^}]*padding:\s*1px 0 1px 28px;[^}]*gap:\s*0;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-right-split[^{]+\.workspace-tab-header-container-inner\s*\{[^}]*padding:\s*1px 4px;[^}]*gap:\s*0;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-root[^{]+\.workspace-tab-header\s*\{[^}]*flex:\s*1 1 0;[^}]*width:\s*var\(--tab-width\);[^}]*padding:\s*0 12px;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-root[^{]+\.workspace-tab-header-inner\s*\{[^}]*gap:\s*8px;[^}]*width:\s*100%;[^}]*padding:\s*0;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-root[^{]+\.workspace-tab-header-inner-title\s*\{[^}]*width:\s*100%;/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-root[^{]+\.workspace-tab-header:not\(\.is-active\):is\(:hover, :focus-within, \.has-active-menu\)\s*\{[^}]*background:\s*var\(--kami-folio-interactive\);/s);
+    expect(styles).toMatch(/\.workspace-split\.mod-root[^{]+\.workspace-tab-header:is\(:hover, :focus-within, \.has-active-menu\)[^{]+\.workspace-tab-header-inner\s*\{[^}]*background:\s*transparent;/s);
+    expect(styles).not.toMatch(/content:\s*["'][◇◆]["']/);
+    expect(styles).toMatch(/\.sidebar-toggle-button\.mod-right\s*\{[^}]*right:\s*4px;[^}]*width:\s*30px;[^}]*padding:\s*1px 0;[^}]*box-shadow:\s*inset 0 -1px 0 var\(--kami-folio-line\);/s);
+    expect(styles).toMatch(/\.nav-header\s*\{[^}]*padding:\s*0;/s);
+    expect(styles).not.toMatch(/\.nav-header\s*\{[^}]*(?:min-)?height:/s);
+    expect(styles).toMatch(/\.nav-header \.nav-buttons-container\s*\{[^}]*min-height:\s*32px;[^}]*padding:\s*1px 5px 1px 7px;/s);
+    expect(styles).toMatch(/\[data-type="file-explorer"\][^{]+\.clickable-icon:nth-last-child\(2\)\s*\{[^}]*margin-inline-start:\s*auto;/s);
+    expect(styles).toMatch(/\[data-type="outline"\][^{]+\.nav-buttons-container\s*\{[^}]*justify-content:\s*flex-end;/s);
     expect(styles).toMatch(/\.workspace-sidedock-vault-profile\s*\{[^}]*height:\s*32px;/s);
     expect(styles).toMatch(/\.workspace-leaf-content\.kami-reading-stage\s+\.view-header-title-container\s*\{[^}]*--file-header-justify:\s*flex-start;/s);
     expect(styles).not.toMatch(/body\.kami-reading-presence:not\(\.is-mobile\)\s+\.view-header-title-container/);
     expect(styles).toMatch(/\.status-bar\s*\{[^}]*border-radius:\s*0;/s);
+    expect(styles).toMatch(/\.status-bar\s*\{[^}]*position:\s*fixed;[^}]*left:\s*var\(--kami-folio-status-left\);[^}]*right:\s*0;[^}]*width:\s*auto;[^}]*background-color:\s*var\(--kami-folio-shell-deep\);[^}]*box-shadow:\s*inset 0 1px 0 var\(--kami-folio-line\);[^}]*pointer-events:\s*none;/s);
+    expect(styles).toMatch(/\.status-bar-item\s*\{[^}]*pointer-events:\s*auto;/s);
+    expect(styles).toMatch(/body\.kami-reading-stage-open:not\(\.is-mobile\) \.status-bar\s*\{[^}]*pointer-events:\s*auto;/s);
+    expect(styles).not.toMatch(/\.status-bar\s*\{[^}]*inset-inline-start:\s*var\(--kami-folio-status-left\)/s);
     expect(styles).not.toMatch(/\.metadata-container\s*\{[^}]*display:\s*none/s);
   });
 
@@ -89,17 +108,28 @@ describe("folio shell CSS contracts", () => {
     expect(styles).not.toMatch(/\.workspace-leaf-content\[data-type="(?:canvas|graph|pdf|bases)"\][^{]*\.view-content\s*\{[^}]*background/s);
     expect(styles).not.toMatch(/!important/);
   });
+
+  it("uses the shared theme-aware wash for selected sidebar rows", () => {
+    expect(styles).toMatch(/body\.theme-dark:not\(\.is-mobile\)\s*\{[^}]*--kami-folio-focus-wash:[^}]*16%/s);
+    expect(styles).toMatch(/\.tree-item-self\.kami-outline-current\s*\{[^}]*background:\s*var\(--kami-folio-focus-wash\);/s);
+    expect(styles).not.toMatch(/\.tree-item-self\.kami-outline-current\s*\{[^}]*background:[^}]*7%/s);
+  });
+
+  it("leaves Outline click, active-row, and viewport ownership to Obsidian", () => {
+    expect(outlineSyncSource).toContain('preview?.addEventListener("scroll", this.onScroll');
+    expect(outlineSyncSource).not.toMatch(/addEventListener\("click"|scrollIntoView|clickedLine/);
+    expect(styles).not.toMatch(/\.tree-item-self\.is-active:not\(\.kami-outline-current\)/);
+  });
 });
 
 describe("release contracts", () => {
-  it("keeps tagged releases reviewed while visual acceptance stays independent", () => {
-    expect(releaseWorkflow).toMatch(/npm run check\s+[\s\S]*Attest release assets/);
+  it("binds tagged releases to the reviewed visual matrix", () => {
+    expect(releaseWorkflow).toMatch(/npm run check\s+[\s\S]*npm run check:visual\s+[\s\S]*Attest release assets/);
     expect(releaseWorkflow).toMatch(/environment:\s*visual-review/);
-    expect(releaseWorkflow).not.toMatch(/npm run check:visual/);
     expect(visualCheck).toMatch(/visual viewport must be 1440x900/);
     expect(visualCheck).toMatch(/carried-forward visual baselines are not allowed/);
     expect(visualCheck).toMatch(/artifact\.sha256/);
-    expect(visualCheck).toMatch(/maxResolutionInMP:\s*2/);
+    expect(visualCheck).toMatch(/maxResolutionInMP:\s*6/);
     expect(visualCheck).toMatch(/Verified structural integrity/);
     expect(visualCheck).not.toMatch(/manifest\.accepted/);
   });
@@ -151,7 +181,7 @@ describe("heading contracts", () => {
     expect(matchOutlineRows.toString()).not.toContain("slice(cursor)");
   });
 
-  it("tracks down, up and click transitions without reversing direction", () => {
+  it("tracks down and up transitions without reversing direction", () => {
     const positioned = [
       { line: 4, top: -40 },
       { line: 8, top: 80 },
@@ -160,14 +190,6 @@ describe("heading contracts", () => {
     expect(selectActiveLine(positioned, 96, "down", 4)).toBe(8);
     expect(selectActiveLine(positioned, 50, "up", 8)).toBe(4);
     expect(selectActiveLine(positioned, -100, "up", 8)).toBe(8);
-    expect(selectActiveLine(positioned, 96, "up", 8, 24)).toBe(24);
-  });
-
-  it("reveals only changed scroll-owned rows outside active Outline interaction", () => {
-    expect(shouldRevealOutlineRow(4, 8, false, false)).toBe(true);
-    expect(shouldRevealOutlineRow(8, 8, false, false)).toBe(false);
-    expect(shouldRevealOutlineRow(4, 8, true, false)).toBe(false);
-    expect(shouldRevealOutlineRow(4, 8, false, true)).toBe(false);
   });
 });
 

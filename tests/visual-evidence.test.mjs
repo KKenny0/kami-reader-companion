@@ -22,7 +22,7 @@ const states = [
   ["kami-light-reading-focus", "Kami Reader", "light", "reading", "single", "focus"],
   ["kami-dark-editing-focus", "Kami Reader", "dark", "editing", "single", "focus"],
   ["kami-light-reading-stage", "Kami Reader", "light", "reading", "single", "stage"],
-  ["kami-dark-wide-outline-split", "Kami Reader", "dark", "reading", "split", "wide-outline"],
+  ["kami-dark-wide-content-outline", "Kami Reader", "dark", "reading", "single", "wide-content"],
   ["kami-light-settings", "Kami Reader", "light", "settings", "single", "settings"],
   ["kami-dark-settings", "Kami Reader", "dark", "settings", "single", "settings"],
   ["kami-light-command-palette", "Kami Reader", "light", "command-palette", "single", "foreground"],
@@ -30,7 +30,7 @@ const states = [
   ["kami-light-context-menu", "Kami Reader", "light", "reading", "single", "context-menu"],
   ["kami-dark-notice", "Kami Reader", "dark", "reading", "single", "notice"],
   ["kami-light-search-sidebar", "Kami Reader", "light", "search", "split", "side-pane"],
-  ["kami-dark-secondary-panes", "Kami Reader", "dark", "reading", "split", "side-pane"]
+  ["kami-dark-secondary-panes", "Kami Reader", "dark", "reading", "single", "side-pane"]
 ];
 
 let directory;
@@ -85,6 +85,7 @@ beforeAll(() => {
     appVersion: "1.13.4",
     os: "macOS",
     viewport: { width: 1440, height: 900 },
+    deviceScaleFactor: 1,
     candidate: {
       version: "0.1.5",
       sha256: {
@@ -134,7 +135,7 @@ describe("visual evidence gate", () => {
     const artifact = candidate.artifacts[0];
     const path = join(evidence, artifact.file);
     const original = readFileSync(path);
-    const oversized = jpeg.encode({ data: Buffer.alloc(2000 * 1100 * 4), width: 2000, height: 1100 }, 20).data;
+    const oversized = jpeg.encode({ data: Buffer.alloc(3100 * 2000 * 4), width: 3100, height: 2000 }, 20).data;
     writeFileSync(path, oversized);
     artifact.sha256 = sha256(oversized);
     const result = run(candidate);

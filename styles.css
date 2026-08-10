@@ -3,6 +3,7 @@ body:not(.is-mobile) {
   --kami-folio-strip-height: 32px;
   --kami-folio-view-header-height: 32px;
   --kami-folio-status-height: 22px;
+  --kami-folio-status-left: 0px;
   --kami-folio-ribbon-width: 32px;
   --kami-folio-document-top: clamp(72px, 7vw, 100px);
   --kami-folio-canvas: #dfddd4;
@@ -53,7 +54,7 @@ body.theme-dark:not(.is-mobile) {
   --kami-folio-accent: #2d5a8a;
   --kami-folio-danger: #d86d68;
   --kami-folio-highlight: #5a4a1f;
-  --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 10%, var(--kami-folio-paper));
+  --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 16%, var(--kami-folio-paper));
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -180,16 +181,33 @@ body:not(.is-mobile) .workspace-sidedock-vault-profile {
 body:not(.is-mobile) .workspace-tab-header-container {
   min-height: var(--kami-folio-strip-height);
   height: var(--kami-folio-strip-height);
+  padding: 0;
   box-shadow: inset 0 -1px 0 var(--kami-folio-line);
 }
 
 body:not(.is-mobile)
   .workspace-split.mod-root
+  .workspace-tabs:not(.mod-stacked)
+  > .workspace-tab-header-container
+  > .workspace-tab-header-container-inner {
+  align-items: stretch;
+  height: var(--kami-folio-strip-height);
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
   .workspace-tab-header {
+  flex: 1 1 0;
+  width: var(--tab-width);
+  min-width: 0;
   min-height: var(--kami-folio-strip-height);
+  height: var(--kami-folio-strip-height);
   max-width: 250px;
   margin: 0;
-  padding-inline: 12px;
+  padding: 0 12px;
   border-radius: 0;
   color: var(--kami-folio-faint);
   font-size: 11px;
@@ -198,18 +216,55 @@ body:not(.is-mobile)
 body:not(.is-mobile)
   .workspace-split.mod-root
   .workspace-tab-header-inner {
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
   height: 100%;
+  padding: 0;
   border-radius: 0;
   background: transparent;
 }
 
 body:not(.is-mobile)
   .workspace-split.mod-root
+  .workspace-tab-header-inner-title {
+  width: 100%;
+  min-width: 0;
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
+  .workspace-tab-header:not(.is-active):is(:hover, :focus-within, .has-active-menu) {
+  background: var(--kami-folio-interactive);
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
+  .workspace-tab-header:is(:hover, :focus-within, .has-active-menu)
+  .workspace-tab-header-inner {
+  background: transparent;
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
+  :is(.workspace-tab-header-new-tab, .workspace-tab-header-tab-list) {
+  align-items: center;
+  height: var(--kami-folio-strip-height);
+  margin: 0;
+  padding: 1px 0;
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-root
   .workspace-tab-header-inner-title::before {
-  content: "◇";
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
   margin-right: 8px;
+  border: 1px solid var(--kami-folio-accent);
   color: var(--kami-folio-accent);
-  font-size: 8px;
+  transform: rotate(45deg);
 }
 
 body:not(.is-mobile)
@@ -242,7 +297,7 @@ body:not(.is-mobile)
   .workspace-split.mod-root
   .workspace-tab-header.is-active
   .workspace-tab-header-inner-title::before {
-  content: "◆";
+  background: var(--kami-folio-accent);
 }
 
 body:not(.is-mobile)
@@ -273,12 +328,6 @@ body:not(.is-mobile) .workspace-split.mod-root .view-header {
   display: flex;
   align-items: center;
   gap: 0;
-}
-
-body:not(.is-mobile) .nav-header {
-  min-height: var(--kami-folio-view-header-height);
-  height: var(--kami-folio-view-header-height);
-  padding-inline: 7px 5px;
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -354,15 +403,30 @@ body:not(.is-mobile) .workspace-ribbon .clickable-icon {
 }
 
 body:not(.is-mobile)
-  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  .workspace-split.mod-left-split
   .workspace-tab-header-container-inner {
-  gap: 4px;
+  align-items: stretch;
+  height: var(--kami-folio-strip-height);
+  margin: 0;
+  padding: 1px 0 1px 28px;
+  gap: 0;
+}
+
+body:not(.is-mobile)
+  .workspace-split.mod-right-split
+  .workspace-tab-header-container-inner {
+  align-items: stretch;
+  height: var(--kami-folio-strip-height);
+  margin: 0;
+  padding: 1px 4px;
+  gap: 0;
 }
 
 body:not(.is-mobile)
   :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
   .workspace-tab-header {
   position: relative;
+  flex: 0 0 30px;
   min-width: 30px;
   width: 30px;
   min-height: 30px;
@@ -371,6 +435,69 @@ body:not(.is-mobile)
   color: var(--kami-folio-faint);
   background: transparent;
   box-shadow: none;
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  .workspace-tab-header-inner {
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+}
+
+body:not(.is-mobile)
+  :is(.workspace-split.mod-left-split, .workspace-split.mod-right-split)
+  .workspace-tab-header-inner-icon {
+  --icon-size: 15px;
+}
+
+body:not(.is-mobile) .sidebar-toggle-button {
+  align-items: center;
+  width: 30px;
+  height: var(--kami-folio-strip-height);
+  padding: 1px 0;
+}
+
+body:not(.is-mobile) .sidebar-toggle-button.mod-left {
+  flex: 0 0 30px;
+}
+
+body.mod-macos.is-hidden-frameless:not(.is-mobile):not(.is-popout-window)
+  .sidebar-toggle-button.mod-right {
+  top: 0;
+  right: 4px;
+  width: 30px;
+  padding: 1px 0;
+  box-shadow: inset 0 -1px 0 var(--kami-folio-line);
+}
+
+body:not(.is-mobile) .nav-header {
+  padding: 0;
+}
+
+body:not(.is-mobile) .nav-header .nav-buttons-container {
+  align-items: center;
+  min-height: 32px;
+  gap: 0;
+  padding: 1px 5px 1px 7px;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content[data-type="file-explorer"]
+  .nav-buttons-container
+  .clickable-icon:nth-last-child(2) {
+  margin-inline-start: auto;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content[data-type="outline"]
+  .nav-buttons-container {
+  justify-content: flex-end;
+}
+
+body:not(.is-mobile) .nav-header .search-input-container {
+  margin: 4px 7px 8px;
+  padding: 0;
 }
 
 body:not(.is-mobile)
@@ -682,17 +809,9 @@ body:not(.is-mobile)
   .kami-companion-outline-active
   .tree-item-self.kami-outline-current {
   color: var(--kami-folio-ink);
-  background: color-mix(in oklch, var(--kami-folio-accent) 7%, var(--kami-folio-shell));
+  background: var(--kami-folio-focus-wash);
   font-weight: var(--font-semibold, 600);
   box-shadow: inset 2px 0 0 var(--kami-folio-accent);
-}
-
-body:not(.is-mobile)
-  .kami-companion-outline-active
-  .tree-item-self.is-active:not(.kami-outline-current) {
-  color: var(--kami-folio-muted);
-  background: transparent;
-  box-shadow: none;
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -1049,21 +1168,29 @@ body:not(.is-mobile) .workspace-leaf-resize-handle:is(:hover, :active) {
 }
 
 body:not(.is-mobile) .status-bar {
+  position: fixed;
+  left: var(--kami-folio-status-left);
+  right: 0;
+  inset-block-end: 0;
+  width: auto;
   min-height: var(--kami-folio-status-height);
   height: var(--kami-folio-status-height);
   padding-inline: 10px;
   border: 0;
   border-radius: 0;
   color: var(--kami-folio-faint);
+  background-color: var(--kami-folio-shell-deep);
   font-size: 10px;
   letter-spacing: 0.02em;
   box-shadow: inset 0 1px 0 var(--kami-folio-line);
+  pointer-events: none;
 }
 
 body:not(.is-mobile) .status-bar-item {
   min-height: var(--kami-folio-status-height);
   padding-inline: 5px;
   color: inherit;
+  pointer-events: auto;
 }
 
 body:not(.is-mobile)
@@ -1206,8 +1333,9 @@ body.kami-reading-stage-open:not(.is-mobile)
 
 body.kami-reading-stage-open:not(.is-mobile) .status-bar {
   inset-block-end: 0;
-  inset-inline-end: 0;
+  right: 0;
   transform: translateY(calc(100% - var(--kami-reading-edge)));
+  pointer-events: auto;
 }
 
 body.kami-reading-stage-open:not(.is-mobile)

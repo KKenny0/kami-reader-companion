@@ -39,35 +39,33 @@ spatial presentation. The two modes can be combined: Reading Stage controls
 space, while Focus Mode controls attention. `Escape` exits Reading Stage first,
 then Focus Mode. Neither mode is persisted.
 
-The showcase below remains the historical accepted `0.1.0` baseline on macOS with
-Obsidian 1.13.4 and the Default Theme at 984x768. It covers Editing, Reading,
-New Tab, a long native breadcrumb, and Reading Stage. The revised surface-depth
-system and Focus Mode intentionally fail the independent `npm run check:visual`
-acceptance gate until a new 1440x900 Default/Kami Reader matrix is captured and
-reviewed. Patch releases with explicitly documented visual limitations do not
-claim that final acceptance. The matrix also requires Settings in both themes,
-Command Palette, Quick Switcher, context-menu and notice foregrounds, Search,
-and representative secondary panes.
+The visual baseline is a real-app matrix captured from Obsidian 1.13.4 on macOS
+at a 1440x900 logical viewport (Retina 2x). Its 22 manually inspected states
+cover Default and Kami Reader themes, light and dark color schemes, Reading and
+Editing, single and split layouts, Focus Mode, Reading Stage, New Tab, Settings,
+Command Palette, Quick Switcher, context menus, notices, Search, and secondary
+panes. `npm run check:visual` verifies that the reviewed screenshots remain bound
+to the exact release assets; it does not replace human bitmap review.
 
 ## Showcase
 
-### One visual language across Editing and Reading
+### One visual language across Reading and Editing
 
-| Editing View · Dark | Reading View · Dark |
+| Reading View · Dark | Editing View · Dark · Split |
 |---|---|
-| ![Dark Editing View](./visual-evidence/01-default-dark-editing-984x768.jpg) | ![Dark Reading View](./visual-evidence/02-default-dark-reading-984x768.jpg) |
+| ![Dark Reading View](./visual-evidence/kami-dark-reading-single.jpg) | ![Dark Editing View in a split layout](./visual-evidence/kami-dark-editing-split.jpg) |
 
 ### The shell stays continuous beyond the document
 
-| New Tab | Reading Stage |
+| New Tab · Light | Reading Stage · Light |
 |---|---|
-| ![Dark New Tab](./visual-evidence/04-default-dark-new-tab-984x768.jpg) | ![Dark Reading Stage](./visual-evidence/05-default-dark-reading-stage-984x768.jpg) |
+| ![Light New Tab](./visual-evidence/kami-light-new-tab.jpg) | ![Light Reading Stage](./visual-evidence/kami-light-reading-stage.jpg) |
 
-### The same hierarchy in Light mode
+### Foregrounds and settings remain part of the same workspace
 
-| Editing View · Light | Reading View · Light |
+| Command Palette · Light | Settings · Dark |
 |---|---|
-| ![Light Editing View](./visual-evidence/06-default-light-editing-984x768.jpg) | ![Light Reading View](./visual-evidence/07-default-light-reading-984x768.jpg) |
+| ![Light Command Palette](./visual-evidence/kami-light-command-palette.jpg) | ![Dark Settings](./visual-evidence/kami-dark-settings.jpg) |
 
 ## Local development
 

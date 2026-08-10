@@ -29,7 +29,7 @@ const required = new Map([
   ["kami-light-reading-focus", ["Kami Reader", "light", "reading", "single", "focus"]],
   ["kami-dark-editing-focus", ["Kami Reader", "dark", "editing", "single", "focus"]],
   ["kami-light-reading-stage", ["Kami Reader", "light", "reading", "single", "stage"]],
-  ["kami-dark-wide-outline-split", ["Kami Reader", "dark", "reading", "split", "wide-outline"]],
+  ["kami-dark-wide-content-outline", ["Kami Reader", "dark", "reading", "single", "wide-content"]],
   ["kami-light-settings", ["Kami Reader", "light", "settings", "single", "settings"]],
   ["kami-dark-settings", ["Kami Reader", "dark", "settings", "single", "settings"]],
   ["kami-light-command-palette", ["Kami Reader", "light", "command-palette", "single", "foreground"]],
@@ -37,7 +37,7 @@ const required = new Map([
   ["kami-light-context-menu", ["Kami Reader", "light", "reading", "single", "context-menu"]],
   ["kami-dark-notice", ["Kami Reader", "dark", "reading", "single", "notice"]],
   ["kami-light-search-sidebar", ["Kami Reader", "light", "search", "split", "side-pane"]],
-  ["kami-dark-secondary-panes", ["Kami Reader", "dark", "reading", "split", "side-pane"]]
+  ["kami-dark-secondary-panes", ["Kami Reader", "dark", "reading", "single", "side-pane"]]
 ]);
 
 const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
@@ -47,8 +47,8 @@ const jpegSize = (bytes) => {
     if (bytes.length > MAX_JPEG_BYTES) throw new Error("file exceeds 16 MiB");
     const decoded = jpeg.decode(bytes, {
       formatAsRGBA: false,
-      maxMemoryUsageInMB: 64,
-      maxResolutionInMP: 2,
+      maxMemoryUsageInMB: 128,
+      maxResolutionInMP: 6,
       useTArray: true
     });
     if (!decoded?.width || !decoded.height) throw new Error("missing dimensions");
@@ -74,6 +74,9 @@ if (manifest.appVersion !== "1.13.4" || manifest.os !== "macOS") {
 }
 if (manifest.viewport?.width !== 1440 || manifest.viewport?.height !== 900) {
   throw new Error("visual viewport must be 1440x900");
+}
+if (![1, 2].includes(manifest.deviceScaleFactor)) {
+  throw new Error("visual evidence must declare a deviceScaleFactor of 1 or 2");
 }
 const declaredAssets = Object.keys(manifest.candidate.sha256 ?? {}).sort();
 if (declaredAssets.length !== candidateAssets.length || declaredAssets.some((name, index) => name !== candidateAssets[index])) {
@@ -105,8 +108,10 @@ for (const artifact of manifest.artifacts) {
   seenFiles.add(artifact.file);
   const bytes = await readFile(new URL(artifact.file, evidence));
   const size = jpegSize(bytes);
-  if (size.width !== manifest.viewport.width || size.height !== manifest.viewport.height) {
-    throw new Error(`${artifact.file} must be 1440x900`);
+  const rasterWidth = manifest.viewport.width * manifest.deviceScaleFactor;
+  const rasterHeight = manifest.viewport.height * manifest.deviceScaleFactor;
+  if (size.width !== rasterWidth || size.height !== rasterHeight) {
+    throw new Error(`${artifact.file} must represent the declared 1440x900 viewport at ${manifest.deviceScaleFactor}x`);
   }
   if (sha256(bytes) !== artifact.sha256) throw new Error(`${artifact.file} hash mismatch`);
   if (seenImages.has(size.pixels)) throw new Error(`${artifact.id} must show an independent screenshot`);
@@ -115,4 +120,4 @@ for (const artifact of manifest.artifacts) {
 
 for (const id of required.keys()) if (!seen.has(id)) throw new Error(`missing visual state: ${id}`);
 
-console.log(`Verified structural integrity for ${seen.size} 1440x900 captures from Obsidian ${manifest.appVersion}.`);
+console.log(`Verified structural integrity for ${seen.size} 1440x900 captures from Obsidian ${manifest.appVersion} at ${manifest.deviceScaleFactor}x.`);

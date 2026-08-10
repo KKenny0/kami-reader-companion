@@ -7,9 +7,11 @@ export class AdaptiveContent {
   private destroyed = false;
   private decorated = new Set<HTMLElement>();
   private observed = new Set<HTMLElement>();
-  private observer = new MutationObserver(() => this.schedule());
+  private observer = new MutationObserver((records) =>
+    this.schedule(records[0]?.target.ownerDocument?.defaultView ?? undefined)
+  );
 
-  constructor(private schedule: () => void) {}
+  constructor(private schedule: (ownerWindow?: NonNullable<Document["defaultView"]>) => void) {}
 
   configure(previews: ReadonlySet<HTMLElement>): void {
     if (previews.size === this.observed.size && [...previews].every((preview) => this.observed.has(preview))) return;
@@ -29,7 +31,8 @@ export class AdaptiveContent {
 
   process(element: HTMLElement, context: MarkdownPostProcessorContext): void {
     if (!context.getSectionInfo(element)) return;
-    window.requestAnimationFrame(() => { if (!this.destroyed) this.decorate(element); });
+    const ownerWindow = element.ownerDocument.defaultView ?? window;
+    ownerWindow.requestAnimationFrame(() => { if (!this.destroyed) this.decorate(element); });
   }
 
   refresh(preview: HTMLElement | null): void {
@@ -112,5 +115,6 @@ export class AdaptiveContent {
     element.style.removeProperty("--kami-content-frame-width");
   };
 
-  private onLoad = (): void => this.schedule();
+  private onLoad = (event: Event): void =>
+    this.schedule((event.currentTarget as HTMLElement | null)?.ownerDocument.defaultView ?? undefined);
 }
