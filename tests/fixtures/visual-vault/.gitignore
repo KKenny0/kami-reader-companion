@@ -1,0 +1,7 @@
+.obsidian/plugins/
+.obsidian/themes/
+.obsidian/workspace*.json
+.obsidian/kami-visual-controller-loaded.txt
+.obsidian/kami-visual-controller.log
+.obsidian/kami-visual-ready.json
+.obsidian/kami-visual-state.json

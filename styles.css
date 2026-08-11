@@ -3,7 +3,6 @@ body:not(.is-mobile) {
   --kami-folio-strip-height: 32px;
   --kami-folio-view-header-height: 32px;
   --kami-folio-status-height: 22px;
-  --kami-folio-status-left: 0px;
   --kami-folio-ribbon-width: 32px;
   --kami-folio-document-top: clamp(72px, 7vw, 100px);
   --kami-folio-canvas: #dfddd4;
@@ -21,8 +20,7 @@ body:not(.is-mobile) {
   --kami-folio-danger: #9f3a38;
   --kami-folio-highlight: #f3e3a8;
   --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 7%, var(--kami-folio-paper));
-  --kami-folio-reading-font: Charter, "Iowan Old Style", Georgia, "Source Han Serif SC",
-    "Noto Serif CJK SC", "Noto Serif SC", "Songti SC", STSong, SimSun, serif;
+  --kami-folio-reading-font: var(--font-text-theme);
   --header-height: var(--kami-folio-strip-height);
   --ribbon-width: var(--kami-folio-ribbon-width);
   --titlebar-background: var(--kami-folio-shell-deep);
@@ -471,6 +469,14 @@ body.mod-macos.is-hidden-frameless:not(.is-mobile):not(.is-popout-window)
   box-shadow: inset 0 -1px 0 var(--kami-folio-line);
 }
 
+/* Preserve Obsidian's native caption-button safe area. The Folio tab-strip
+   reset must not reclaim the space owned by Windows or Linux window controls. */
+body:is(.mod-windows, .mod-linux).is-hidden-frameless:not(.is-fullscreen):not(.is-mobile)
+  .workspace-tabs.mod-top-right-space
+  > .workspace-tab-header-container {
+  padding-right: var(--frame-right-space);
+}
+
 body:not(.is-mobile) .nav-header {
   padding: 0;
 }
@@ -820,8 +826,8 @@ body.kami-reading-presence:not(.is-mobile)
   padding: var(--kami-folio-document-top) clamp(48px, 6vw, 96px) 128px;
   color: var(--kami-folio-ink);
   font-family: var(--kami-folio-reading-font);
-  font-size: 17px;
-  line-height: 1.68;
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
   font-variant-numeric: lining-nums tabular-nums;
   scrollbar-color: var(--kami-folio-line) transparent;
 }
@@ -833,8 +839,8 @@ body.kami-reading-presence:not(.is-mobile)
   color: var(--kami-folio-ink);
   background: var(--kami-folio-paper);
   font-family: var(--kami-folio-reading-font);
-  font-size: 17px;
-  line-height: 1.68;
+  font-size: var(--font-text-size);
+  line-height: var(--line-height-normal);
   font-variant-numeric: lining-nums tabular-nums;
   scrollbar-color: var(--kami-folio-line) transparent;
 }
@@ -939,9 +945,9 @@ body.kami-reading-presence:not(.is-mobile)
   max-width: 600px;
   margin-bottom: 35px;
   color: var(--kami-folio-muted);
-  font-family: var(--font-interface-theme);
-  font-size: 17px;
-  line-height: 1.55;
+  font-family: var(--kami-folio-reading-font);
+  font-size: calc(var(--font-text-size) * 1.0625);
+  line-height: var(--line-height-normal);
   text-wrap: pretty;
 }
 
@@ -1168,11 +1174,6 @@ body:not(.is-mobile) .workspace-leaf-resize-handle:is(:hover, :active) {
 }
 
 body:not(.is-mobile) .status-bar {
-  position: fixed;
-  left: var(--kami-folio-status-left);
-  right: 0;
-  inset-block-end: 0;
-  width: auto;
   min-height: var(--kami-folio-status-height);
   height: var(--kami-folio-status-height);
   padding-inline: 10px;
@@ -1183,14 +1184,12 @@ body:not(.is-mobile) .status-bar {
   font-size: 10px;
   letter-spacing: 0.02em;
   box-shadow: inset 0 1px 0 var(--kami-folio-line);
-  pointer-events: none;
 }
 
 body:not(.is-mobile) .status-bar-item {
   min-height: var(--kami-folio-status-height);
   padding-inline: 5px;
   color: inherit;
-  pointer-events: auto;
 }
 
 body:not(.is-mobile)

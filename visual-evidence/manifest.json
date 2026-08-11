@@ -1,9 +1,10 @@
 {
+  "kind": "historical-macos-matrix",
   "appVersion": "1.13.4",
   "os": "macOS",
   "viewport": { "width": 1440, "height": 900 },
   "deviceScaleFactor": 2,
-  "candidate": {
+  "baselineCandidate": {
     "version": "0.1.7",
     "sha256": {
       "main.js": "1462f9eff993cf29bf2630916c071d78dad6690a833867e136a2ad8065f955c4",

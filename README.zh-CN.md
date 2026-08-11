@@ -33,12 +33,13 @@ CodeMirror 当前编辑行；Reading View 会突出指针或键盘焦点所在�
 两种模式可以组合：Reading Stage 管理空间，Focus Mode 管理注意力。按下
 `Escape` 会先退出 Reading Stage，再退出 Focus Mode。两种模式均不会持久化。
 
-视觉基线是在 macOS 的 Obsidian 1.13.4 中，以 1440x900 逻辑视口
-（Retina 2x）真实捕获并逐张审查的矩阵。22 个独立状态覆盖 Default 与
-Kami Reader 主题、明暗配色、Reading 与 Editing、单双 pane、Focus Mode、
-Reading Stage、New Tab、Settings、Command Palette、Quick Switcher、
-右键菜单、Notice、Search 和其他代表性侧栏。`npm run check:visual`
-只负责确保已审截图与本次发布资产精确绑定，不能代替人工位图验收。
+`visual-evidence/` 下的 macOS 22 状态矩阵仅保留为历史参考，不计入当前候选
+验收。0.1.8 使用从受版本控制的合成 `visual-vault` 在 Obsidian 1.13.6
+捕获的 7 张 Windows
+候选截图，覆盖 Default/Kami Reader、明暗配色、Reading/Editing、单双 pane
+以及 Reading Stage。门禁把人工审过的像素同时绑定到 Companion 精确发布资产
+与公开的 Kami Reader 0.2.1 `theme.css`。自动检查负责结构和来源，不能替代
+人工逐像素审查。
 
 ## 效果展示
 
@@ -65,9 +66,18 @@ Reading Stage、New Tab、Settings、Command Palette、Quick Switcher、
 ```sh
 npm ci
 npm run check
-npm run check:visual
 npm run dev:injector
 ```
+
+`check:visual` 还需要指定已固定的公开主题资产。PowerShell 示例：
+
+```powershell
+$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.2.1\theme.css"
+npm run check:visual
+```
+
+发布截图只能展示 `tests/fixtures/visual-vault` 中的文件与文字；严禁捕获个人或
+生产知识库。
 
 将 `.dev/inject-kami-reader-companion.js` 粘贴到 Obsidian DevTools，然后在
 Settings → Community plugins 中启用 **Kami Reader Companion**。

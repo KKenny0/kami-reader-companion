@@ -1,0 +1,9 @@
+{
+  "id": "kami-visual-controller",
+  "name": "Kami Visual Controller",
+  "version": "0.1.0",
+  "minAppVersion": "1.13.0",
+  "description": "Fixture-only commands for reproducible public visual capture.",
+  "author": "Kenny Wu",
+  "isDesktopOnly": true
+}

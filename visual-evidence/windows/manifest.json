@@ -1,0 +1,126 @@
+{
+  "kind": "current-windows-acceptance",
+  "appVersion": "1.13.6",
+  "os": "Windows",
+  "fixtureVault": "visual-vault",
+  "viewport": { "width": 2576, "height": 1416 },
+  "dpi": 96,
+  "deviceScaleFactor": 1,
+  "review": {
+    "method": "human-pixel-review",
+    "checklist": [
+      "fixture-only-content",
+      "mode-and-layout-match",
+      "caption-controls-clear",
+      "status-bar-placement",
+      "theme-font-contract"
+    ]
+  },
+  "candidate": {
+    "version": "0.1.8",
+    "hashEncoding": {
+      "main.js": "raw-v1",
+      "manifest.json": "utf8-lf-v1",
+      "styles.css": "utf8-lf-v1"
+    },
+    "sha256": {
+      "main.js": "92a1dc2fe0598fd01c3923a9503e1f9461a5168fc93a907ee1e5a212003332d6",
+      "manifest.json": "5d4aefb2af34e035a311787a6ffd9c5896a7eeea6c6ada844f6b3c5c8662b4ec",
+      "styles.css": "3c98c04da8d863116a193249de46d24f6ff437174e0cb54200da7015c80ade34"
+    }
+  },
+  "themeDependency": {
+    "repository": "KKenny0/obsidian-kami",
+    "tag": "0.2.1",
+    "commit": "8b2bc5372e9dd731b69ddc950632be1b4f4b4d37",
+    "asset": "theme.css",
+    "hashEncoding": "utf8-lf-v1",
+    "sha256": "d3e7e18c15ae007dcd9370b0920b847ac6c01748aefd64e7697ae193e37df504"
+  },
+  "artifacts": [
+    {
+      "id": "windows-default-light-editing-split",
+      "theme": "Default",
+      "colorScheme": "light",
+      "mode": "editing",
+      "layout": "split",
+      "scenario": "base",
+      "sidebars": "expanded",
+      "assertions": ["default-font-preserved", "caption-controls-clear", "native-status-bar"],
+      "file": "windows-default-light-editing-split.jpg",
+      "sha256": "282820423585be62c8d780b55ac9704fc428c410ea63a6a6288dd4123c772704"
+    },
+    {
+      "id": "windows-default-dark-reading-single",
+      "theme": "Default",
+      "colorScheme": "dark",
+      "mode": "reading",
+      "layout": "single",
+      "scenario": "base",
+      "sidebars": "expanded",
+      "assertions": ["default-font-preserved", "caption-controls-clear", "native-status-bar"],
+      "file": "windows-default-dark-reading-single.jpg",
+      "sha256": "5ad2e5d52ea93ebdccd93725af5298c22edaa157beb27b429961675c2afad004"
+    },
+    {
+      "id": "windows-kami-light-editing-split",
+      "theme": "Kami Reader",
+      "colorScheme": "light",
+      "mode": "editing",
+      "layout": "split",
+      "scenario": "base",
+      "sidebars": "expanded",
+      "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
+      "file": "windows-kami-light-editing-split.jpg",
+      "sha256": "28a71144dab180787adae689405ffca38b2833e6465e40a633097454f4fe91e8"
+    },
+    {
+      "id": "windows-kami-dark-editing-split",
+      "theme": "Kami Reader",
+      "colorScheme": "dark",
+      "mode": "editing",
+      "layout": "split",
+      "scenario": "base",
+      "sidebars": "expanded",
+      "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
+      "file": "windows-kami-dark-editing-split.jpg",
+      "sha256": "da442964d6fd4d5581e76634b65df4b398a717ecf3f04c5a904447050b2ead24"
+    },
+    {
+      "id": "windows-kami-light-reading-single",
+      "theme": "Kami Reader",
+      "colorScheme": "light",
+      "mode": "reading",
+      "layout": "single",
+      "scenario": "base",
+      "sidebars": "expanded",
+      "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
+      "file": "windows-kami-light-reading-single.jpg",
+      "sha256": "8fb2d51171aac4f10d4f65c1da3fc475724792b548c37b67e49aeff1f56eda0a"
+    },
+    {
+      "id": "windows-kami-dark-reading-single",
+      "theme": "Kami Reader",
+      "colorScheme": "dark",
+      "mode": "reading",
+      "layout": "single",
+      "scenario": "base",
+      "sidebars": "expanded",
+      "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
+      "file": "windows-kami-dark-reading-single.jpg",
+      "sha256": "b3b2c6e6231f11ef54ffb6f9f562022e95a50430aa53faa9ad53eb3006a453d7"
+    },
+    {
+      "id": "windows-kami-light-reading-stage-single",
+      "theme": "Kami Reader",
+      "colorScheme": "light",
+      "mode": "reading",
+      "layout": "single",
+      "scenario": "stage",
+      "sidebars": "expanded",
+      "assertions": ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"],
+      "file": "windows-kami-light-reading-stage-single.jpg",
+      "sha256": "dea7d908273cfb704889564f84c3c9adc75bed8d33a1876209b6ac88a1d739e7"
+    }
+  ]
+}

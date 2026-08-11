@@ -4,12 +4,25 @@ import globals from "globals";
 import obsidianmd from "eslint-plugin-obsidianmd";
 
 export default defineConfig([
-  { ignores: ["main.js", ".dev/", "node_modules/", "test-vault/"] },
+  {
+    ignores: [
+      "main.js",
+      ".dev/",
+      "node_modules/",
+      "test-vault/",
+      "tests/fixtures/visual-controller/",
+      "tests/fixtures/visual-vault/.obsidian/plugins/"
+    ]
+  },
   ...obsidianmd.configs.recommended,
   {
     files: ["**/*.mjs"],
     languageOptions: { globals: globals.node },
     rules: { "obsidianmd/rule-custom-message": "off" }
+  },
+  {
+    files: ["eslint.config.mjs"],
+    rules: { "obsidianmd/hardcoded-config-path": "off" }
   },
   {
     files: ["**/*.ts"],

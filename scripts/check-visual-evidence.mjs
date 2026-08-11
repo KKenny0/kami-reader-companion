@@ -6,16 +6,21 @@ import jpeg from "jpeg-js";
 const root = process.env.KAMI_VISUAL_ROOT
   ? pathToFileURL(`${process.env.KAMI_VISUAL_ROOT}/`)
   : new URL("../", import.meta.url);
-const evidence = process.env.KAMI_VISUAL_EVIDENCE
+const historicalEvidence = process.env.KAMI_VISUAL_EVIDENCE
   ? pathToFileURL(`${process.env.KAMI_VISUAL_EVIDENCE}/`)
   : new URL("../visual-evidence/", import.meta.url);
-const [manifest, packageJson, pluginManifest] = await Promise.all([
-  readFile(new URL("manifest.json", evidence), "utf8").then(JSON.parse),
+const windowsEvidence = process.env.KAMI_VISUAL_WINDOWS_EVIDENCE
+  ? pathToFileURL(`${process.env.KAMI_VISUAL_WINDOWS_EVIDENCE}/`)
+  : new URL("windows/", historicalEvidence);
+
+const [historicalManifest, windowsManifest, packageJson, pluginManifest] = await Promise.all([
+  readFile(new URL("manifest.json", historicalEvidence), "utf8").then(JSON.parse),
+  readFile(new URL("manifest.json", windowsEvidence), "utf8").then(JSON.parse),
   readFile(new URL("package.json", root), "utf8").then(JSON.parse),
   readFile(new URL("manifest.json", root), "utf8").then(JSON.parse)
 ]);
 
-const required = new Map([
+const historicalRequired = new Map([
   ["default-light-reading-single", ["Default", "light", "reading", "single", "base"]],
   ["default-light-editing-split", ["Default", "light", "editing", "split", "base"]],
   ["default-dark-reading-single", ["Default", "dark", "reading", "single", "base"]],
@@ -40,7 +45,57 @@ const required = new Map([
   ["kami-dark-secondary-panes", ["Kami Reader", "dark", "reading", "single", "side-pane"]]
 ]);
 
-const sha256 = (buffer) => createHash("sha256").update(buffer).digest("hex");
+const windowsRequired = new Map([
+  ["windows-default-light-editing-split", {
+    state: ["Default", "light", "editing", "split", "base"],
+    assertions: ["default-font-preserved", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-default-dark-reading-single", {
+    state: ["Default", "dark", "reading", "single", "base"],
+    assertions: ["default-font-preserved", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-light-editing-split", {
+    state: ["Kami Reader", "light", "editing", "split", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-dark-editing-split", {
+    state: ["Kami Reader", "dark", "editing", "split", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-light-reading-single", {
+    state: ["Kami Reader", "light", "reading", "single", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-dark-reading-single", {
+    state: ["Kami Reader", "dark", "reading", "single", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-light-reading-stage-single", {
+    state: ["Kami Reader", "light", "reading", "single", "stage"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"]
+  }]
+]);
+
+const requiredChecklist = [
+  "fixture-only-content",
+  "mode-and-layout-match",
+  "caption-controls-clear",
+  "status-bar-placement",
+  "theme-font-contract"
+];
+const textHashEncoding = "utf8-lf-v1";
+const rawHashEncoding = "raw-v1";
+const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const canonicalText = (bytes) => {
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  return Buffer.from(text.replace(/\r\n?/g, "\n"), "utf8");
+};
+const hashByEncoding = (bytes, encoding) => {
+  if (encoding === rawHashEncoding) return sha256(bytes);
+  if (encoding === textHashEncoding) return sha256(canonicalText(bytes));
+  throw new Error(`unsupported hash encoding: ${encoding}`);
+};
+
 const MAX_JPEG_BYTES = 16 * 1024 * 1024;
 const jpegSize = (bytes) => {
   try {
@@ -63,61 +118,130 @@ const jpegSize = (bytes) => {
   }
 };
 
-const candidateAssets = ["main.js", "manifest.json", "styles.css"];
+const validateArtifacts = async ({ manifest, evidence, required, label }) => {
+  if (!Array.isArray(manifest.artifacts) || manifest.artifacts.length !== required.size) {
+    throw new Error(`${label} visual evidence must contain exactly ${required.size} artifacts`);
+  }
+  const seen = new Set();
+  const seenFiles = new Set();
+  const seenImages = new Set();
+  for (const artifact of manifest.artifacts) {
+    const expected = required.get(artifact.id);
+    if (!expected) throw new Error(`unknown ${label} visual state: ${artifact.id}`);
+    if (seen.has(artifact.id)) throw new Error(`duplicate ${label} visual state: ${artifact.id}`);
+    seen.add(artifact.id);
+    const expectedState = Array.isArray(expected) ? expected : expected.state;
+    const actualState = [artifact.theme, artifact.colorScheme, artifact.mode, artifact.layout, artifact.scenario];
+    if (actualState.some((value, index) => value !== expectedState[index])) {
+      throw new Error(`${artifact.id} state mismatch`);
+    }
+    if (artifact.sidebars !== "expanded") throw new Error(`${artifact.id} must capture expanded sidebars`);
+    if (!Array.isArray(expected) && JSON.stringify(artifact.assertions) !== JSON.stringify(expected.assertions)) {
+      throw new Error(`${artifact.id} assertions mismatch`);
+    }
+    if (typeof artifact.file !== "string" || !/^[a-z0-9][a-z0-9._-]*\.jpe?g$/i.test(artifact.file)) {
+      throw new Error(`${artifact.id} has an invalid artifact file`);
+    }
+    if (seenFiles.has(artifact.file)) throw new Error(`${artifact.id} must use an independent screenshot file`);
+    seenFiles.add(artifact.file);
+    const bytes = await readFile(new URL(artifact.file, evidence));
+    const size = jpegSize(bytes);
+    const rasterWidth = manifest.viewport.width * manifest.deviceScaleFactor;
+    const rasterHeight = manifest.viewport.height * manifest.deviceScaleFactor;
+    if (size.width !== rasterWidth || size.height !== rasterHeight) {
+      throw new Error(`${artifact.file} must represent the declared ${manifest.viewport.width}x${manifest.viewport.height} viewport at ${manifest.deviceScaleFactor}x`);
+    }
+    if (sha256(bytes) !== artifact.sha256) throw new Error(`${artifact.file} hash mismatch`);
+    if (seenImages.has(size.pixels)) throw new Error(`${artifact.id} must show an independent screenshot`);
+    seenImages.add(size.pixels);
+  }
+  for (const id of required.keys()) if (!seen.has(id)) throw new Error(`missing ${label} visual state: ${id}`);
+  return seen.size;
+};
 
-if (manifest.visualBaseline) throw new Error("carried-forward visual baselines are not allowed");
-if (manifest.candidate.version !== packageJson.version || manifest.candidate.version !== pluginManifest.version) {
-  throw new Error("visual candidate version must match package.json and manifest.json");
+if (historicalManifest.kind !== "historical-macos-matrix" || historicalManifest.candidate) {
+  throw new Error("macOS matrix must be explicitly historical and must not claim the current candidate");
 }
-if (manifest.appVersion !== "1.13.4" || manifest.os !== "macOS") {
-  throw new Error("visual evidence must come from Obsidian 1.13.4 on macOS");
+if (historicalManifest.appVersion !== "1.13.4" || historicalManifest.os !== "macOS") {
+  throw new Error("historical visual matrix must come from Obsidian 1.13.4 on macOS");
 }
-if (manifest.viewport?.width !== 1440 || manifest.viewport?.height !== 900) {
-  throw new Error("visual viewport must be 1440x900");
+if (historicalManifest.viewport?.width !== 1440 || historicalManifest.viewport?.height !== 900) {
+  throw new Error("historical visual viewport must be 1440x900");
 }
-if (![1, 2].includes(manifest.deviceScaleFactor)) {
-  throw new Error("visual evidence must declare a deviceScaleFactor of 1 or 2");
+if (![1, 2].includes(historicalManifest.deviceScaleFactor)) {
+  throw new Error("historical visual evidence must declare a deviceScaleFactor of 1 or 2");
 }
-const declaredAssets = Object.keys(manifest.candidate.sha256 ?? {}).sort();
-if (declaredAssets.length !== candidateAssets.length || declaredAssets.some((name, index) => name !== candidateAssets[index])) {
+if (!/^0\.1\.\d+$/.test(historicalManifest.baselineCandidate?.version ?? "") ||
+  Object.keys(historicalManifest.baselineCandidate?.sha256 ?? {}).sort().join(",") !== "main.js,manifest.json,styles.css" ||
+  Object.values(historicalManifest.baselineCandidate.sha256).some((hash) => !/^[a-f0-9]{64}$/.test(hash))) {
+  throw new Error("historical matrix must retain its original candidate provenance");
+}
+
+if (windowsManifest.kind !== "current-windows-acceptance") {
+  throw new Error("Windows evidence must be marked as current candidate acceptance");
+}
+if (windowsManifest.appVersion !== "1.13.6" || windowsManifest.os !== "Windows") {
+  throw new Error("current visual acceptance must come from Obsidian 1.13.6 on Windows");
+}
+if (windowsManifest.fixtureVault !== "visual-vault") {
+  throw new Error("Windows acceptance must use the tracked visual-vault fixture");
+}
+if (windowsManifest.viewport?.width < 1200 || windowsManifest.viewport?.height < 800 ||
+  windowsManifest.deviceScaleFactor !== windowsManifest.dpi / 96) {
+  throw new Error("Windows acceptance must declare a viewport of at least 1200x800 and a consistent DPI scale");
+}
+if (windowsManifest.review?.method !== "human-pixel-review" ||
+  JSON.stringify(windowsManifest.review.checklist) !== JSON.stringify(requiredChecklist)) {
+  throw new Error("Windows acceptance must record the complete human review checklist");
+}
+if (windowsManifest.candidate.version !== packageJson.version || windowsManifest.candidate.version !== pluginManifest.version) {
+  throw new Error("Windows visual candidate version must match package.json and manifest.json");
+}
+
+const candidateEncodings = {
+  "main.js": rawHashEncoding,
+  "manifest.json": textHashEncoding,
+  "styles.css": textHashEncoding
+};
+if (JSON.stringify(windowsManifest.candidate.hashEncoding) !== JSON.stringify(candidateEncodings)) {
+  throw new Error("candidate hash encodings must use raw-v1 for main.js and utf8-lf-v1 for text assets");
+}
+const candidateAssets = Object.keys(candidateEncodings).sort();
+const declaredAssets = Object.keys(windowsManifest.candidate.sha256 ?? {}).sort();
+if (JSON.stringify(declaredAssets) !== JSON.stringify(candidateAssets)) {
   throw new Error(`candidate hashes must contain exactly: ${candidateAssets.join(", ")}`);
 }
-for (const [name, expected] of Object.entries(manifest.candidate.sha256)) {
-  const actual = sha256(await readFile(new URL(name, root)));
-  if (actual !== expected) throw new Error(`${name} hash mismatch`);
+for (const name of candidateAssets) {
+  const actual = hashByEncoding(await readFile(new URL(name, root)), candidateEncodings[name]);
+  if (actual !== windowsManifest.candidate.sha256[name]) throw new Error(`${name} hash mismatch`);
 }
 
-if (!Array.isArray(manifest.artifacts) || manifest.artifacts.length !== required.size) {
-  throw new Error(`visual evidence must contain exactly ${required.size} artifacts`);
+const theme = windowsManifest.themeDependency;
+if (theme?.repository !== "KKenny0/obsidian-kami" || theme.tag !== "0.2.1" ||
+  !/^[a-f0-9]{40}$/.test(theme.commit ?? "") || theme.asset !== "theme.css" ||
+  theme.hashEncoding !== textHashEncoding || !/^[a-f0-9]{64}$/.test(theme.sha256 ?? "")) {
+  throw new Error("Windows acceptance must bind the exact public Kami Reader 0.2.1 theme.css");
 }
-const seen = new Set();
-const seenFiles = new Set();
-const seenImages = new Set();
-for (const artifact of manifest.artifacts) {
-  const expected = required.get(artifact.id);
-  if (!expected) throw new Error(`unknown visual state: ${artifact.id}`);
-  if (seen.has(artifact.id)) throw new Error(`duplicate visual state: ${artifact.id}`);
-  seen.add(artifact.id);
-  const actualState = [artifact.theme, artifact.colorScheme, artifact.mode, artifact.layout, artifact.scenario];
-  if (actualState.some((value, index) => value !== expected[index])) throw new Error(`${artifact.id} state mismatch`);
-  if (artifact.sidebars !== "expanded") throw new Error(`${artifact.id} must capture expanded sidebars`);
-  if (typeof artifact.file !== "string" || !/^[a-z0-9][a-z0-9._-]*\.jpe?g$/i.test(artifact.file)) {
-    throw new Error(`${artifact.id} has an invalid artifact file`);
-  }
-  if (seenFiles.has(artifact.file)) throw new Error(`${artifact.id} must use an independent screenshot file`);
-  seenFiles.add(artifact.file);
-  const bytes = await readFile(new URL(artifact.file, evidence));
-  const size = jpegSize(bytes);
-  const rasterWidth = manifest.viewport.width * manifest.deviceScaleFactor;
-  const rasterHeight = manifest.viewport.height * manifest.deviceScaleFactor;
-  if (size.width !== rasterWidth || size.height !== rasterHeight) {
-    throw new Error(`${artifact.file} must represent the declared 1440x900 viewport at ${manifest.deviceScaleFactor}x`);
-  }
-  if (sha256(bytes) !== artifact.sha256) throw new Error(`${artifact.file} hash mismatch`);
-  if (seenImages.has(size.pixels)) throw new Error(`${artifact.id} must show an independent screenshot`);
-  seenImages.add(size.pixels);
+if (!process.env.KAMI_VISUAL_THEME_CSS) {
+  throw new Error("KAMI_VISUAL_THEME_CSS must point to theme.css fetched from the pinned public commit");
+}
+const themeBytes = await readFile(pathToFileURL(process.env.KAMI_VISUAL_THEME_CSS));
+if (hashByEncoding(themeBytes, theme.hashEncoding) !== theme.sha256) {
+  throw new Error("pinned Kami Reader theme.css hash mismatch");
 }
 
-for (const id of required.keys()) if (!seen.has(id)) throw new Error(`missing visual state: ${id}`);
+const historicalCount = await validateArtifacts({
+  manifest: historicalManifest,
+  evidence: historicalEvidence,
+  required: historicalRequired,
+  label: "historical macOS"
+});
+const windowsCount = await validateArtifacts({
+  manifest: windowsManifest,
+  evidence: windowsEvidence,
+  required: windowsRequired,
+  label: "current Windows"
+});
 
-console.log(`Verified structural integrity for ${seen.size} 1440x900 captures from Obsidian ${manifest.appVersion} at ${manifest.deviceScaleFactor}x.`);
+console.log(`Retained ${historicalCount} historical macOS reference captures (not current acceptance).`);
+console.log(`Verified ${windowsCount} current Windows candidate captures for Obsidian 1.13.6 after recorded human pixel review.`);

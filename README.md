@@ -39,13 +39,14 @@ spatial presentation. The two modes can be combined: Reading Stage controls
 space, while Focus Mode controls attention. `Escape` exits Reading Stage first,
 then Focus Mode. Neither mode is persisted.
 
-The visual baseline is a real-app matrix captured from Obsidian 1.13.4 on macOS
-at a 1440x900 logical viewport (Retina 2x). Its 22 manually inspected states
-cover Default and Kami Reader themes, light and dark color schemes, Reading and
-Editing, single and split layouts, Focus Mode, Reading Stage, New Tab, Settings,
-Command Palette, Quick Switcher, context menus, notices, Search, and secondary
-panes. `npm run check:visual` verifies that the reviewed screenshots remain bound
-to the exact release assets; it does not replace human bitmap review.
+The 22-state macOS matrix under `visual-evidence/` is retained as a historical
+reference and is not counted as current release acceptance. Version 0.1.8 uses
+seven current Obsidian 1.13.6 Windows captures from the tracked synthetic `visual-vault`: the
+Default and Kami Reader themes, light and dark schemes, Reading and Editing,
+single and split layouts, plus Reading Stage. The gate binds those reviewed
+pixels to the exact Companion assets and the public Kami Reader 0.2.1
+`theme.css`. It records structure and provenance; it does not replace human
+pixel review.
 
 ## Showcase
 
@@ -72,9 +73,18 @@ to the exact release assets; it does not replace human bitmap review.
 ```sh
 npm ci
 npm run check
-npm run check:visual
 npm run dev:injector
 ```
+
+`check:visual` also needs the pinned public theme asset. On PowerShell:
+
+```powershell
+$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.2.1\theme.css"
+npm run check:visual
+```
+
+Release screenshots must contain only files and text from
+`tests/fixtures/visual-vault`; never capture a personal or production vault.
 
 Paste `.dev/inject-kami-reader-companion.js` into Obsidian DevTools, then enable
 **Kami Reader Companion** under Settings → Community plugins.

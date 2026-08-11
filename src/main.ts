@@ -9,8 +9,6 @@ export default class KamiReaderCompanion extends Plugin {
   private frames = new Map<OwnerWindow, number>();
   private resizeObservers = new Map<OwnerWindow, ResizeObserver>();
   private observedPreviews = new Set<HTMLElement>();
-  private observedRoots = new Set<HTMLElement>();
-  private shellDocuments = new Set<Document>();
   private outline!: OutlineSync;
   private adaptive!: AdaptiveContent;
   private presence!: ReadingPresence;
@@ -64,11 +62,6 @@ export default class KamiReaderCompanion extends Plugin {
     this.frames.clear();
     this.resizeObservers.forEach((observer) => observer.disconnect());
     this.resizeObservers.clear();
-    this.shellDocuments.forEach((ownerDocument) =>
-      ownerDocument.body.style.removeProperty("--kami-folio-status-left")
-    );
-    this.shellDocuments.clear();
-    this.observedRoots.clear();
   }
 
   private schedule = (ownerWindow: OwnerWindow = window): void => {
@@ -94,54 +87,20 @@ export default class KamiReaderCompanion extends Plugin {
         if (!this.observedPreviews.has(preview)) this.observe(preview);
       });
       this.observedPreviews = previews;
-      this.syncShellGeometry();
+      const activeWindows = new Set([...previews]
+        .map((preview) => preview.ownerDocument.defaultView)
+        .filter((candidate): candidate is OwnerWindow => candidate !== null));
+      this.resizeObservers.forEach((observer, observedWindow) => {
+        if (activeWindows.has(observedWindow)) return;
+        observer.disconnect();
+        this.resizeObservers.delete(observedWindow);
+      });
       this.adaptive.configure(previews);
       previews.forEach((preview) => this.adaptive.refresh(preview));
       this.outline.refresh();
     });
     this.frames.set(ownerWindow, frame);
   };
-
-  private syncShellGeometry(): void {
-    const documents = new Set<Document>([document]);
-    this.app.workspace.iterateAllLeaves((leaf) => {
-      documents.add(leaf.view.containerEl.ownerDocument);
-    });
-    const roots = new Set<HTMLElement>();
-    documents.forEach((ownerDocument) => {
-      const root = ownerDocument.querySelector<HTMLElement>(".workspace-split.mod-root");
-      if (!root) {
-        ownerDocument.body.style.removeProperty("--kami-folio-status-left");
-        return;
-      }
-      roots.add(root);
-      const left = `${root.getBoundingClientRect().left}px`;
-      if (ownerDocument.body.style.getPropertyValue("--kami-folio-status-left") !== left) {
-        ownerDocument.body.style.setProperty("--kami-folio-status-left", left);
-      }
-    });
-    this.shellDocuments.forEach((ownerDocument) => {
-      if (!documents.has(ownerDocument)) {
-        ownerDocument.body.style.removeProperty("--kami-folio-status-left");
-      }
-    });
-    this.observedRoots.forEach((root) => {
-      if (!roots.has(root)) this.unobserve(root);
-    });
-    roots.forEach((root) => {
-      if (!this.observedRoots.has(root)) this.observe(root);
-    });
-    this.shellDocuments = documents;
-    this.observedRoots = roots;
-    const activeWindows = new Set([...roots, ...this.observedPreviews]
-      .map((element) => element.ownerDocument.defaultView)
-      .filter((ownerWindow): ownerWindow is OwnerWindow => ownerWindow !== null));
-    this.resizeObservers.forEach((observer, ownerWindow) => {
-      if (activeWindows.has(ownerWindow)) return;
-      observer.disconnect();
-      this.resizeObservers.delete(ownerWindow);
-    });
-  }
 
   private observe(element: HTMLElement): void {
     const ownerWindow = element.ownerDocument.defaultView;
