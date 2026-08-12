@@ -78,7 +78,11 @@ describe("plugin lifecycle", () => {
     const PluginUnderTest = KamiReaderCompanion as unknown as new () => KamiReaderCompanion;
     const plugin = new PluginUnderTest();
     plugin.onload();
-    expect(mocks.commandIds).toEqual(["toggle-reading-stage", "toggle-focus-mode"]);
+    expect(mocks.commandIds).toEqual([
+      "toggle-reading-stage",
+      "toggle-focus-mode",
+      "toggle-white-page-preview"
+    ]);
     plugin.onunload();
     mocks.layoutReady?.();
 

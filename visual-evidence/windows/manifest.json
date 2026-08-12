@@ -3,7 +3,7 @@
   "appVersion": "1.13.6",
   "os": "Windows",
   "fixtureVault": "visual-vault",
-  "viewport": { "width": 2576, "height": 1416 },
+  "viewport": { "width": 2323, "height": 1147 },
   "dpi": 96,
   "deviceScaleFactor": 1,
   "review": {
@@ -13,29 +13,29 @@
       "mode-and-layout-match",
       "caption-controls-clear",
       "status-bar-placement",
-      "theme-font-contract"
+      "theme-font-contract",
+      "white-page-preview-boundary"
     ]
   },
   "candidate": {
-    "version": "0.1.8",
+    "version": "0.2.0",
     "hashEncoding": {
       "main.js": "raw-v1",
       "manifest.json": "utf8-lf-v1",
       "styles.css": "utf8-lf-v1"
     },
     "sha256": {
-      "main.js": "92a1dc2fe0598fd01c3923a9503e1f9461a5168fc93a907ee1e5a212003332d6",
-      "manifest.json": "5d4aefb2af34e035a311787a6ffd9c5896a7eeea6c6ada844f6b3c5c8662b4ec",
-      "styles.css": "3c98c04da8d863116a193249de46d24f6ff437174e0cb54200da7015c80ade34"
+      "main.js": "5598f9529d636d57f7ca76840f965241ac096f9b6d3adfbab63a7b4cc30a9faf",
+      "manifest.json": "5f651da799a640edbb4aa36486dbea1aad60a6c7e34fcb3c53b5d0c0dce0a7d6",
+      "styles.css": "3ffa37030814e1e3a214258d72ffba9622f01bf19a58381badc7a2a62dac8f6b"
     }
   },
   "themeDependency": {
     "repository": "KKenny0/obsidian-kami",
-    "tag": "0.2.1",
-    "commit": "8b2bc5372e9dd731b69ddc950632be1b4f4b4d37",
+    "tag": "0.3.0",
     "asset": "theme.css",
     "hashEncoding": "utf8-lf-v1",
-    "sha256": "d3e7e18c15ae007dcd9370b0920b847ac6c01748aefd64e7697ae193e37df504"
+    "sha256": "d65d30fca48aac20b32c56a94f52a95bd3ef71285c1e48ec2bb72bc65c4543fa"
   },
   "artifacts": [
     {
@@ -48,7 +48,7 @@
       "sidebars": "expanded",
       "assertions": ["default-font-preserved", "caption-controls-clear", "native-status-bar"],
       "file": "windows-default-light-editing-split.jpg",
-      "sha256": "282820423585be62c8d780b55ac9704fc428c410ea63a6a6288dd4123c772704"
+      "sha256": "c015780f35d51d75a4dc46b275c0b5e63cc1d806d539f1eb8b83e8e56d4b505d"
     },
     {
       "id": "windows-default-dark-reading-single",
@@ -60,7 +60,7 @@
       "sidebars": "expanded",
       "assertions": ["default-font-preserved", "caption-controls-clear", "native-status-bar"],
       "file": "windows-default-dark-reading-single.jpg",
-      "sha256": "5ad2e5d52ea93ebdccd93725af5298c22edaa157beb27b429961675c2afad004"
+      "sha256": "ae5e6a2681cd320762868051ab278850cf6863c9bdca0002da792e27f976e7b6"
     },
     {
       "id": "windows-kami-light-editing-split",
@@ -72,7 +72,7 @@
       "sidebars": "expanded",
       "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
       "file": "windows-kami-light-editing-split.jpg",
-      "sha256": "28a71144dab180787adae689405ffca38b2833e6465e40a633097454f4fe91e8"
+      "sha256": "48ee5cf7f8372a858cba404eab3426b8ae5cf9e5da2bd729bb3da0d983667274"
     },
     {
       "id": "windows-kami-dark-editing-split",
@@ -84,7 +84,7 @@
       "sidebars": "expanded",
       "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
       "file": "windows-kami-dark-editing-split.jpg",
-      "sha256": "da442964d6fd4d5581e76634b65df4b398a717ecf3f04c5a904447050b2ead24"
+      "sha256": "0949690180dda302f4738646d6b4aae04151fcd917fa62c04cc719e0edaa5e71"
     },
     {
       "id": "windows-kami-light-reading-single",
@@ -96,7 +96,7 @@
       "sidebars": "expanded",
       "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
       "file": "windows-kami-light-reading-single.jpg",
-      "sha256": "8fb2d51171aac4f10d4f65c1da3fc475724792b548c37b67e49aeff1f56eda0a"
+      "sha256": "6ddbc61348603cb48f5206b138c6988ceea222ff6506a89ac207582e61863e7a"
     },
     {
       "id": "windows-kami-dark-reading-single",
@@ -108,7 +108,7 @@
       "sidebars": "expanded",
       "assertions": ["theme-font-inherited", "caption-controls-clear", "native-status-bar"],
       "file": "windows-kami-dark-reading-single.jpg",
-      "sha256": "b3b2c6e6231f11ef54ffb6f9f562022e95a50430aa53faa9ad53eb3006a453d7"
+      "sha256": "8a6135ddf1efa3fff05ef9d2363646a8434352997b6fce2ebda7564ebbffb068"
     },
     {
       "id": "windows-kami-light-reading-stage-single",
@@ -120,7 +120,31 @@
       "sidebars": "expanded",
       "assertions": ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"],
       "file": "windows-kami-light-reading-stage-single.jpg",
-      "sha256": "dea7d908273cfb704889564f84c3c9adc75bed8d33a1876209b6ac88a1d739e7"
+      "sha256": "4c324515e36f63087cd5c40cccb116b980929f15c91de42d432fd6bc33f4ffe5"
+    },
+    {
+      "id": "windows-default-dark-white-page-preview",
+      "theme": "Default",
+      "colorScheme": "dark",
+      "mode": "reading",
+      "layout": "single",
+      "scenario": "white-page-preview",
+      "sidebars": "expanded",
+      "assertions": ["default-font-preserved", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"],
+      "file": "windows-default-dark-white-page-preview.jpg",
+      "sha256": "8aa13583b51bebf84acef6963e3a659f301800176e4f806c87a21b7bd1a9907f"
+    },
+    {
+      "id": "windows-kami-dark-white-page-preview",
+      "theme": "Kami Reader",
+      "colorScheme": "dark",
+      "mode": "reading",
+      "layout": "single",
+      "scenario": "white-page-preview",
+      "sidebars": "expanded",
+      "assertions": ["theme-font-inherited", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"],
+      "file": "windows-kami-dark-white-page-preview.jpg",
+      "sha256": "c136274bdc14779a1b32dc39d6870003a4dcb59356d8011556172dc992000333"
     }
   ]
 }

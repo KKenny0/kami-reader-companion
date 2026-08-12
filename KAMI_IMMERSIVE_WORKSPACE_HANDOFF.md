@@ -1,16 +1,17 @@
 # Kami Reader Companion immersive workspace handoff
 
-Status: Windows shell and theme-inheritance corrections are implemented in the
-local `0.1.8` candidate. The 22-state macOS/Obsidian 1.13.4 matrix is retained as
-historical reference only. Current release acceptance is a seven-state Windows
-matrix captured from Obsidian 1.13.6 using the tracked synthetic `visual-vault`,
-and is bound to both Companion assets and the public Kami Reader 0.2.1
-`theme.css`. Public delivery is governed by the explicit authorization in the
+Status: Typography, navigation, print, and transient white-page-preview changes
+are implemented in the local `0.2.0` candidate. The 22-state macOS/Obsidian 1.13.4
+matrix is retained as historical reference only. Current release acceptance is
+a seven-state Windows matrix plus two white-preview states captured from Obsidian
+1.13.6 using the tracked synthetic `visual-vault`,
+and is bound to both Companion assets and the paired Kami Reader 0.3.0
+release-candidate `theme.css`. Public delivery is governed by the explicit authorization in the
 active implementation thread.
 
-Date: 2026-08-11
+Date: 2026-08-12
 
-Related theme: [Kami Reader 0.2.1](https://github.com/KKenny0/obsidian-kami/releases/tag/0.2.1)
+Related theme: [Kami Reader](https://github.com/KKenny0/obsidian-kami), local 0.3.0 release candidate
 
 ## Purpose
 
@@ -36,7 +37,7 @@ At the time of this handoff:
 - the repository has no commits yet; the existing implementation is untracked;
 - `origin` points to `git@github.com:KKenny0/kami-reader-companion.git`;
 - the manifest targets Obsidian 1.13+ and declares the Folio Shell desktop-only;
-- the plugin has Reading Stage and Focus Mode commands and no settings, persistence,
+- the plugin has Reading Stage, Focus Mode, and White Page Preview commands and no settings, persistence,
   network access, or note writes;
 - `OutlineSync` fixes inaccurate current-heading highlighting in the core
   Outline and fails closed when the Outline DOM no longer matches metadata;
@@ -240,8 +241,9 @@ The Folio Shell is active on every desktop workspace while Companion is enabled.
 Folio Presence activates automatically for an active desktop Markdown Reading
 or Editing View. Reading Stage is available only in Reading View through
 `Toggle reading stage`. Focus Mode is available in both Markdown modes through
-`Toggle focus mode`. Neither command has a default hotkey, Ribbon icon, timer,
-or saved preference.
+`Toggle focus mode`. White Page Preview is available in both Markdown modes
+through `Toggle white page preview`. None of the commands has a default hotkey,
+Ribbon icon, timer, or saved preference.
 
 Switching from Reading to Editing exits Stage immediately but keeps the Shell,
 palette, 700px measure, breadcrumb, and an `EDITING` stamp. Editing keeps
@@ -249,6 +251,11 @@ CodeMirror's native caret, selections, gutters, syntax, and controls. Returning
 to Reading restores the `READING` stamp and reading-only display treatment.
 Focus Mode is transient and clears when the active file, leaf, mode identity,
 or owner window changes.
+
+White Page Preview is also transient, active-leaf-only, and clears on the same
+identity changes or unload. It does not use Escape because it changes document
+surface tokens rather than keyboard focus or workspace geometry. It composes
+with both Stage and Focus and never writes note metadata or saved plugin data.
 
 Stage mode exits immediately when:
 
@@ -265,7 +272,7 @@ immediate reveal with no transition.
 
 ### State contract
 
-Use eight plugin-owned classes and no persisted state. Companion may also add
+Use nine plugin-owned classes and no persisted state. Companion may also add
 ephemeral, plugin-owned labels and folio metadata inside the active Reading
 View; they must be removed on identity change and unload:
 
@@ -279,6 +286,7 @@ View; they must be removed on identity change and unload:
 | `kami-focus-active` | the same active container | This Markdown leaf owns the focus treatment. |
 | `kami-focus-current` | current native Reading block wrapper | Keyboard-owned current Reading block. |
 | `kami-focus-near` | adjacent native Reading block wrappers | Neighbor context around the current Reading block. |
+| `kami-white-page-preview-active` | the active `MarkdownView.containerEl` | This one Reading or Editing leaf uses white paper and light document tokens. |
 
 Continue using `kami-companion-outline-active`, `kami-outline-current`,
 `aria-current="location"`, `kami-content-frame`, and
@@ -328,9 +336,9 @@ must not fix sidebar widths, reorder native controls, or replace drag and AX
 targets.
 
 Durable real-app bitmap evidence is stored under `visual-evidence/`. The
-`visual-evidence/windows/manifest.json` candidate binds seven current captures
-to `main.js`, `styles.css`, `manifest.json`, the exact public Kami Reader 0.2.1
-commit, and its canonical UTF-8/LF `theme.css` hash. It records the real viewport,
+`visual-evidence/windows/manifest.json` candidate binds nine current captures
+to `main.js`, `styles.css`, `manifest.json`, the paired Kami Reader 0.3.0 tag,
+and its canonical UTF-8/LF `theme.css` hash. It records the real viewport,
 DPI, scale factor, synthetic fixture identity, and human-review checklist.
 `visual-evidence/manifest.json` remains explicitly historical and its 22 macOS
 captures are reported only as references.
@@ -450,6 +458,8 @@ display anchor when no document H1 exists. With an H1, the inline filename
 becomes a quiet context label. Companion preserves the native Properties table
 and adds an ephemeral `READING` stamp, top-level deck, and folio metadata when
 equivalent source data exists.
+The first direct rendered H1 starts 24px below the preceding folio context;
+subsequent H1 sections retain the normal 52px separation.
 Editing View uses the same Shell and active-leaf document measure with an
 `EDITING` stamp, but does not receive these reading-only display decorations.
 It must never write those values into the note.
@@ -509,9 +519,11 @@ floating widget.
 Obsidian workspace events
         |
         v
- shared requestAnimationFrame scheduler and two commands
+ shared requestAnimationFrame scheduler and three commands
         |
         +--> ReadingPresence --> presence/stage classes --> styles.css
+        |
+        +--> PaperPreview -----> active-leaf paper class ----> styles.css
         |
         +--> OutlineSync ------> line/class/ARIA state ----> styles.css
         |
@@ -521,7 +533,7 @@ Markdown post-processors and ResizeObserver feed the same scheduler.
 No component changes notes, workspace layout persistence, or another component's state.
 ```
 
-`ReadingPresence`, `OutlineSync`, and `AdaptiveContent` remain peers. They may
+`ReadingPresence`, `PaperPreview`, `OutlineSync`, and `AdaptiveContent` remain peers. They may
 share the scheduler, but must not call each other. This prevents a visual
 feature from becoming a prerequisite for correctness or cleanup.
 
@@ -533,19 +545,20 @@ Expected implementation files:
 | --- | --- |
 | `KAMI_IMMERSIVE_WORKSPACE_HANDOFF.md` | Own the current application-geometry and evidence contract. |
 | `prototypes/tonal-workspace/index.html` | Model the native breadcrumb and collision-safe Reading/Editing stamp. |
-| `src/main.ts`, `src/reading-presence.ts` | Register the transient Stage and Focus commands, own their lifecycle, and keep document decoration idempotent. |
+| `src/main.ts`, `src/reading-presence.ts`, `src/paper-preview.ts` | Register the three transient commands, own their lifecycle, and keep document decoration idempotent. |
 | `src/contracts.ts`, `src/outline-sync.ts` | Preserve fail-closed Outline matching and native tree semantics. |
 | `styles.css` | Own component-scoped Shell surfaces and active-leaf treatment without fixing resizable pane widths. |
-| `tests/contracts.test.ts`, `tests/main-lifecycle.test.ts`, `tests/reading-presence.test.ts` | Lock surface ownership, lifecycle, keyboard ownership, active-leaf scope, geometry tokens and AX boundaries. |
+| `tests/contracts.test.ts`, `tests/main-lifecycle.test.ts`, `tests/reading-presence.test.ts`, `tests/paper-preview.test.ts` | Lock surface ownership, lifecycle, keyboard ownership, active-leaf scope, geometry tokens and AX boundaries. |
 | `scripts/check-visual-evidence.mjs`, `tests/visual-evidence.test.mjs` | Verify the structural integrity and candidate binding of the required real-app capture matrix. |
 | `visual-evidence/` | Store candidate provenance and real-app captures. |
 | `package.json`, `package-lock.json` | Keep the JPEG decoder as a development-only verification dependency. |
 | `.github/workflows/release.yml` | Require automated checks and the protected visual-review environment before release; the full matrix remains an independent final-acceptance gate. |
 | `README.md`, `README.zh-CN.md`, `manifest.json` | State only the compatibility proven by the final matrix. |
 
-Runtime behavior remains in the four peer modules under `src/`; the only new
+Runtime behavior remains in four peer controllers under `src/`; the only new
 dependency is the development-only JPEG verifier. The plugin exposes two
-non-persistent commands, adds no setting schema, service, credential, private
+non-persistent Stage/Focus commands plus one non-persistent paper-preview command,
+adds no setting schema, service, credential, private
 API, or persistent data shape, and remains desktop-only until mobile receives
 its own visual matrix.
 
@@ -569,7 +582,14 @@ paired cleanup. Do not use layout restoration or change pane dimensions.
 This change is independently useful on top of the existing Folio Presence and
 can be reverted by removing its two stage classes and command.
 
-The two experience changes remain independently reviewable. Release automation
+### Change 3: Transient White Page Preview
+
+Add one active-leaf class and a peer controller that never persists state.
+Document-local light tokens provide white paper in Reading and Editing while
+warmth remains inside semantic surfaces. The print reset uses the same palette
+and does not set page size, margins, breaks, or printer-specific dimensions.
+
+The three experience changes remain independently reviewable. Release automation
 runs the code checks and retains the protected manual visual-review gate.
 `npm run check:visual` is the independent final-acceptance gate and must not be
 represented as passing while the carried-forward baseline remains. Community
@@ -759,11 +779,11 @@ the semantic acceptance gate.
 ## Decision summary for the next discussion
 
 - **Building:** automatic Editorial Folio Workspace, explicit Reading Stage,
-  optional Focus Mode, edge-reveal Stage surfaces, exact Outline, and
+  optional Focus Mode, transient White Page Preview, edge-reveal Stage surfaces, exact Outline, and
   intentional wide-content plates.
 - **Not building:** layout mutation, saved UI state, automatic Stage entry,
   progress tracking, decorative ambience, or per-element settings.
-- **Approach:** eight plugin-owned classes, two commands, paired Escape lifecycle,
+- **Approach:** nine plugin-owned classes, three commands, paired Escape lifecycle for Stage/Focus,
   CSS-native focus states, component-scoped variables, native Header ownership,
   and the existing shared scheduler.
 - **Key decisions:** active paper plane before chrome dimming; shell stays

@@ -18,24 +18,26 @@ module.exports = class KamiVisualController extends Plugin {
       ["kami-dark-editing-split", "Kami Reader", "dark", "source", "split", false],
       ["kami-light-reading-single", "Kami Reader", "light", "preview", "single", false],
       ["kami-dark-reading-single", "Kami Reader", "dark", "preview", "single", false],
-      ["kami-light-reading-stage-single", "Kami Reader", "light", "preview", "single", true]
+      ["kami-light-reading-stage-single", "Kami Reader", "light", "preview", "single", true, false],
+      ["default-dark-white-page-preview", "Default", "dark", "preview", "single", false, true],
+      ["kami-dark-white-page-preview", "Kami Reader", "dark", "preview", "single", false, true]
     ];
 
-    states.forEach(([id, theme, colorScheme, mode, layout, stage], index) => {
+    states.forEach(([id, theme, colorScheme, mode, layout, stage, paperPreview], index) => {
       this.addCommand({
         id: `capture-${id}`,
         name: `Capture state ${index + 1}: ${id}`,
         hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: String(index + 1) }],
         callback: () => this.runSafely(
-          () => this.applyState({ id, theme, colorScheme, mode, layout, stage })
+          () => this.applyState({ id, theme, colorScheme, mode, layout, stage, paperPreview })
         )
       });
     });
 
     this.addCommand({
       id: "capture-style-settings",
-      name: "Capture state 8: Kami Reader Style Settings",
-      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "8" }],
+      name: "Capture state 0: Kami Reader Style Settings",
+      hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "0" }],
       callback: () => this.runSafely(async () => {
         await this.applyTheme("Kami Reader", "light");
         await sleep(300);
@@ -97,15 +99,22 @@ module.exports = class KamiVisualController extends Plugin {
     await sleep(250);
   }
 
-  async applyState({ id, theme, colorScheme, mode, layout, stage }) {
+  async applyState({ id, theme, colorScheme, mode, layout, stage, paperPreview = false }) {
     if (!this.app.plugins.enabledPlugins.has("kami-reader-companion")) {
       new Notice("Enable Kami Reader Companion before capturing evidence.");
       return;
     }
 
-    if (document.body.classList.contains("kami-reading-stage")) {
+    if (document.body.classList.contains("kami-reading-stage-open")) {
       this.app.commands.executeCommandById(
         "kami-reader-companion:toggle-reading-stage"
+      );
+      await sleep(100);
+    }
+
+    if (document.querySelector(".kami-white-page-preview-active")) {
+      this.app.commands.executeCommandById(
+        "kami-reader-companion:toggle-white-page-preview"
       );
       await sleep(100);
     }
@@ -137,6 +146,14 @@ module.exports = class KamiVisualController extends Plugin {
     if (stage) {
       this.app.commands.executeCommandById(
         "kami-reader-companion:toggle-reading-stage"
+      );
+      await sleep(250);
+    }
+
+
+    if (paperPreview) {
+      this.app.commands.executeCommandById(
+        "kami-reader-companion:toggle-white-page-preview"
       );
       await sleep(250);
     }

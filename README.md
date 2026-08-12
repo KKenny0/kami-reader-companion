@@ -12,7 +12,9 @@ other root views. Active Markdown views additionally receive:
 - adaptive use of spare pane width for wide diagrams, tables, code and embeds;
 - an explicit **Toggle reading stage** command for deep Reading View;
 - an optional **Toggle focus mode** command that follows the active editor line
-  and reveals Reading blocks through pointer or keyboard focus.
+  and reveals Reading blocks through pointer or keyboard focus;
+- a transient **Toggle white page preview** command for printing-minded review
+  of one active Markdown document without changing the surrounding shell.
 
 The plugin is desktop-only, targets Obsidian 1.13+, and works with Obsidian's
 Default Theme. It does not require
@@ -24,7 +26,7 @@ No theme detection or integration setting is required.
 Companion writes no note content, stores no workspace state, and restores the
 active theme when disabled.
 
-## Reading Stage and Focus Mode
+## Reading Stage, Focus Mode, and White Page Preview
 
 Open the Command Palette and run **Kami Reader Companion: Toggle focus mode**
 to enter the optional focus treatment in either Editing or Reading View. In
@@ -39,13 +41,24 @@ spatial presentation. The two modes can be combined: Reading Stage controls
 space, while Focus Mode controls attention. `Escape` exits Reading Stage first,
 then Focus Mode. Neither mode is persisted.
 
+Run **Kami Reader Companion: Toggle white page preview** in either Reading or
+Editing View to make only the active Markdown leaf use white paper, dark ink,
+Ink Blue accents, and warm parchment document surfaces. It composes with Stage
+and Focus, has no default hotkey or Ribbon button, and clears when the active
+file, leaf, mode, or owner window changes—or when Companion unloads. It never
+writes frontmatter or saved plugin data. The same light reset also protects
+Obsidian PDF export when the app is in Dark mode.
+
 The 22-state macOS matrix under `visual-evidence/` is retained as a historical
-reference and is not counted as current release acceptance. Version 0.1.8 uses
-seven current Obsidian 1.13.6 Windows captures from the tracked synthetic `visual-vault`: the
+reference and is not counted as current release acceptance. Version 0.2.0 uses
+nine current Obsidian 1.13.6 Windows captures from the tracked synthetic `visual-vault`: the
 Default and Kami Reader themes, light and dark schemes, Reading and Editing,
-single and split layouts, plus Reading Stage. The gate binds those reviewed
-pixels to the exact Companion assets and the public Kami Reader 0.2.1
-`theme.css`. It records structure and provenance; it does not replace human
+single and split layouts, Reading Stage, and white-page preview under both
+Default Dark and Kami Reader Dark. The gate binds those reviewed
+pixels to the exact Companion assets and the paired Kami Reader 0.3.0
+release-candidate `theme.css`. The release workflow resolves that same asset
+from the `0.3.0` tag, so Companion cannot release before the paired Reader tag
+exists. The gate records structure and provenance; it does not replace human
 pixel review.
 
 ## Showcase
@@ -76,15 +89,19 @@ npm run check
 npm run dev:injector
 ```
 
-`check:visual` also needs the pinned public theme asset. On PowerShell:
+`check:visual` also needs the exact paired theme asset. On PowerShell:
 
 ```powershell
-$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.2.1\theme.css"
+$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.3.0\theme.css"
 npm run check:visual
 ```
 
 Release screenshots must contain only files and text from
 `tests/fixtures/visual-vault`; never capture a personal or production vault.
+
+Companion inherits `--font-text-theme` for body copy and the optional
+`--font-heading-theme` contract for headings. Themes without the heading token,
+including Obsidian Default, safely fall back to their body font.
 
 Paste `.dev/inject-kami-reader-companion.js` into Obsidian DevTools, then enable
 **Kami Reader Companion** under Settings → Community plugins.

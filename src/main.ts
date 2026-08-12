@@ -1,6 +1,7 @@
 import { MarkdownView, Plugin } from "obsidian";
 import { AdaptiveContent } from "./adaptive-content";
 import { OutlineSync } from "./outline-sync";
+import { PaperPreview } from "./paper-preview";
 import { ReadingPresence } from "./reading-presence";
 
 type OwnerWindow = NonNullable<Document["defaultView"]>;
@@ -12,6 +13,7 @@ export default class KamiReaderCompanion extends Plugin {
   private outline!: OutlineSync;
   private adaptive!: AdaptiveContent;
   private presence!: ReadingPresence;
+  private paperPreview!: PaperPreview;
   private ready = false;
   private disposed = false;
 
@@ -20,6 +22,7 @@ export default class KamiReaderCompanion extends Plugin {
     this.outline = new OutlineSync(this.app, this.schedule);
     this.adaptive = new AdaptiveContent(this.schedule);
     this.presence = new ReadingPresence();
+    this.paperPreview = new PaperPreview();
     this.addCommand({
       id: "toggle-reading-stage",
       name: "Toggle reading stage",
@@ -35,6 +38,15 @@ export default class KamiReaderCompanion extends Plugin {
       checkCallback: (checking) => {
         if (!this.presence.canToggleFocus()) return false;
         if (!checking) this.presence.toggleFocus();
+        return true;
+      }
+    });
+    this.addCommand({
+      id: "toggle-white-page-preview",
+      name: "Toggle white page preview",
+      checkCallback: (checking) => {
+        if (!this.paperPreview.canToggle()) return false;
+        if (!checking) this.paperPreview.toggle();
         return true;
       }
     });
@@ -56,6 +68,7 @@ export default class KamiReaderCompanion extends Plugin {
     this.disposed = true;
     this.ready = false;
     this.presence.destroy();
+    this.paperPreview.destroy();
     this.outline.destroy();
     this.adaptive.destroy();
     this.frames.forEach((frame, ownerWindow) => ownerWindow.cancelAnimationFrame(frame));
@@ -73,6 +86,7 @@ export default class KamiReaderCompanion extends Plugin {
       if (!this.ready) return;
       const view = this.app.workspace.getActiveViewOfType(MarkdownView);
       this.presence.configure(view);
+      this.paperPreview.configure(view);
       this.outline.configure(view);
       const previews = new Set(this.app.workspace.getLeavesOfType("markdown")
         .map((leaf) => leaf.view)

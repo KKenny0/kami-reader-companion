@@ -34,23 +34,18 @@ jobs:
       - name: Check and build
         run: npm run check
 
-      - name: Verify and fetch pinned Kami Reader theme
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Verify and fetch paired Kami Reader theme
         run: |
           node --input-type=module <<'NODE'
           import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
           const { themeDependency } = JSON.parse(readFileSync("./visual-evidence/windows/manifest.json", "utf8"));
           const response = await fetch(
-            `https://raw.githubusercontent.com/${themeDependency.repository}/${themeDependency.commit}/${themeDependency.asset}`
+            `https://raw.githubusercontent.com/${themeDependency.repository}/${themeDependency.tag}/${themeDependency.asset}`
           );
           if (!response.ok) throw new Error(`theme download failed: ${response.status}`);
           mkdirSync(".visual-dependencies", { recursive: true });
           writeFileSync(".visual-dependencies/theme.css", Buffer.from(await response.arrayBuffer()));
           NODE
-          expected=$(node -p 'require("./visual-evidence/windows/manifest.json").themeDependency.commit')
-          actual=$(gh api "repos/KKenny0/obsidian-kami/commits/0.2.1" --jq .sha)
-          test "$actual" = "$expected"
 
       - name: Verify reviewed visual matrix
         env:

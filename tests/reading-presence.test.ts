@@ -213,7 +213,7 @@ describe("reading presence", () => {
     expect(title.classList.contains("kami-folio-inline-title-context")).toBe(false);
   });
 
-  it("keeps a distinct filename and H1 as separate primary information", () => {
+  it("treats the filename as context whenever the document has a direct H1", () => {
     const presence = new ReadingPresence();
     const current = target();
     const title = new FakeElement(current.document);
@@ -222,6 +222,17 @@ describe("reading presence", () => {
     heading.textContent = "Quarterly plan";
     current.stage.attach(".inline-title", title);
     current.stage.attach(".markdown-preview-section > .el-h1 > h1", heading);
+
+    presence.configure(current.view);
+    expect(title.classList.contains("kami-folio-inline-title")).toBe(false);
+    expect(title.classList.contains("kami-folio-inline-title-context")).toBe(true);
+  });
+
+  it("keeps the inline filename as the display title when no direct H1 exists", () => {
+    const presence = new ReadingPresence();
+    const current = target();
+    const title = new FakeElement(current.document);
+    current.stage.attach(".inline-title", title);
 
     presence.configure(current.view);
     expect(title.classList.contains("kami-folio-inline-title")).toBe(true);

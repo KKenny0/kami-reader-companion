@@ -12,7 +12,9 @@ Graph、Canvas 以及其他根视图共享同一套受 Kami 启发的连续 Foli
 - 自适应利用 pane 的剩余宽度，容纳宽图、表格、代码和嵌入内容；
 - 显式的 **Toggle reading stage** 命令，用于进入深度 Reading View；
 - 可选的 **Toggle focus mode** 命令，在 Editing View 跟随当前编辑行，
-  在 Reading View 通过指针或键盘焦点突出当前内容块。
+  在 Reading View 通过指针或键盘焦点突出当前内容块；
+- 瞬时的 **切换白纸预览（Toggle white page preview）** 命令，只把当前 Markdown
+  文档切到适合打印检查的白纸，不改变周围 Workspace 外壳。
 
 本插件仅支持桌面端，适用于 Obsidian 1.13+，并兼容 Obsidian Default Theme。
 它不依赖 [Kami Reader](https://github.com/KKenny0/obsidian-kami)。Kami Reader
@@ -21,7 +23,7 @@ Graph、Canvas 以及其他根视图共享同一套受 Kami 启发的连续 Foli
 
 Companion 不会写入笔记内容，也不会保存工作区状态；禁用后会恢复当前主题。
 
-## Reading Stage 与 Focus Mode
+## Reading Stage、Focus Mode 与白纸预览
 
 打开 Command Palette，执行 **Kami Reader Companion: Toggle focus mode**，
 即可在 Editing 或 Reading View 进入可选的专注模式。Editing View 会跟随
@@ -33,12 +35,21 @@ CodeMirror 当前编辑行；Reading View 会突出指针或键盘焦点所在�
 两种模式可以组合：Reading Stage 管理空间，Focus Mode 管理注意力。按下
 `Escape` 会先退出 Reading Stage，再退出 Focus Mode。两种模式均不会持久化。
 
+在 Reading 或 Editing View 执行 **Kami Reader Companion: Toggle white page
+preview（切换白纸预览）**，只有当前 Markdown leaf 会切到白纸、深色墨迹、油墨蓝
+强调色，以及保留暖米纸的卡片/代码等文档表面。它可与 Stage、Focus 叠加，没有
+默认快捷键或 Ribbon 按钮；切换文件、leaf、模式、owner window 或卸载插件时会
+自动清除。它不会写 frontmatter，也不会保存插件数据。相同的亮色 reset 也会在
+Obsidian 处于深色模式时保护 PDF 导出。
+
 `visual-evidence/` 下的 macOS 22 状态矩阵仅保留为历史参考，不计入当前候选
-验收。0.1.8 使用从受版本控制的合成 `visual-vault` 在 Obsidian 1.13.6
-捕获的 7 张 Windows
+验收。0.2.0 使用从受版本控制的合成 `visual-vault` 在 Obsidian 1.13.6
+捕获的 9 张 Windows
 候选截图，覆盖 Default/Kami Reader、明暗配色、Reading/Editing、单双 pane
-以及 Reading Stage。门禁把人工审过的像素同时绑定到 Companion 精确发布资产
-与公开的 Kami Reader 0.2.1 `theme.css`。自动检查负责结构和来源，不能替代
+、Reading Stage，以及 Default Dark 与 Kami Reader Dark 下的白纸预览。门禁把人工审过的像素同时绑定到 Companion 精确发布资产
+与配套的 Kami Reader 0.3.0 候选 `theme.css`。发布工作流会从同名 `0.3.0`
+标签解析完全相同的资产，因此 Reader 标签不存在时 Companion 发布会直接失败。
+自动检查负责结构和来源，不能替代
 人工逐像素审查。
 
 ## 效果展示
@@ -69,15 +80,19 @@ npm run check
 npm run dev:injector
 ```
 
-`check:visual` 还需要指定已固定的公开主题资产。PowerShell 示例：
+`check:visual` 还需要指定完全一致的配套主题资产。PowerShell 示例：
 
 ```powershell
-$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.2.1\theme.css"
+$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.3.0\theme.css"
 npm run check:visual
 ```
 
 发布截图只能展示 `tests/fixtures/visual-vault` 中的文件与文字；严禁捕获个人或
 生产知识库。
+
+Companion 的正文继承 `--font-text-theme`，标题优先继承可选的
+`--font-heading-theme`；Obsidian Default 等未提供标题 token 的主题会安全回退到
+正文字体。
 
 将 `.dev/inject-kami-reader-companion.js` 粘贴到 Obsidian DevTools，然后在
 Settings → Community plugins 中启用 **Kami Reader Companion**。

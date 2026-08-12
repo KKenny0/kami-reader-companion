@@ -1,5 +1,4 @@
 import type { MarkdownView } from "obsidian";
-import { normalizeHeading } from "./contracts";
 
 const BODY_CLASS = "kami-reading-presence";
 const STAGE_CLASS = "kami-reading-stage";
@@ -261,9 +260,7 @@ export class ReadingPresence {
       return;
     }
     const currentMeta = this.target.meta;
-    const contextTitle = heading !== null &&
-      normalizeHeading(title.textContent ?? "").toLocaleLowerCase() ===
-        normalizeHeading(heading.textContent ?? "").toLocaleLowerCase();
+    const contextTitle = heading !== null;
     const sameNodes = this.target.title === title &&
       this.target.deck === deck &&
       title.classList.contains("kami-folio-inline-title-context") === contextTitle &&

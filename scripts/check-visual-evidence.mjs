@@ -73,6 +73,14 @@ const windowsRequired = new Map([
   ["windows-kami-light-reading-stage-single", {
     state: ["Kami Reader", "light", "reading", "single", "stage"],
     assertions: ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"]
+  }],
+  ["windows-default-dark-white-page-preview", {
+    state: ["Default", "dark", "reading", "single", "white-page-preview"],
+    assertions: ["default-font-preserved", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"]
+  }],
+  ["windows-kami-dark-white-page-preview", {
+    state: ["Kami Reader", "dark", "reading", "single", "white-page-preview"],
+    assertions: ["theme-font-inherited", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"]
   }]
 ]);
 
@@ -81,7 +89,8 @@ const requiredChecklist = [
   "mode-and-layout-match",
   "caption-controls-clear",
   "status-bar-placement",
-  "theme-font-contract"
+  "theme-font-contract",
+  "white-page-preview-boundary"
 ];
 const textHashEncoding = "utf8-lf-v1";
 const rawHashEncoding = "raw-v1";
@@ -217,13 +226,13 @@ for (const name of candidateAssets) {
 }
 
 const theme = windowsManifest.themeDependency;
-if (theme?.repository !== "KKenny0/obsidian-kami" || theme.tag !== "0.2.1" ||
-  !/^[a-f0-9]{40}$/.test(theme.commit ?? "") || theme.asset !== "theme.css" ||
+if (theme?.repository !== "KKenny0/obsidian-kami" || theme.tag !== "0.3.0" ||
+  Object.hasOwn(theme, "commit") || theme.asset !== "theme.css" ||
   theme.hashEncoding !== textHashEncoding || !/^[a-f0-9]{64}$/.test(theme.sha256 ?? "")) {
-  throw new Error("Windows acceptance must bind the exact public Kami Reader 0.2.1 theme.css");
+  throw new Error("Windows acceptance must bind the exact Kami Reader 0.3.0 release-candidate theme.css");
 }
 if (!process.env.KAMI_VISUAL_THEME_CSS) {
-  throw new Error("KAMI_VISUAL_THEME_CSS must point to theme.css fetched from the pinned public commit");
+  throw new Error("KAMI_VISUAL_THEME_CSS must point to the exact paired Kami Reader theme.css");
 }
 const themeBytes = await readFile(pathToFileURL(process.env.KAMI_VISUAL_THEME_CSS));
 if (hashByEncoding(themeBytes, theme.hashEncoding) !== theme.sha256) {

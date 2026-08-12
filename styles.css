@@ -21,6 +21,7 @@ body:not(.is-mobile) {
   --kami-folio-highlight: #f3e3a8;
   --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 7%, var(--kami-folio-paper));
   --kami-folio-reading-font: var(--font-text-theme);
+  --kami-folio-heading-font: var(--font-heading-theme, var(--font-text-theme));
   --header-height: var(--kami-folio-strip-height);
   --ribbon-width: var(--kami-folio-ribbon-width);
   --titlebar-background: var(--kami-folio-shell-deep);
@@ -396,8 +397,9 @@ body:not(.is-mobile)
 }
 
 body:not(.is-mobile) .workspace-ribbon .clickable-icon {
-  opacity: 0.62;
-  transition: opacity 140ms ease-out, transform 100ms ease-out;
+  color: var(--kami-folio-faint);
+  opacity: 1;
+  transition: color 140ms ease-out, transform 100ms ease-out;
 }
 
 body:not(.is-mobile)
@@ -810,7 +812,13 @@ body:not(.is-mobile)
   color: var(--kami-folio-ink);
 }
 
-body:not(.is-mobile) .nav-file-title.is-active,
+body:not(.is-mobile) .nav-file-title.is-active {
+  color: var(--kami-folio-ink);
+  background: transparent;
+  font-weight: var(--font-semibold, 600);
+  box-shadow: inset 2px 0 0 var(--kami-folio-accent);
+}
+
 body:not(.is-mobile)
   .kami-companion-outline-active
   .tree-item-self.kami-outline-current {
@@ -855,8 +863,15 @@ body.kami-reading-presence:not(.is-mobile)
 body.kami-reading-presence:not(.is-mobile)
   .workspace-leaf-content.kami-reading-stage
   .markdown-source-view.mod-cm6
-  :is(.cm-line, .cm-header, .inline-title) {
+  .cm-line {
   font-family: var(--kami-folio-reading-font);
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-source-view.mod-cm6
+  :is(.cm-header, .inline-title) {
+  font-family: var(--kami-folio-heading-font);
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -891,7 +906,7 @@ body.kami-reading-presence:not(.is-mobile) .kami-folio-inline-title {
   max-width: 660px;
   margin: 0 0 20px;
   color: var(--kami-folio-ink);
-  font-family: var(--kami-folio-reading-font);
+  font-family: var(--kami-folio-heading-font);
   font-size: clamp(34px, 4vw, 52px);
   font-weight: 500;
   line-height: 1.1;
@@ -957,7 +972,7 @@ body.kami-reading-presence:not(.is-mobile)
   border: 0;
   padding-left: 0;
   color: var(--kami-folio-ink);
-  font-family: var(--kami-folio-reading-font);
+  font-family: var(--kami-folio-heading-font);
   font-weight: 500;
 }
 
@@ -967,6 +982,14 @@ body.kami-reading-presence:not(.is-mobile)
   margin: 52px 0 16px;
   font-size: 34px;
   line-height: 1.14;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage
+  .markdown-preview-section
+  > .el-h1:not(.el-h1 ~ .el-h1)
+  > h1 {
+  margin-top: 24px;
 }
 
 body.kami-reading-presence:not(.is-mobile)
@@ -1369,6 +1392,168 @@ body.kami-reading-stage-open:not(.is-mobile)
   :is(iframe, .internal-embed, .markdown-embed) {
   width: 100%;
   max-width: 100%;
+}
+
+/* Transient, active-leaf-only white paper preview. The command owns only the
+   class; these local tokens compose with Reading Stage and Focus Mode while
+   leaving every surrounding shell surface untouched. */
+body:not(.is-mobile)
+  .workspace-leaf-content.kami-white-page-preview-active {
+  --kami-folio-paper: #ffffff;
+  --kami-folio-shell: #f5f4ed;
+  --kami-folio-shell-deep: #f0eee4;
+  --kami-folio-interactive: #f0eee4;
+  --kami-folio-line: #e8e6dc;
+  --kami-folio-ink: #141413;
+  --kami-folio-muted: #504e49;
+  --kami-folio-faint: #6b6a64;
+  --kami-folio-accent: #1b365d;
+  --kami-folio-highlight: #f3e3a8;
+  --kami-folio-focus-wash: color-mix(in oklch, #1b365d 7%, #ffffff);
+  --background-primary: #ffffff;
+  --background-secondary: #f5f4ed;
+  --background-primary-alt: #f0eee4;
+  --background-modifier-border: #e8e6dc;
+  --background-modifier-hover: #f0eee4;
+  --background-modifier-active-hover: color-mix(in oklch, #1b365d 7%, #ffffff);
+  --background-modifier-form-field: #ffffff;
+  --background-modifier-form-field-highlighted: #f5f4ed;
+  --input-shadow: none;
+  --input-shadow-hover: none;
+  --text-normal: #141413;
+  --text-muted: #504e49;
+  --text-faint: #6b6a64;
+  --text-accent: #1b365d;
+  --interactive-accent: #1b365d;
+  --divider-color: #e8e6dc;
+  color: #141413;
+  color-scheme: light;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content.kami-white-page-preview-active
+  :is(.view-header, .view-content, .markdown-preview-view, .markdown-source-view.mod-cm6) {
+  color: #141413;
+  background-color: #ffffff;
+}
+
+body.kami-reading-presence:not(.is-mobile)
+  .workspace-leaf-content.kami-reading-stage.kami-white-page-preview-active
+  :is(.markdown-preview-view, .markdown-source-view.mod-cm6)
+  :is(
+    .callout,
+    .markdown-embed,
+    .file-embed,
+    .frontmatter-container,
+    .metadata-container,
+    pre,
+    code
+  ) {
+  color: #141413;
+  background: #f5f4ed;
+  border-color: #e8e6dc;
+  box-shadow: none;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content.kami-white-page-preview-active
+  .metadata-container
+  :is(
+    .metadata-property-key-input,
+    .metadata-property-value input,
+    .metadata-input-longtext,
+    .multi-select-input
+  ) {
+  color: #141413;
+  background-color: #ffffff;
+  border-color: #e8e6dc;
+  box-shadow: none;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content.kami-white-page-preview-active
+  .metadata-container
+  :is(.metadata-property-key, .metadata-property-value) {
+  color: #141413;
+  background-color: transparent;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content.kami-white-page-preview-active
+  .metadata-container
+  :is(.metadata-property-icon, .metadata-add-button) {
+  color: #504e49;
+}
+
+body:not(.is-mobile)
+  .workspace-leaf-content.kami-white-page-preview-active
+  .markdown-preview-view
+  tbody
+  tr:nth-child(even) {
+  background: #f5f4ed;
+}
+
+@media print {
+  @page {
+    background: #ffffff;
+  }
+
+  body.theme-light:not(.is-mobile),
+  body.theme-dark:not(.is-mobile) {
+    --kami-folio-paper: #ffffff;
+    --kami-folio-shell: #f5f4ed;
+    --kami-folio-shell-deep: #f0eee4;
+    --kami-folio-interactive: #f0eee4;
+    --kami-folio-line: #e8e6dc;
+    --kami-folio-ink: #141413;
+    --kami-folio-muted: #504e49;
+    --kami-folio-faint: #6b6a64;
+    --kami-folio-accent: #1b365d;
+    --background-primary: #ffffff;
+    --background-secondary: #f5f4ed;
+    --background-primary-alt: #f0eee4;
+    --background-modifier-border: #e8e6dc;
+    --text-normal: #141413;
+    --text-muted: #504e49;
+    --text-faint: #6b6a64;
+    --text-accent: #1b365d;
+    --interactive-accent: #1b365d;
+    color: #141413;
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body:not(.is-mobile)
+    .workspace-leaf-content[data-type="markdown"]
+    :is(.view-content, .markdown-preview-view, .markdown-preview-sizer, .markdown-source-view.mod-cm6) {
+    color: #141413;
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body.kami-reading-presence:not(.is-mobile)
+    .workspace-leaf-content.kami-reading-stage
+    :is(.markdown-preview-view, .markdown-source-view.mod-cm6)
+    :is(
+      .callout,
+      .markdown-embed,
+      .file-embed,
+      .frontmatter-container,
+      .metadata-container,
+      pre,
+      code
+    ) {
+    color: #141413;
+    background: #f5f4ed;
+    border-color: #e8e6dc;
+    box-shadow: none;
+  }
+
+  .markdown-preview-view tbody tr:nth-child(even) {
+    background: #f5f4ed;
+  }
 }
 
 @media (max-width: 940px) {

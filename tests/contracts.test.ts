@@ -15,6 +15,7 @@ import { ReadingPresence } from "../src/reading-presence";
 const styles = readFileSync(new URL("../styles.css", import.meta.url), "utf8");
 const mainSource = readFileSync(new URL("../src/main.ts", import.meta.url), "utf8");
 const outlineSyncSource = readFileSync(new URL("../src/outline-sync.ts", import.meta.url), "utf8");
+const paperPreviewSource = readFileSync(new URL("../src/paper-preview.ts", import.meta.url), "utf8");
 const releaseWorkflow = readFileSync(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
 const visualCheck = readFileSync(new URL("../scripts/check-visual-evidence.mjs", import.meta.url), "utf8");
 
@@ -78,8 +79,12 @@ describe("folio shell CSS contracts", () => {
     expect(styles).not.toMatch(/mod-(?:left|right)-split\)[^{]+:is\([^)]*\.view-content/s);
     expect(styles).not.toMatch(/body\.kami-reading-presence:not\(\.is-mobile\)\s*\{[^}]*--file-line-width:/s);
     expect(styles).toMatch(/--kami-folio-reading-font:\s*var\(--font-text-theme\);/);
+    expect(styles).toMatch(/--kami-folio-heading-font:\s*var\(--font-heading-theme, var\(--font-text-theme\)\);/);
     expect(styles).toMatch(/\.markdown-preview-view\s*\{[^}]*font-family:\s*var\(--kami-folio-reading-font\);[^}]*font-size:\s*var\(--font-text-size\);[^}]*line-height:\s*var\(--line-height-normal\);/s);
     expect(styles).toMatch(/\.kami-folio-deck\s*\{[^}]*font-family:\s*var\(--kami-folio-reading-font\);[^}]*font-size:\s*calc\(var\(--font-text-size\) \* 1\.0625\);[^}]*line-height:\s*var\(--line-height-normal\);/s);
+    expect(styles).toMatch(/:is\(h1, h2, h3, h4, h5, h6\)\s*\{[^}]*font-family:\s*var\(--kami-folio-heading-font\);/s);
+    expect(styles).toMatch(/\.kami-folio-inline-title\s*\{[^}]*font-family:\s*var\(--kami-folio-heading-font\);/s);
+    expect(styles).toMatch(/> \.el-h1:not\(\.el-h1 ~ \.el-h1\)\s*> h1\s*\{[^}]*margin-top:\s*24px;/s);
     expect(styles).not.toMatch(/--kami-folio-reading-font:\s*Charter|\.markdown-preview-view\s*\{[^}]*font-size:\s*17px|\.markdown-preview-view\s*\{[^}]*line-height:\s*1\.68/s);
     expect(styles).toMatch(/\.kami-folio-mode-label\s*\{[^}]*flex:\s*0 0 auto;/s);
     expect(styles).not.toMatch(/data-kami-folio-breadcrumb|kami-folio-header-title/);
@@ -131,7 +136,7 @@ describe("folio shell CSS contracts", () => {
 
 describe("release contracts", () => {
   it("binds tagged releases to current Windows acceptance while retaining the historical matrix", () => {
-    expect(releaseWorkflow).toMatch(/npm run check[\s\S]*Verify and fetch pinned Kami Reader theme[\s\S]*npm run check:visual[\s\S]*Attest release assets/);
+    expect(releaseWorkflow).toMatch(/npm run check[\s\S]*Verify and fetch paired Kami Reader theme[\s\S]*npm run check:visual[\s\S]*Attest release assets/);
     expect(releaseWorkflow).toMatch(/environment:\s*visual-review/);
     expect(releaseWorkflow).toMatch(/raw\.githubusercontent\.com[\s\S]*KAMI_VISUAL_THEME_CSS/);
     expect(visualCheck).toMatch(/historical-macos-matrix/);
@@ -140,11 +145,33 @@ describe("release contracts", () => {
     expect(visualCheck).toMatch(/Windows visual candidate version must match/);
     expect(visualCheck).toMatch(/utf8-lf-v1/);
     expect(visualCheck).toMatch(/KAMI_VISUAL_THEME_CSS/);
-    expect(visualCheck).toMatch(/exact public Kami Reader 0\.2\.1/);
+    expect(visualCheck).toMatch(/exact Kami Reader 0\.3\.0 release-candidate/);
     expect(visualCheck).toMatch(/artifact\.sha256/);
     expect(visualCheck).toMatch(/maxResolutionInMP:\s*6/);
     expect(visualCheck).toMatch(/current Windows candidate captures/);
     expect(visualCheck).not.toMatch(/manifest\.accepted/);
+  });
+
+  it("keeps file navigation quiet while retaining Outline location context", () => {
+    expect(styles).toMatch(/\.nav-file-title\.is-active\s*\{[^}]*background:\s*transparent;[^}]*inset 2px 0 0 var\(--kami-folio-accent\);/s);
+    expect(styles).toMatch(/\.tree-item-self\.kami-outline-current\s*\{[^}]*background:\s*var\(--kami-folio-focus-wash\);/s);
+    expect(styles).toMatch(/\.workspace-ribbon \.clickable-icon\s*\{[^}]*color:\s*var\(--kami-folio-faint\);[^}]*opacity:\s*1;/s);
+    expect(styles).not.toMatch(/\.workspace-ribbon \.clickable-icon\s*\{[^}]*opacity:\s*0\./s);
+  });
+
+  it("provides an active-leaf white preview and a print-safe light reset", () => {
+    expect(mainSource).toContain('id: "toggle-white-page-preview"');
+    expect(mainSource).toContain('name: "Toggle white page preview"');
+    expect(mainSource).toMatch(/paperPreview\.configure\(view\)/);
+    expect(mainSource).toMatch(/paperPreview\.destroy\(\)/);
+    expect(paperPreviewSource).toContain('"kami-white-page-preview-active"');
+    expect(paperPreviewSource).not.toMatch(/loadData|saveData|localStorage|sessionStorage|frontmatter/);
+    expect(styles).toMatch(/\.workspace-leaf-content\.kami-white-page-preview-active\s*\{[^}]*--kami-folio-paper:\s*#ffffff;[^}]*color-scheme:\s*light;/s);
+    expect(styles).toMatch(/kami-white-page-preview-active\s*\{[^}]*--background-modifier-form-field:\s*#ffffff;[^}]*--input-shadow:\s*none;/s);
+    expect(styles).toMatch(/kami-white-page-preview-active[\s\S]*\.metadata-property-key-input,[\s\S]*background-color:\s*#ffffff;/s);
+    expect(styles).toMatch(/kami-white-page-preview-active[\s\S]*tbody[\s\S]*tr:nth-child\(even\)\s*\{\s*background:\s*#f5f4ed;/s);
+    expect(styles).toMatch(/@media print\s*\{[\s\S]*--kami-folio-paper:\s*#ffffff;[\s\S]*print-color-adjust:\s*exact;/s);
+    expect(styles).not.toMatch(/@media print\s*\{[\s\S]*@page\s*\{[^}]*(?:size|margin)\s*:/s);
   });
 });
 

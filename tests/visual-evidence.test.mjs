@@ -125,7 +125,11 @@ beforeAll(() => {
     ["windows-kami-dark-reading-single", "Kami Reader", "dark", "reading", "single", "base",
       ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]],
     ["windows-kami-light-reading-stage-single", "Kami Reader", "light", "reading", "single", "stage",
-      ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"]]
+      ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"]],
+    ["windows-default-dark-white-page-preview", "Default", "dark", "reading", "single", "white-page-preview",
+      ["default-font-preserved", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"]],
+    ["windows-kami-dark-white-page-preview", "Kami Reader", "dark", "reading", "single", "white-page-preview",
+      ["theme-font-inherited", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"]]
   ];
   const windowsArtifacts = windowsStates.map(([id, theme, colorScheme, mode, layout, scenario, assertions], index) => {
     const pixels = Buffer.alloc(1200 * 800 * 4);
@@ -167,7 +171,8 @@ beforeAll(() => {
         "mode-and-layout-match",
         "caption-controls-clear",
         "status-bar-placement",
-        "theme-font-contract"
+        "theme-font-contract",
+        "white-page-preview-boundary"
       ]
     },
     candidate: {
@@ -185,8 +190,7 @@ beforeAll(() => {
     },
     themeDependency: {
       repository: "KKenny0/obsidian-kami",
-      tag: "0.2.1",
-      commit: "0123456789abcdef0123456789abcdef01234567",
+      tag: "0.3.0",
       asset: "theme.css",
       hashEncoding: "utf8-lf-v1",
       sha256: canonicalTextHash(readFileSync(themePath))
@@ -202,7 +206,7 @@ describe("visual evidence gate", () => {
     const result = run(structuredClone(manifest));
     expect(result.stderr).toBe("");
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("7 current Windows candidate captures");
+    expect(result.stdout).toContain("9 current Windows candidate captures");
   }, 30_000);
 
   it("rejects missing candidate asset hashes", () => {
@@ -279,7 +283,7 @@ describe("visual evidence gate", () => {
     writeFileSync(join(directory, "styles.css"), "styles");
   });
 
-  it("rejects a theme asset that does not match the pinned public dependency", () => {
+  it("rejects a theme asset that does not match the paired release candidate", () => {
     const original = readFileSync(themePath);
     writeFileSync(themePath, "changed\n");
     const result = run(structuredClone(manifest));
