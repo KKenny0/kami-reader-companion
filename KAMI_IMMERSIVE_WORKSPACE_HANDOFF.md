@@ -1,10 +1,10 @@
 # Kami Reader Companion immersive workspace handoff
 
 Status: Typography, navigation, print, and transient white-page-preview changes
-are implemented in the local `0.2.0` candidate. The 22-state macOS/Obsidian 1.13.4
-matrix is retained as historical reference only. Current release acceptance is
-a seven-state Windows matrix plus two white-preview states captured from Obsidian
-1.13.6 using the tracked synthetic `visual-vault`,
+are implemented in the local `0.3.0` candidate. The older macOS and Windows
+matrices are retained as historical references only. Current release acceptance is
+a seven-state macOS matrix plus two white-preview states captured from an isolated
+real Obsidian 1.13.7 process using the tracked synthetic `visual-vault`,
 and is bound to both Companion assets and the paired Kami Reader 0.3.0
 release-candidate `theme.css`. Public delivery is governed by the explicit authorization in the
 active implementation thread.
@@ -25,6 +25,12 @@ desktop, the Shell keeps the workspace on one continuous canvas across New Tab,
 Markdown, Graph, Canvas, and other root views. An active Markdown leaf adds
 document treatment, Outline context, optional Focus Mode, and the Reading-only
 Stage. Leaving Markdown clears those document enhancements without changing the Shell.
+
+The approved One Field refinement makes persistent Shell, sidebar, and document
+surfaces share one paper field. Pane geometry is carried by 26px whitespace
+gutters (16px below 940px), while ink boundaries appear only for active,
+hovered, focused, or dragged state. Static pane rules, filled active tabs, and
+root shadows must not return as substitutes for that whitespace.
 
 This document is the approved implementation baseline for local code and visual
 verification. It does not authorize commits, pushes, releases, or Community
@@ -84,13 +90,11 @@ Reading/Editing stamp, and the Shell's vertical and Tool Spine geometry.
 Obsidian owns its native segmented breadcrumb, file title, resizable sidebar
 and pane widths, plus every native action and accessible name. Companion must
 not synthesize a second file path or absolutely position text over the View
-Header. Ephemeral
-labels and metadata are derived from the current file and rendered DOM, are
+Header. Ephemeral labels and metadata are derived from the current file and rendered DOM, are
 removed on identity change or unload, and never write to the note. Automated
-verification passes 49 tests. These tests prove selectors, lifecycle, canonical
-cross-platform hashing, and provenance rules; the current seven-state Windows
-matrix provides candidate bitmap acceptance. The older 22-state macOS matrix is
-not counted toward the current release.
+verification proves selectors, lifecycle, canonical cross-platform hashing, and
+provenance rules; the current nine-state macOS matrix provides candidate bitmap
+acceptance. The older macOS and Windows matrices are not counted toward the current release.
 
 The 2026-08-07 boundary correction makes the desktop Shell a stylesheet-owned
 baseline rather than an active-Markdown state. This prevents New Tab and other
@@ -336,12 +340,12 @@ must not fix sidebar widths, reorder native controls, or replace drag and AX
 targets.
 
 Durable real-app bitmap evidence is stored under `visual-evidence/`. The
-`visual-evidence/windows/manifest.json` candidate binds nine current captures
+`visual-evidence/macos/manifest.json` candidate binds nine current captures
 to `main.js`, `styles.css`, `manifest.json`, the paired Kami Reader 0.3.0 tag,
 and its canonical UTF-8/LF `theme.css` hash. It records the real viewport,
-DPI, scale factor, synthetic fixture identity, and human-review checklist.
-`visual-evidence/manifest.json` remains explicitly historical and its 22 macOS
-captures are reported only as references.
+scale factor, synthetic fixture identity, and human-review checklist.
+The root and Windows manifests remain explicitly historical and are reported
+only as references.
 After copying built assets into a Vault, disable and re-enable Companion before
 capturing evidence. An app `Command-R` alone may leave the plugin-owned style
 element stale; DevTools must confirm that the loaded stylesheet contains the
@@ -752,8 +756,8 @@ The mapping accepts only a unique ordered match, using heading level when the
 native row exposes it. Ambiguous duplicate rows fail closed to native Outline
 highlighting.
 
-Current candidate evidence is never inferred from the carried-forward macOS
-set. The Windows matrix covers Default light Editing split, Default dark Reading
+Current candidate evidence is never inferred from the carried-forward matrices.
+The macOS matrix covers Default light Editing split, Default dark Reading
 single, Kami light/dark Editing split, Kami light/dark Reading single, and Kami
 light Reading Stage single. Every capture comes from the tracked synthetic vault
 and keeps both sidebars expanded. The evidence checker validates candidate and
@@ -789,8 +793,9 @@ the semantic acceptance gate.
 - **Key decisions:** active paper plane before chrome dimming; shell stays
   readable; Stage overlays rather than rearranges; keyboard changes are
   immediate; pointer reveals animate only transform/opacity; foreground UI wins.
-- **Unknowns:** Windows caption-button spacing is covered by the current real-app
-  matrix; Linux remains contract-tested but lacks current bitmap evidence.
+- **Unknowns:** Windows and Linux remain contract-tested but lack current bitmap
+  acceptance. The macOS page capture validates the frameless titlebar safe area,
+  but not OS-native traffic-light pixels outside the app webcontents.
   Mobile Stage remains deferred and the manifest must not advertise mobile
   compatibility until that matrix exists. README claims remain provisional until
   the full desktop bitmap and interaction matrix passes.

@@ -45,16 +45,17 @@ Run **Kami Reader Companion: Toggle white page preview** in either Reading or
 Editing View to make only the active Markdown leaf use white paper, dark ink,
 Ink Blue accents, and warm parchment document surfaces. It composes with Stage
 and Focus, has no default hotkey or Ribbon button, and clears when the active
-file, leaf, mode, or owner window changes—or when Companion unloads. It never
+file, leaf, mode, or owner window changes, or when Companion unloads. It never
 writes frontmatter or saved plugin data. The same light reset also protects
 Obsidian PDF export when the app is in Dark mode.
 
-The 22-state macOS matrix under `visual-evidence/` is retained as a historical
-reference and is not counted as current release acceptance. Version 0.2.0 uses
-nine current Obsidian 1.13.6 Windows captures from the tracked synthetic `visual-vault`: the
+The older macOS and Windows matrices are retained as historical references and
+are not counted as current release acceptance. Version 0.3.0 uses nine current
+Obsidian 1.13.7 macOS captures from an isolated real app process and the tracked synthetic `visual-vault`: the
 Default and Kami Reader themes, light and dark schemes, Reading and Editing,
 single and split layouts, Reading Stage, and white-page preview under both
-Default Dark and Kami Reader Dark. The gate binds those reviewed
+Default Dark and Kami Reader Dark. The split captures also verify the approved
+26px whitespace gutter. The gate binds those reviewed
 pixels to the exact Companion assets and the paired Kami Reader 0.3.0
 release-candidate `theme.css`. The release workflow resolves that same asset
 from the `0.3.0` tag, so Companion cannot release before the paired Reader tag
@@ -63,23 +64,23 @@ pixel review.
 
 ## Showcase
 
-### One visual language across Reading and Editing
+### One Field works with Default and Kami Reader
 
-| Reading View · Dark | Editing View · Dark · Split |
+| Default · Light · Editing Split | Kami Reader · Light · Editing Split |
 |---|---|
-| ![Dark Reading View](./visual-evidence/kami-dark-reading-single.jpg) | ![Dark Editing View in a split layout](./visual-evidence/kami-dark-editing-split.jpg) |
+|![Default Light Editing Split](./visual-evidence/macos/macos-default-light-editing-split.jpg)|![Kami Reader Light Editing Split](./visual-evidence/macos/macos-kami-light-editing-split.jpg)|
 
-### The shell stays continuous beyond the document
+### Reading and Editing share the same dark field
 
-| New Tab · Light | Reading Stage · Light |
+| Kami Reader · Dark · Editing Split | Kami Reader · Dark · Reading |
 |---|---|
-| ![Light New Tab](./visual-evidence/kami-light-new-tab.jpg) | ![Light Reading Stage](./visual-evidence/kami-light-reading-stage.jpg) |
+|![Kami Reader Dark Editing Split](./visual-evidence/macos/macos-kami-dark-editing-split.jpg)|![Kami Reader Dark Reading](./visual-evidence/macos/macos-kami-dark-reading-single.jpg)|
 
-### Foregrounds and settings remain part of the same workspace
+### Stage and white-page preview keep intentional boundaries
 
-| Command Palette · Light | Settings · Dark |
+| Reading Stage · Light | White-page Preview · Dark |
 |---|---|
-| ![Light Command Palette](./visual-evidence/kami-light-command-palette.jpg) | ![Dark Settings](./visual-evidence/kami-dark-settings.jpg) |
+|![Kami Reader Light Reading Stage](./visual-evidence/macos/macos-kami-light-reading-stage-single.jpg)|![Kami Reader Dark White-page Preview](./visual-evidence/macos/macos-kami-dark-white-page-preview.jpg)|
 
 ## Local development
 
@@ -89,12 +90,15 @@ npm run check
 npm run dev:injector
 ```
 
-`check:visual` also needs the exact paired theme asset. On PowerShell:
+`check:visual` also needs the exact paired theme asset:
 
-```powershell
-$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.3.0\theme.css"
+```sh
+KAMI_VISUAL_THEME_CSS=/path/to/obsidian-kami-0.3.0/theme.css \
 npm run check:visual
 ```
+
+On PowerShell, set `$env:KAMI_VISUAL_THEME_CSS` to the same `theme.css` path
+before running `npm run check:visual`.
 
 Release screenshots must contain only files and text from
 `tests/fixtures/visual-vault`; never capture a personal or production vault.

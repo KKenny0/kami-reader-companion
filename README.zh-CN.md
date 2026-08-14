@@ -42,35 +42,34 @@ preview（切换白纸预览）**，只有当前 Markdown leaf 会切到白纸�
 自动清除。它不会写 frontmatter，也不会保存插件数据。相同的亮色 reset 也会在
 Obsidian 处于深色模式时保护 PDF 导出。
 
-`visual-evidence/` 下的 macOS 22 状态矩阵仅保留为历史参考，不计入当前候选
-验收。0.2.0 使用从受版本控制的合成 `visual-vault` 在 Obsidian 1.13.6
-捕获的 9 张 Windows
-候选截图，覆盖 Default/Kami Reader、明暗配色、Reading/Editing、单双 pane
-、Reading Stage，以及 Default Dark 与 Kami Reader Dark 下的白纸预览。门禁把人工审过的像素同时绑定到 Companion 精确发布资产
-与配套的 Kami Reader 0.3.0 候选 `theme.css`。发布工作流会从同名 `0.3.0`
-标签解析完全相同的资产，因此 Reader 标签不存在时 Companion 发布会直接失败。
-自动检查负责结构和来源，不能替代
-人工逐像素审查。
+旧版 macOS 和 Windows 矩阵仅保留为历史参考，不计入当前发布验收。0.3.0
+使用隔离的真实 Obsidian 1.13.7 进程和受版本控制的合成 `visual-vault`，完成了
+9 张当前 macOS 候选截图。截图覆盖 Default 与 Kami Reader、明暗配色、
+Reading 与 Editing、单双 pane、Reading Stage，以及 Default Dark 与 Kami
+Reader Dark 下的白纸预览。双 pane 截图还验证了 26px 留白沟槽。门禁把人工审过
+的像素绑定到 Companion 发布资产，以及配套的 Kami Reader 0.3.0 候选
+`theme.css`。发布工作流从 `0.3.0` 标签获取同一份主题资产；Reader 标签不存在时，
+Companion 发布会直接失败。自动检查负责结构和来源，不能替代人工像素审查。
 
 ## 效果展示
 
-### Reading 与 Editing 共享同一种视觉语言
+### Default 与 Kami Reader 都使用 One Field
 
-| Reading View · 深色 | Editing View · 深色 · 双 pane |
+| Default · 浅色 · 双 pane 编辑 | Kami Reader · 浅色 · 双 pane 编辑 |
 |---|---|
-| ![深色 Reading View](./visual-evidence/kami-dark-reading-single.jpg) | ![深色双 pane Editing View](./visual-evidence/kami-dark-editing-split.jpg) |
+| ![Default 浅色双 pane 编辑](./visual-evidence/macos/macos-default-light-editing-split.jpg) | ![Kami Reader 浅色双 pane 编辑](./visual-evidence/macos/macos-kami-light-editing-split.jpg) |
 
-### 离开正文后，Workspace 外壳仍然连续
+### Reading 与 Editing 共享同一个深色纸面场
 
-| New Tab · 浅色 | Reading Stage · 浅色 |
+| Kami Reader · 深色 · 双 pane 编辑 | Kami Reader · 深色 · Reading |
 |---|---|
-| ![浅色 New Tab](./visual-evidence/kami-light-new-tab.jpg) | ![浅色 Reading Stage](./visual-evidence/kami-light-reading-stage.jpg) |
+| ![Kami Reader 深色双 pane 编辑](./visual-evidence/macos/macos-kami-dark-editing-split.jpg) | ![Kami Reader 深色 Reading](./visual-evidence/macos/macos-kami-dark-reading-single.jpg) |
 
-### 前景浮层与设置界面仍属于同一个 Workspace
+### Reading Stage 与白纸预览保留必要边界
 
-| Command Palette · 浅色 | Settings · 深色 |
+| Reading Stage · 浅色 | 白纸预览 · 深色 |
 |---|---|
-| ![浅色 Command Palette](./visual-evidence/kami-light-command-palette.jpg) | ![深色 Settings](./visual-evidence/kami-dark-settings.jpg) |
+| ![Kami Reader 浅色 Reading Stage](./visual-evidence/macos/macos-kami-light-reading-stage-single.jpg) | ![Kami Reader 深色白纸预览](./visual-evidence/macos/macos-kami-dark-white-page-preview.jpg) |
 
 ## 本地开发
 
@@ -80,12 +79,15 @@ npm run check
 npm run dev:injector
 ```
 
-`check:visual` 还需要指定完全一致的配套主题资产。PowerShell 示例：
+`check:visual` 还需要指定完全一致的配套主题资产：
 
-```powershell
-$env:KAMI_VISUAL_THEME_CSS = "C:\path\to\obsidian-kami-0.3.0\theme.css"
+```sh
+KAMI_VISUAL_THEME_CSS=/path/to/obsidian-kami-0.3.0/theme.css \
 npm run check:visual
 ```
+
+在 PowerShell 中，请先把 `$env:KAMI_VISUAL_THEME_CSS` 设为同一份 `theme.css`
+路径，再运行 `npm run check:visual`。
 
 发布截图只能展示 `tests/fixtures/visual-vault` 中的文件与文字；严禁捕获个人或
 生产知识库。
