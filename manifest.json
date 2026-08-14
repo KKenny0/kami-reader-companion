@@ -1,7 +1,7 @@
 {
   "id": "kami-reader-companion",
   "name": "Kami Reader Companion",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "minAppVersion": "1.13.0",
   "description": "A continuous Kami-inspired workspace shell with Reading Stage, Focus Mode, white-page preview, precise Outline sync, and adaptive wide content.",
   "author": "Kenny Wu",

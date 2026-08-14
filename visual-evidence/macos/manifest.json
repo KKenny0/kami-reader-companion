@@ -1,0 +1,52 @@
+{
+  "kind": "current-macos-acceptance",
+  "appVersion": "1.13.7",
+  "os": "macOS",
+  "fixtureVault": "visual-vault",
+  "viewport": { "width": 1440, "height": 900 },
+  "deviceScaleFactor": 1,
+  "capture": "playwright-cdp-page",
+  "review": {
+    "method": "human-pixel-review",
+    "checklist": [
+      "fixture-only-content",
+      "mode-and-layout-match",
+      "frameless-titlebar-safe-area",
+      "status-bar-placement",
+      "theme-font-contract",
+      "white-page-preview-boundary",
+      "pane-gutter-visible"
+    ]
+  },
+  "candidate": {
+    "version": "0.3.0",
+    "hashEncoding": {
+      "main.js": "raw-v1",
+      "manifest.json": "utf8-lf-v1",
+      "styles.css": "utf8-lf-v1"
+    },
+    "sha256": {
+      "main.js": "5598f9529d636d57f7ca76840f965241ac096f9b6d3adfbab63a7b4cc30a9faf",
+      "manifest.json": "9576fa4857ea7a66ad1434d4ffd3bd30da2ae272e41df740f2865e078ecaf8b2",
+      "styles.css": "9586e4b6bb3a73098d23a07d5be1fc57a24fcb2982fe746a2a0697f4f828f5da"
+    }
+  },
+  "themeDependency": {
+    "repository": "KKenny0/obsidian-kami",
+    "tag": "0.3.0",
+    "asset": "theme.css",
+    "hashEncoding": "utf8-lf-v1",
+    "sha256": "d65d30fca48aac20b32c56a94f52a95bd3ef71285c1e48ec2bb72bc65c4543fa"
+  },
+  "artifacts": [
+    { "id": "macos-default-light-editing-split", "theme": "Default", "colorScheme": "light", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "assertions": ["default-font-preserved", "frameless-titlebar-safe-area", "native-status-bar", "pane-gutter-visible"], "file": "macos-default-light-editing-split.jpg", "sha256": "b0affb866e11438889472f6130370b3937b5f5a4a8d47f26d7a528d758858f5d" },
+    { "id": "macos-default-dark-reading-single", "theme": "Default", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "assertions": ["default-font-preserved", "frameless-titlebar-safe-area", "native-status-bar"], "file": "macos-default-dark-reading-single.jpg", "sha256": "c8e9be2881f769f34150259d36e00ee00d1b6501d28917fe1400ae565b24f5a4" },
+    { "id": "macos-kami-light-editing-split", "theme": "Kami Reader", "colorScheme": "light", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "assertions": ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar", "pane-gutter-visible"], "file": "macos-kami-light-editing-split.jpg", "sha256": "946c444dd04b03b77daa3960465ae9ba813dd0e8a23bde5c271dab8de1a93044" },
+    { "id": "macos-kami-dark-editing-split", "theme": "Kami Reader", "colorScheme": "dark", "mode": "editing", "layout": "split", "scenario": "base", "sidebars": "expanded", "assertions": ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar", "pane-gutter-visible"], "file": "macos-kami-dark-editing-split.jpg", "sha256": "090779486d4aa6be0536f98df9ffb34db9f5169810ff7bf1fb4d334d9ac47758" },
+    { "id": "macos-kami-light-reading-single", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "assertions": ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar"], "file": "macos-kami-light-reading-single.jpg", "sha256": "fe5c50fa6f9c4b7cbbc7cb455150a2da670cb26ef1e96eb974d6cd16f4b676fc" },
+    { "id": "macos-kami-dark-reading-single", "theme": "Kami Reader", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "base", "sidebars": "expanded", "assertions": ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar"], "file": "macos-kami-dark-reading-single.jpg", "sha256": "de254528885f0067fbc26fc5210bf86a05048e7d1ed9025e6b885483b9d5fe64" },
+    { "id": "macos-kami-light-reading-stage-single", "theme": "Kami Reader", "colorScheme": "light", "mode": "reading", "layout": "single", "scenario": "stage", "sidebars": "expanded", "assertions": ["theme-font-inherited", "frameless-titlebar-safe-area", "stage-status-overlay"], "file": "macos-kami-light-reading-stage-single.jpg", "sha256": "372e55e843993574775b7bfd1558915e8f9dfccd82ae138065628e64967ce162" },
+    { "id": "macos-default-dark-white-page-preview", "theme": "Default", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "white-page-preview", "sidebars": "expanded", "assertions": ["default-font-preserved", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"], "file": "macos-default-dark-white-page-preview.jpg", "sha256": "f4f2a5eff0bdcb5cc58a4ddabdf02e493929ec666702aeb5f84fd1ff91837357" },
+    { "id": "macos-kami-dark-white-page-preview", "theme": "Kami Reader", "colorScheme": "dark", "mode": "reading", "layout": "single", "scenario": "white-page-preview", "sidebars": "expanded", "assertions": ["theme-font-inherited", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"], "file": "macos-kami-dark-white-page-preview.jpg", "sha256": "96a1577260ec4c84f9959549ed7b940dab7e0362b9ee76ebcbe7799ef0345f38" }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "kind": "current-windows-acceptance",
+  "kind": "historical-windows-matrix",
   "appVersion": "1.13.6",
   "os": "Windows",
   "fixtureVault": "visual-vault",
@@ -17,7 +17,7 @@
       "white-page-preview-boundary"
     ]
   },
-  "candidate": {
+  "baselineCandidate": {
     "version": "0.2.0",
     "hashEncoding": {
       "main.js": "raw-v1",
