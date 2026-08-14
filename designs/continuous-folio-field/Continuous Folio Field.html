@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light" data-field-mode="one">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kami Continuous Folio Field</title>
+  <!--
+    Assumptions: preserve Obsidian's real multi-pane structure and native actions;
+    explore an aggressive visual rewrite where permanent surfaces share one field.
+    Context: derived from the tracked tonal-workspace prototype, the current
+    Companion CSS, and the user's four-pane production screenshot.
+    Reasoning: spatial identity comes from density, typography, whitespace and
+    state-only ink rails; persistent color blocks and full-height borders are removed.
+  -->
+  <style>
+    :root {
+      color-scheme: light;
+      --field: #f4f1e8;
+      --field-soft: #efebe0;
+      --field-deep: #e4dfd2;
+      --foreground: #fbfaf5;
+      --ink: #161612;
+      --muted: #555149;
+      --faint: #817b70;
+      --ghost: #aaa498;
+      --accent: #1b365d;
+      --accent-wash: color-mix(in oklch, var(--accent) 7%, var(--field));
+      --hover: color-mix(in oklch, var(--ink) 5%, var(--field));
+      --line: #cec8bb;
+      --shadow: rgba(42, 38, 31, .14);
+      --ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Noto Sans SC", sans-serif;
+      --serif: Charter, "Iowan Old Style", Georgia, "TsangerJinKai02", "LXGW WenKai Screen", "Songti SC", "Noto Serif SC", serif;
+      --ribbon: 44px;
+      --left: clamp(230px, 18vw, 300px);
+      --right: clamp(260px, 19vw, 320px);
+      --top: 42px;
+      --status: 24px;
+      --surface-left: var(--field);
+      --surface-center: var(--field);
+      --surface-right: var(--field);
+      --boundary: transparent;
+      --gutter: 26px;
+    }
+
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --field: #151513;
+      --field-soft: #1b1a17;
+      --field-deep: #0e0e0c;
+      --foreground: #24221e;
+      --ink: #e9e4d5;
+      --muted: #b4ae9e;
+      --faint: #847d6d;
+      --ghost: #5f594c;
+      --accent: #477baa;
+      --accent-wash: color-mix(in oklch, var(--accent) 16%, var(--field));
+      --hover: color-mix(in oklch, var(--ink) 7%, var(--field));
+      --line: #39362f;
+      --shadow: rgba(0, 0, 0, .42);
+    }
+
+    html[data-field-mode="soft"] {
+      --surface-left: color-mix(in oklch, var(--field) 96%, var(--field-deep));
+      --surface-center: var(--field);
+      --surface-right: color-mix(in oklch, var(--field) 96%, var(--field-deep));
+      --boundary: color-mix(in oklch, var(--line) 36%, transparent);
+      --gutter: 18px;
+    }
+
+    html[data-field-mode="layered"] {
+      --surface-left: var(--field-soft);
+      --surface-center: var(--field);
+      --surface-right: var(--field-soft);
+      --boundary: var(--line);
+      --gutter: 0px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: var(--field-deep);
+      color: var(--ink);
+      font-family: var(--ui);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input { font: inherit; }
+    button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+    button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .icon-button {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 3px;
+      color: var(--faint);
+      transition: color 120ms ease, background-color 120ms ease, transform 90ms ease;
+    }
+    .icon-button:hover { background: var(--hover); color: var(--ink); }
+    .icon-button:active { transform: scale(.94); }
+    svg.icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+    .app {
+      display: grid;
+      grid-template:
+        var(--top) minmax(0, 1fr) var(--status)
+        / var(--ribbon) var(--left) minmax(0, 1fr) var(--right);
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: var(--field);
+      transition: grid-template-columns 220ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .topbar {
+      grid-row: 1;
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: var(--ribbon) var(--left) minmax(0, 1fr) var(--right);
+      align-items: center;
+      min-width: 0;
+      background: var(--field);
+      color: var(--muted);
+      z-index: 8;
+    }
+    html[data-field-mode="layered"] .topbar { background: var(--field-deep); box-shadow: inset 0 -1px 0 var(--line); }
+    .traffic {
+      position: absolute;
+      inset: 0 auto auto 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: var(--top);
+      padding-left: 16px;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .traffic i { width: 10px; height: 10px; border-radius: 50%; background: var(--ghost); }
+    .dock-tabs {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 100%;
+      min-width: 0;
+    }
+    .dock-tabs.left { grid-column: 1 / 3; padding-left: 124px; padding-right: 10px; }
+    .dock-tabs.right { grid-column: 4; justify-content: flex-end; padding-inline: 10px 14px; }
+    .dock-tabs .icon-button.active { position: relative; color: var(--accent); }
+    .dock-tabs .icon-button.active::after {
+      content: "";
+      position: absolute;
+      inset: auto 7px 0;
+      height: 2px;
+      background: var(--accent);
+    }
+    .root-tabs {
+      grid-column: 3;
+      display: flex;
+      align-items: stretch;
+      gap: 18px;
+      min-width: 0;
+      height: 100%;
+      padding-inline: 20px;
+    }
+    .root-tab {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      max-width: 300px;
+      color: var(--faint);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .root-tab .diamond { color: var(--accent); font-size: 8px; }
+    .root-tab.active { color: var(--ink); font-weight: 530; }
+    .root-tab.active::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      width: 44px;
+      height: 2px;
+      background: var(--accent);
+    }
+    html[data-field-mode="layered"] .root-tab.active { margin-inline: -10px; padding-inline: 10px; background: var(--field); box-shadow: inset 1px 0 var(--line), inset -1px 0 var(--line); }
+
+    .tool-spine {
+      grid-row: 2 / 4;
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 14px 6px 8px;
+      background: var(--field);
+      color: var(--faint);
+      z-index: 5;
+    }
+    html[data-field-mode="layered"] .tool-spine { background: var(--field-deep); box-shadow: inset -1px 0 var(--line); }
+    .tool-spine .spacer { flex: 1; }
+    .tool-spine .active { position: relative; color: var(--accent); }
+    .tool-spine .active::after { content: ""; position: absolute; right: -6px; width: 2px; height: 16px; background: var(--accent); }
+
+    .library, .margin {
+      grid-row: 2 / 4;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      flex-direction: column;
+      background: var(--surface-left);
+      transition: background-color 160ms ease, transform 220ms cubic-bezier(.2,.8,.2,1), opacity 160ms ease;
+    }
+    .library { grid-column: 2; border-right: 1px solid var(--boundary); }
+    .margin { grid-column: 4; border-left: 1px solid var(--boundary); background: var(--surface-right); }
+    .panel-tools {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      min-height: 44px;
+      padding-inline: 18px;
+      color: var(--faint);
+    }
+    .panel-tools .spacer { flex: 1; }
+    .search {
+      position: relative;
+      margin: 6px 18px 14px;
+    }
+    .search svg { position: absolute; top: 9px; left: 10px; width: 15px; color: var(--faint); }
+    .search input {
+      width: 100%;
+      height: 34px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 0 12px 0 34px;
+      background: color-mix(in oklch, var(--ink) 3%, transparent);
+      color: var(--ink);
+      outline: none;
+    }
+    .search input:focus { border-color: var(--accent); background: var(--field); }
+    .tree, .outline { min-height: 0; overflow: auto; padding: 12px 18px 24px; }
+    .tree { flex: 1; }
+    .row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      border-radius: 3px;
+      padding: 6px 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+      transition: background-color 120ms ease, color 120ms ease;
+    }
+    .row:hover { background: var(--hover); color: var(--ink); }
+    .row .chev { width: 12px; color: var(--ghost); }
+    .row.depth-1 { padding-left: 24px; }
+    .row.depth-2 { padding-left: 42px; }
+    .row.current { color: var(--ink); font-weight: 590; background: transparent; }
+    .row.current::before { content: ""; position: absolute; inset: 8px auto 8px 0; width: 2px; background: var(--accent); }
+    html[data-field-mode="layered"] .row.current { background: var(--accent-wash); }
+    .vault {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 6px 14px 6px 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .vault span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vault .spacer { flex: 1; }
+    html[data-field-mode="layered"] .vault { background: var(--field-deep); box-shadow: inset 0 1px var(--line); }
+
+    .workspace {
+      grid-row: 2 / 4;
+      grid-column: 3;
+      display: grid;
+      grid-template-columns: minmax(360px, 1fr) var(--gutter) minmax(360px, 1.04fr);
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      background: var(--surface-center);
+      transition: grid-template-columns 220ms cubic-bezier(.2,.8,.2,1), background-color 160ms ease;
+    }
+    .gutter { position: relative; min-width: 0; background: var(--field); }
+    .gutter::before {
+      content: "";
+      position: absolute;
+      top: 58px;
+      left: 50%;
+      width: 1px;
+      height: 38px;
+      background: color-mix(in oklch, var(--accent) 32%, transparent);
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 120ms ease, height 120ms ease;
+    }
+    .gutter:hover::before { height: 90px; opacity: 1; }
+    html[data-field-mode="layered"] .gutter { border-inline: 1px solid var(--line); }
+    .leaf {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--field);
+      transition: opacity 160ms ease, transform 220ms cubic-bezier(.2,.8,.2,1);
+    }
+    .leaf-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 38px;
+      padding-inline: 14px;
+      color: var(--faint);
+      font-size: 11px;
+    }
+    .leaf-header .history { display: flex; gap: 1px; }
+    .breadcrumb { display: flex; min-width: 0; gap: 5px; margin-left: 10px; overflow: hidden; white-space: nowrap; }
+    .breadcrumb span { overflow: hidden; text-overflow: ellipsis; }
+    .leaf-header .spacer { flex: 1; }
+    .mode-stamp { margin-inline: 12px 8px; color: var(--muted); font-size: 10px; font-weight: 650; letter-spacing: .15em; }
+    .leaf.active .mode-stamp { color: var(--accent); }
+    html[data-field-mode="layered"] .leaf-header { box-shadow: inset 0 -1px var(--line); }
+    .note-scroll { min-height: 0; overflow: auto; scrollbar-color: color-mix(in oklch, var(--ink) 14%, transparent) transparent; }
+    .note {
+      width: min(650px, calc(100% - 70px));
+      margin: 0 auto;
+      padding: clamp(58px, 7vh, 92px) 0 160px;
+      font-family: var(--serif);
+      font-size: 16px;
+      line-height: 1.72;
+    }
+    .note.editing { width: min(620px, calc(100% - 58px)); padding-top: 64px; }
+    .file-title {
+      margin: 0 0 20px;
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: clamp(30px, 3.4vw, 48px);
+      font-weight: 520;
+      line-height: 1.08;
+      letter-spacing: -.022em;
+      text-wrap: balance;
+    }
+    .note.editing .file-title { font-size: 25px; line-height: 1.22; }
+    .deck { margin: 0 0 32px; color: var(--muted); font-size: 17px; line-height: 1.66; }
+    .folio-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 50px; color: var(--faint); font-family: var(--ui); font-size: 10px; letter-spacing: .08em; }
+    .folio-meta::before { content: ""; width: 34px; height: 2px; background: var(--accent); }
+    .note p { margin: 0 0 1.35em; text-wrap: pretty; }
+    .note h2 { margin: 48px 0 14px; font-size: 25px; font-weight: 520; line-height: 1.25; letter-spacing: -.01em; }
+    .note h3 { margin: 34px 0 10px; font-size: 19px; font-weight: 600; }
+    .note blockquote { margin: 32px 0; padding: 3px 0 3px 22px; border-left: 2px solid var(--accent); color: var(--muted); font-size: 18px; }
+    .note code { border-radius: 3px; padding: .08em .35em; background: color-mix(in oklch, var(--ink) 5%, transparent); font-family: "SFMono-Regular", Consolas, monospace; font-size: .84em; }
+    .note hr { height: 1px; border: 0; margin: 42px 0; background: color-mix(in oklch, var(--ink) 8%, transparent); }
+    .syntax { color: var(--ghost); }
+    .focus-block { position: relative; transition: opacity 160ms ease; }
+    body.focus .focus-block { opacity: .42; }
+    body.focus .focus-block.current, body.focus .focus-block:hover { opacity: 1; }
+    body.focus .focus-block.current::before { content: ""; position: absolute; inset: 7px auto 7px -22px; width: 1px; background: var(--accent); }
+
+    .outline { padding-top: 22px; }
+    .outline-group { margin-bottom: 18px; }
+    .outline .row { align-items: flex-start; min-height: 38px; font-size: 12px; line-height: 1.45; }
+    .outline .row.current { color: var(--ink); font-weight: 590; }
+    .margin-caption { margin: 16px 24px 0; color: var(--ghost); font-family: var(--serif); font-size: 12px; font-style: italic; }
+
+    .status {
+      grid-row: 3;
+      grid-column: 3 / 5;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      padding-inline: 14px;
+      background: var(--field);
+      color: var(--ghost);
+      font-size: 10px;
+      z-index: 6;
+    }
+    html[data-field-mode="layered"] .status { background: var(--field-deep); box-shadow: inset 0 1px var(--line); }
+
+    .tweaks-toggle {
+      position: fixed;
+      right: 16px;
+      bottom: 14px;
+      z-index: 30;
+      min-height: 34px;
+      border-radius: 4px;
+      padding: 0 12px;
+      background: var(--ink);
+      color: var(--field);
+      box-shadow: 0 8px 28px var(--shadow);
+      font-size: 11px;
+      letter-spacing: .06em;
+    }
+    .tweaks {
+      position: fixed;
+      right: 16px;
+      bottom: 58px;
+      z-index: 29;
+      width: 290px;
+      border: 1px solid color-mix(in oklch, var(--line) 70%, transparent);
+      border-radius: 7px;
+      padding: 14px;
+      background: var(--foreground);
+      box-shadow: 0 16px 50px var(--shadow);
+      transform-origin: bottom right;
+      transition: opacity 130ms ease, transform 130ms ease;
+    }
+    .tweaks[hidden] { display: block; pointer-events: none; opacity: 0; transform: translateY(8px) scale(.98); }
+    .tweaks-title { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+    .tweaks-title strong { font-family: var(--serif); font-size: 15px; font-weight: 600; }
+    .tweaks-title span { color: var(--faint); font-size: 10px; }
+    .control-label { display: block; margin: 12px 0 7px; color: var(--faint); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; background: color-mix(in oklch, var(--ink) 5%, transparent); border-radius: 5px; }
+    .segmented button { min-height: 30px; border-radius: 3px; color: var(--muted); font-size: 11px; }
+    .segmented button.active { background: var(--field); color: var(--ink); box-shadow: 0 1px 5px color-mix(in oklch, var(--ink) 10%, transparent); }
+    .action-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+    .action-row button { min-height: 32px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); font-size: 11px; }
+    .action-row button:hover, .action-row button.active { border-color: var(--accent); color: var(--accent); background: var(--accent-wash); }
+    .explain { margin: 12px 0 0; color: var(--faint); font-size: 11px; line-height: 1.55; }
+
+    body.stage .app { grid-template-columns: 8px 0 minmax(0, 1fr) 0; }
+    body.stage .library { transform: translateX(calc(-100% + 8px)); opacity: .55; }
+    body.stage .margin { transform: translateX(calc(100% - 8px)); opacity: .55; }
+    body.stage .workspace { position: fixed; inset: 0; grid-template-columns: 1fr 0 0; z-index: 12; }
+    body.stage .workspace .secondary, body.stage .workspace .gutter { opacity: 0; pointer-events: none; }
+    body.stage .leaf-header { justify-content: center; }
+    body.stage .leaf-header :is(.history, .breadcrumb, .icon-button) { display: none; }
+    body.stage .note { padding-top: 72px; }
+
+    @media (max-width: 1220px) {
+      :root { --left: 220px; --right: 0px; }
+      .margin, .dock-tabs.right { display: none; }
+      .workspace { grid-template-columns: minmax(340px, 1fr) 18px minmax(340px, 1fr); }
+      .note { width: min(610px, calc(100% - 48px)); }
+    }
+
+    @media (max-width: 860px) {
+      :root { --left: 0px; --ribbon: 38px; }
+      .library, .dock-tabs.left { display: none; }
+      .workspace { grid-template-columns: 1fr; }
+      .workspace .secondary, .workspace .gutter { display: none; }
+      .root-tabs { padding-left: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden">
+    <defs>
+      <symbol id="folder" viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M3 10h18"></path></symbol>
+      <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></symbol>
+      <symbol id="bookmark" viewBox="0 0 24 24"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4z"></path></symbol>
+      <symbol id="panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M8 4v16"></path></symbol>
+      <symbol id="list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"></path><circle cx="4" cy="6" r="1"></circle><circle cx="4" cy="12" r="1"></circle><circle cx="4" cy="18" r="1"></circle></symbol>
+      <symbol id="link" viewBox="0 0 24 24"><path d="m9 15 6-6"></path><path d="M7 18H5a4 4 0 0 1 0-8h3M17 6h2a4 4 0 0 1 0 8h-3"></path></symbol>
+      <symbol id="tag" viewBox="0 0 24 24"><path d="M20 13 13 20l-9-9V4h7z"></path><circle cx="8.5" cy="8.5" r="1"></circle></symbol>
+      <symbol id="archive" viewBox="0 0 24 24"><path d="M4 7h16v13H4zM3 4h18v3H3zM9 11h6"></path></symbol>
+      <symbol id="network" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"></circle><circle cx="18" cy="6" r="2"></circle><circle cx="12" cy="18" r="2"></circle><path d="m7.5 7.5 3.4 8M16.5 7.5l-3.4 8M8 6h8"></path></symbol>
+      <symbol id="grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></symbol>
+      <symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></symbol>
+      <symbol id="layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"></path></symbol>
+      <symbol id="settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19 13.5v-3l-2-.6-.6-1.4 1-1.8-2.1-2.1-1.8 1-1.5-.6-.5-2h-3l-.6 2-1.4.6-1.8-1-2.1 2.1 1 1.8L3 10v3l2 .6.6 1.4-1 1.8 2.1 2.1 1.8-1 1.5.6.5 2h3l.6-2 1.4-.6 1.8 1 2.1-2.1-1-1.8z"></path></symbol>
+      <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+      <symbol id="sort" viewBox="0 0 24 24"><path d="M8 6h10M8 12h7M8 18h4M4 4v16M2 18l2 2 2-2"></path></symbol>
+      <symbol id="locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><circle cx="12" cy="12" r="8"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></symbol>
+      <symbol id="collapse" viewBox="0 0 24 24"><path d="m7 15 5-5 5 5M7 20l5-5 5 5"></path></symbol>
+      <symbol id="chev-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></symbol>
+      <symbol id="chev-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></symbol>
+      <symbol id="book" viewBox="0 0 24 24"><path d="M4 5a3 3 0 0 1 3-2h4v16H7a3 3 0 0 0-3 2zM20 5a3 3 0 0 0-3-2h-4v16h4a3 3 0 0 1 3 2z"></path></symbol>
+      <symbol id="more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></symbol>
+    </defs>
+  </svg>
+
+  <main class="app" data-screen-label="Kami Continuous Folio Field">
+    <header class="topbar">
+      <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+      <nav class="dock-tabs left" aria-label="左侧边栏标签">
+        <button class="icon-button active" aria-label="文件"><svg class="icon"><use href="#folder"></use></svg></button>
+        <button class="icon-button" aria-label="搜索"><svg class="icon"><use href="#search"></use></svg></button>
+        <button class="icon-button" aria-label="书签"><svg class="icon"><use href="#bookmark"></use></svg></button>
+        <button class="icon-button" aria-label="收起左侧边栏" style="margin-left:auto"><svg class="icon"><use href="#panel"></use></svg></button>
+      </nav>
+      <nav class="root-tabs" aria-label="打开的笔记">
+        <div class="root-tab active"><span class="diamond">◆</span><span>weave-skill-spine-visual-design</span></div>
+        <div class="root-tab"><span class="diamond">◇</span><span>Kami workspace notes</span></div>
+      </nav>
+      <nav class="dock-tabs right" aria-label="右侧边栏标签">
+        <button class="icon-button" aria-label="反向链接"><svg class="icon"><use href="#link"></use></svg></button>
+        <button class="icon-button" aria-label="标签"><svg class="icon"><use href="#tag"></use></svg></button>
+        <button class="icon-button" aria-label="属性"><svg class="icon"><use href="#archive"></use></svg></button>
+        <button class="icon-button active" aria-label="大纲"><svg class="icon"><use href="#list"></use></svg></button>
+        <button class="icon-button" aria-label="收起右侧边栏"><svg class="icon"><use href="#panel"></use></svg></button>
+      </nav>
+    </header>
+
+    <nav class="tool-spine" aria-label="Ribbon">
+      <button class="icon-button" aria-label="快速切换"><svg class="icon"><use href="#folder"></use></svg></button>
+      <button class="icon-button" aria-label="关系图谱"><svg class="icon"><use href="#network"></use></svg></button>
+      <button class="icon-button" aria-label="画布"><svg class="icon"><use href="#grid"></use></svg></button>
+      <button class="icon-button" aria-label="日记"><svg class="icon"><use href="#calendar"></use></svg></button>
+      <button class="icon-button active" aria-label="文档"><svg class="icon"><use href="#layers"></use></svg></button>
+      <div class="spacer"></div>
+      <button class="icon-button" aria-label="设置"><svg class="icon"><use href="#settings"></use></svg></button>
+    </nav>
+
+    <aside class="library" aria-label="文件库">
+      <div class="panel-tools">
+        <button class="icon-button" aria-label="新建笔记"><svg class="icon"><use href="#plus"></use></svg></button>
+        <button class="icon-button" aria-label="新建文件夹"><svg class="icon"><use href="#folder"></use></svg></button>
+        <button class="icon-button" aria-label="排序"><svg class="icon"><use href="#sort"></use></svg></button>
+        <div class="spacer"></div>
+        <button class="icon-button" aria-label="定位当前文件"><svg class="icon"><use href="#locate"></use></svg></button>
+        <button class="icon-button" aria-label="全部收起"><svg class="icon"><use href="#collapse"></use></svg></button>
+      </div>
+      <label class="search">
+        <svg class="icon" aria-hidden="true"><use href="#search"></use></svg>
+        <input type="search" placeholder="Search…" aria-label="搜索文件">
+      </label>
+      <div class="tree">
+        <div class="row"><span class="chev">⌄</span><span>ai-wiki-vault</span></div>
+        <div class="row depth-1"><span class="chev">›</span><span>00_Index</span></div>
+        <div class="row depth-1"><span class="chev">›</span><span>01_Drafts</span></div>
+        <div class="row depth-1"><span class="chev">›</span><span>02_Articles</span></div>
+        <div class="row depth-1"><span class="chev">›</span><span>03_Content_Output</span></div>
+        <div class="row depth-1"><span class="chev">⌄</span><span>tools</span></div>
+        <div class="row depth-2"><span class="chev"></span><span>README</span></div>
+        <div class="row depth-2 current"><span class="chev"></span><span>weave-skill-spine-visual-design</span></div>
+        <div class="row"><span class="chev">›</span><span>lode-vault</span></div>
+      </div>
+      <div class="vault"><span>knowledge-vaults</span><div class="spacer"></div><button class="icon-button" aria-label="帮助">?</button><button class="icon-button" aria-label="设置"><svg class="icon"><use href="#settings"></use></svg></button></div>
+    </aside>
+
+    <section class="workspace" aria-label="双栏工作区">
+      <section class="leaf active" aria-label="编辑视图">
+        <header class="leaf-header">
+          <div class="history"><button class="icon-button" aria-label="后退"><svg class="icon"><use href="#chev-left"></use></svg></button><button class="icon-button" aria-label="前进"><svg class="icon"><use href="#chev-right"></use></svg></button></div>
+          <div class="breadcrumb"><span>ai-wiki-vault</span><span>/</span><span>weave-skill-spine-visual-design</span></div>
+          <div class="spacer"></div><span class="mode-stamp">EDITING</span>
+          <button class="icon-button" aria-label="阅读视图"><svg class="icon"><use href="#book"></use></svg></button><button class="icon-button" aria-label="更多"><svg class="icon"><use href="#more"></use></svg></button>
+        </header>
+        <div class="note-scroll">
+          <article class="note editing" lang="zh-CN">
+            <h1 class="file-title">weave-skill-spine-visual-design</h1>
+            <p><span class="syntax">, #</span> Weave Skill 设计补强：脊柱方向闸门 + 视觉层</p>
+            <blockquote>本文是两块可<strong>独立落进 skill 流程</strong>的设计规格，基底是 <code>learn</code> 的六阶段（Collect → Digest → Outline → Fill → Refine → Self-review）。每块都说明：要解决的问题、机制、判定规则、与 learn 阶段的衔接、反模式、以及一个真实实例。</blockquote>
+            <hr>
+            <section class="focus-block current"><h2>一、脊柱方向闸门（Spine Direction Gate）</h2><p>一篇文章是否成立，首先取决于它是否拥有足够清晰的方向。闸门不是再加一道流程，而是让选择发生在写作之前。</p></section>
+            <section class="focus-block"><h2>二、视觉层（Visual Pass）</h2><h3>2.1 要解决的问题</h3><p><code>learn</code> 是纯文字流程，没有任何配图阶段。技术长文往往受益于图，但图极难自律。</p></section>
+          </article>
+        </div>
+      </section>
+
+      <div class="gutter" title="Pane resize handle"></div>
+
+      <section class="leaf secondary" aria-label="阅读视图">
+        <header class="leaf-header">
+          <div class="history"><button class="icon-button" aria-label="后退"><svg class="icon"><use href="#chev-left"></use></svg></button><button class="icon-button" aria-label="前进"><svg class="icon"><use href="#chev-right"></use></svg></button></div>
+          <div class="breadcrumb"><span>ai-wiki-vault</span><span>/</span><span>weave-skill-spine-visual-design</span></div>
+          <div class="spacer"></div><span class="mode-stamp">READING</span>
+          <button class="icon-button" aria-label="编辑"><svg class="icon"><use href="#book"></use></svg></button><button class="icon-button" aria-label="更多"><svg class="icon"><use href="#more"></use></svg></button>
+        </header>
+        <div class="note-scroll">
+          <article class="note" lang="zh-CN">
+            <h1 class="file-title">weave-skill-spine-<br>visual-design</h1>
+            <p class="deck">Weave Skill 设计补强：脊柱方向闸门 + 视觉层</p>
+            <div class="folio-meta"><span>DESIGN NOTE</span><span>2026.08.14</span></div>
+            <section class="focus-block current"><blockquote>本文是两块可<strong>独立落进 skill 流程</strong>的设计规格，基底是 <code>learn</code> 的六阶段。每块都说明：要解决的问题、机制、判定规则、与 learn 阶段的衔接、反模式，以及一个真实实例。</blockquote></section>
+            <section class="focus-block"><h2>一、脊柱方向闸门</h2><p>闸门的作用不是替作者做决定，而是让文章的认知方向在写作开始前变得可见。</p></section>
+            <section class="focus-block"><h2>二、视觉层（Visual Pass）</h2><h3>2.1 要解决的问题</h3><p>技术长文往往受益于图，但图极难自律。视觉层需要一个判定标准来决定每张图是否配得上它的位置。</p></section>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <aside class="margin" aria-label="大纲">
+      <div class="panel-tools"><div class="spacer"></div><button class="icon-button" aria-label="搜索大纲"><svg class="icon"><use href="#search"></use></svg></button><button class="icon-button" aria-label="自动滚动"><svg class="icon"><use href="#locate"></use></svg></button><button class="icon-button" aria-label="全部收起"><svg class="icon"><use href="#collapse"></use></svg></button></div>
+      <div class="outline">
+        <div class="outline-group">
+          <div class="row current"><span class="chev">⌄</span><span>一、脊柱方向闸门（Spine Direction Gate）</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>1.1 要解决的问题</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>1.2 机制（动作步骤）</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>1.3 三种脊柱重心</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>1.4 深层模式：贯穿物</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>1.7 反模式</span></div>
+        </div>
+        <div class="outline-group">
+          <div class="row"><span class="chev">⌄</span><span>二、视觉层（Visual Pass）</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>2.1 要解决的问题</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>2.2 机制（动作步骤）</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>2.3 核心资产：判定标准表</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>2.4 选图逻辑</span></div>
+          <div class="row depth-1"><span class="chev"></span><span>2.8 反模式</span></div>
+        </div>
+      </div>
+      <p class="margin-caption">Outline 不是一块面板，而是纸张的页边目录。</p>
+    </aside>
+
+    <footer class="status"><span>0 backlinks</span><span>2,972 words</span><span>5,142 characters</span></footer>
+  </main>
+
+  <button class="tweaks-toggle" id="tweaks-toggle" aria-controls="tweaks" aria-expanded="true">调整</button>
+  <aside class="tweaks" id="tweaks" aria-label="原型调整面板">
+    <div class="tweaks-title"><strong>Continuous Folio Field</strong><span>PROTOTYPE 01</span></div>
+    <span class="control-label">边界强度</span>
+    <div class="segmented" id="field-modes">
+      <button data-mode="layered">当前分层</button><button data-mode="soft">柔和索引</button><button class="active" data-mode="one">One Field</button>
+    </div>
+    <span class="control-label">状态</span>
+    <div class="action-row"><button id="theme-toggle">深色</button><button id="focus-toggle">专注</button><button id="stage-toggle">Stage</button></div>
+    <p class="explain" id="mode-explain">永久表面共用一张纸；只有当前项、悬停与拖拽才出现边界。</p>
+  </aside>
+
+  <script>
+    const root = document.documentElement;
+    const body = document.body;
+    const tweaks = document.querySelector("#tweaks");
+    const tweaksToggle = document.querySelector("#tweaks-toggle");
+    const themeToggle = document.querySelector("#theme-toggle");
+    const focusToggle = document.querySelector("#focus-toggle");
+    const stageToggle = document.querySelector("#stage-toggle");
+    const modeExplain = document.querySelector("#mode-explain");
+    const explanations = {
+      layered: "四种常驻底色与分隔线同时存在，区域首先被读成独立面板。",
+      soft: "保留极轻的索引区色阶，取消盒状标签与强分割线。",
+      one: "永久表面共用一张纸；只有当前项、悬停与拖拽才出现边界。"
+    };
+
+    document.querySelector("#field-modes").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-mode]");
+      if (!button) return;
+      const mode = button.dataset.mode;
+      root.dataset.fieldMode = mode;
+      document.querySelectorAll("#field-modes button").forEach((item) => item.classList.toggle("active", item === button));
+      modeExplain.textContent = explanations[mode];
+    });
+
+    tweaksToggle.addEventListener("click", () => {
+      const isHidden = !tweaks.hasAttribute("hidden");
+      if (isHidden) tweaks.setAttribute("hidden", "");
+      else tweaks.removeAttribute("hidden");
+      tweaksToggle.setAttribute("aria-expanded", String(!isHidden));
+    });
+
+    themeToggle.addEventListener("click", () => {
+      const dark = root.dataset.theme !== "dark";
+      root.dataset.theme = dark ? "dark" : "light";
+      themeToggle.textContent = dark ? "浅色" : "深色";
+      themeToggle.classList.toggle("active", dark);
+    });
+
+    focusToggle.addEventListener("click", () => {
+      const active = body.classList.toggle("focus");
+      focusToggle.classList.toggle("active", active);
+      focusToggle.textContent = active ? "退出专注" : "专注";
+    });
+
+    stageToggle.addEventListener("click", () => {
+      const active = body.classList.toggle("stage");
+      stageToggle.classList.toggle("active", active);
+      stageToggle.textContent = active ? "退出 Stage" : "Stage";
+    });
+
+    document.querySelectorAll(".focus-block").forEach((block) => {
+      block.addEventListener("click", () => {
+        if (!body.classList.contains("focus")) return;
+        document.querySelectorAll(".focus-block").forEach((item) => item.classList.remove("current"));
+        block.classList.add("current");
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (body.classList.contains("stage")) stageToggle.click();
+      else if (body.classList.contains("focus")) focusToggle.click();
+    });
+  </script>
+</body>
+</html>

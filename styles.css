@@ -4,14 +4,15 @@ body:not(.is-mobile) {
   --kami-folio-view-header-height: 32px;
   --kami-folio-status-height: 22px;
   --kami-folio-ribbon-width: 32px;
+  --kami-folio-pane-gutter: 26px;
   --kami-folio-document-top: clamp(72px, 7vw, 100px);
-  --kami-folio-canvas: #dfddd4;
-  --kami-folio-paper: #f5f4ed;
-  --kami-folio-shell: #e9e6dc;
-  --kami-folio-shell-deep: #dedbd0;
-  --kami-folio-foreground: #fbfaf4;
-  --kami-folio-interactive: #d9d5ca;
-  --kami-folio-line: #cbc7bb;
+  --kami-folio-canvas: #f4f1e8;
+  --kami-folio-paper: #f4f1e8;
+  --kami-folio-shell: #f4f1e8;
+  --kami-folio-shell-deep: #f4f1e8;
+  --kami-folio-foreground: #fbfaf5;
+  --kami-folio-interactive: color-mix(in oklch, var(--kami-folio-ink) 5%, var(--kami-folio-paper));
+  --kami-folio-line: #cec8bb;
   --kami-folio-paper-shadow: rgba(45, 42, 34, 0.08);
   --kami-folio-ink: #141413;
   --kami-folio-muted: #504e49;
@@ -39,18 +40,18 @@ body:not(.is-mobile) {
 }
 
 body.theme-dark:not(.is-mobile) {
-  --kami-folio-canvas: #0b0b0a;
+  --kami-folio-canvas: #151513;
   --kami-folio-paper: #151513;
-  --kami-folio-shell: #1c1b18;
-  --kami-folio-shell-deep: #0c0c0b;
-  --kami-folio-foreground: #211f1b;
-  --kami-folio-interactive: #302e29;
+  --kami-folio-shell: #151513;
+  --kami-folio-shell-deep: #151513;
+  --kami-folio-foreground: #24221e;
+  --kami-folio-interactive: color-mix(in oklch, var(--kami-folio-ink) 7%, var(--kami-folio-paper));
   --kami-folio-line: #39362f;
   --kami-folio-paper-shadow: rgba(0, 0, 0, 0.38);
   --kami-folio-ink: #e8e3d2;
   --kami-folio-muted: #b4b09e;
   --kami-folio-faint: #817b68;
-  --kami-folio-accent: #2d5a8a;
+  --kami-folio-accent: #477baa;
   --kami-folio-danger: #d86d68;
   --kami-folio-highlight: #5a4a1f;
   --kami-folio-focus-wash: color-mix(in oklch, var(--kami-folio-accent) 16%, var(--kami-folio-paper));
@@ -74,17 +75,24 @@ body:not(.is-mobile) :is(.workspace, .workspace-split.mod-root) {
 }
 
 body:not(.is-mobile) .workspace {
-  --divider-color: var(--kami-folio-line);
+  --divider-color: transparent;
   --divider-color-hover: var(--kami-folio-accent);
 }
 
 body:not(.is-mobile) .workspace-split.mod-root {
   position: relative;
   z-index: 1;
-  box-shadow:
-    -1px 0 0 var(--kami-folio-line),
-    1px 0 0 var(--kami-folio-line),
-    0 0 28px var(--kami-folio-paper-shadow);
+  box-shadow: none;
+}
+
+/* One Field replaces persistent split rules with whitespace. Keep the native
+   resize handles in place so pane geometry remains discoverable and operable. */
+body:not(.is-mobile)
+  .workspace-split.mod-root:is(.mod-vertical, .mod-horizontal),
+body:not(.is-mobile)
+  .workspace-split.mod-root
+  :is(.workspace-split.mod-vertical, .workspace-split.mod-horizontal) {
+  gap: var(--kami-folio-pane-gutter);
 }
 
 body:not(.is-mobile)
@@ -174,14 +182,14 @@ body:not(.is-mobile) .workspace-sidedock-vault-profile {
   height: 32px;
   padding: 1px 5px;
   color: var(--kami-folio-muted);
-  box-shadow: inset 0 1px 0 var(--kami-folio-line);
+  box-shadow: none;
 }
 
 body:not(.is-mobile) .workspace-tab-header-container {
   min-height: var(--kami-folio-strip-height);
   height: var(--kami-folio-strip-height);
   padding: 0;
-  box-shadow: inset 0 -1px 0 var(--kami-folio-line);
+  box-shadow: none;
 }
 
 body:not(.is-mobile)
@@ -271,8 +279,8 @@ body:not(.is-mobile)
   .workspace-tab-header.is-active {
   position: relative;
   color: var(--kami-folio-ink);
-  background: var(--kami-folio-paper);
-  box-shadow: inset 1px 0 0 var(--kami-folio-line), inset -1px 0 0 var(--kami-folio-line);
+  background: transparent;
+  box-shadow: none;
 }
 
 body:not(.is-mobile)
@@ -320,7 +328,7 @@ body:not(.is-mobile) .view-header {
   height: var(--kami-folio-view-header-height);
   padding-inline: 8px;
   color: var(--kami-folio-faint);
-  box-shadow: inset 0 -1px 0 color-mix(in oklch, var(--kami-folio-line) 72%, transparent);
+  box-shadow: none;
 }
 
 body:not(.is-mobile) .workspace-split.mod-root .view-header {
@@ -468,7 +476,7 @@ body.mod-macos.is-hidden-frameless:not(.is-mobile):not(.is-popout-window)
   right: 4px;
   width: 30px;
   padding: 1px 0;
-  box-shadow: inset 0 -1px 0 var(--kami-folio-line);
+  box-shadow: none;
 }
 
 /* Preserve Obsidian's native caption-button safe area. The Folio tab-strip
@@ -823,7 +831,7 @@ body:not(.is-mobile)
   .kami-companion-outline-active
   .tree-item-self.kami-outline-current {
   color: var(--kami-folio-ink);
-  background: var(--kami-folio-focus-wash);
+  background: transparent;
   font-weight: var(--font-semibold, 600);
   box-shadow: inset 2px 0 0 var(--kami-folio-accent);
 }
@@ -1206,7 +1214,7 @@ body:not(.is-mobile) .status-bar {
   background-color: var(--kami-folio-shell-deep);
   font-size: 10px;
   letter-spacing: 0.02em;
-  box-shadow: inset 0 1px 0 var(--kami-folio-line);
+  box-shadow: none;
 }
 
 body:not(.is-mobile) .status-bar-item {
@@ -1557,6 +1565,10 @@ body:not(.is-mobile)
 }
 
 @media (max-width: 940px) {
+  body:not(.is-mobile) {
+    --kami-folio-pane-gutter: 16px;
+  }
+
   body.kami-reading-presence:not(.is-mobile)
     .workspace-leaf-content.kami-reading-stage
     .markdown-preview-sizer {

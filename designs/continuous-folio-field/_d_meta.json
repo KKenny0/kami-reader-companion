@@ -1,0 +1,18 @@
+{
+  "type": "design",
+  "designSystems": [],
+  "primaryDesignSystem": null,
+  "assets": {
+    "Kami Continuous Folio Field Prototype": {
+      "versions": [
+        {
+          "path": "Continuous Folio Field.html",
+          "createdAt": "2026-08-14T12:27:38.898Z",
+          "status": "approved"
+        }
+      ]
+    }
+  },
+  "createdAt": "2026-08-14T12:27:38.898Z",
+  "updatedAt": "2026-08-14T13:18:32.462Z"
+}
