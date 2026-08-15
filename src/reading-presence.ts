@@ -327,9 +327,7 @@ export class ReadingPresence {
     this.clearReadingDecorations();
     title.classList.add(contextTitle ? "kami-folio-inline-title-context" : "kami-folio-inline-title");
     if (deck) deck.classList.add("kami-folio-deck");
-    const meta = title.ownerDocument.createElement("div");
-    meta.classList.add("kami-folio-meta");
-    meta.textContent = metaText;
+    const meta = title.createDiv({ cls: "kami-folio-meta", text: metaText });
     if (deck) deck.after(meta);
     else title.after(meta);
     this.target.title = title;
@@ -348,9 +346,10 @@ export class ReadingPresence {
     let label = this.target.modeLabel;
     if (!label?.isConnected) {
       label?.remove();
-      label = header.ownerDocument.createElement("span");
-      label.classList.add("kami-folio-mode-label");
-      label.setAttribute("aria-hidden", "true");
+      label = header.createSpan({
+        cls: "kami-folio-mode-label",
+        attr: { "aria-hidden": "true" }
+      });
       const actions = header.querySelector<HTMLElement>(".view-actions");
       if (actions) actions.before(label);
       else header.append(label);

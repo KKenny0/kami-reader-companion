@@ -61,8 +61,6 @@ class FakeDocument {
 
   selectionChange(): void { this.dispatch("selectionchange", { type: "selectionchange" } as Event); }
   listenerCount(type = "keydown"): number { return this.listeners.get(type)?.size ?? 0; }
-  createElement(): FakeElement { return new FakeElement(this); }
-
   private dispatch(type: string, event: Event): void {
     this.listeners.get(type)?.forEach((listener) => listener(event));
   }
@@ -105,6 +103,20 @@ class FakeElement {
   attachAll(selector: string, children: FakeElement[]): void {
     children.forEach((child) => child.markClosest(selector));
     this.childLists.set(selector, children);
+  }
+  createDiv({ cls, text }: { cls: string; text: string }): FakeElement {
+    const element = new FakeElement(this.ownerDocument);
+    element.classList.add(cls);
+    element.textContent = text;
+    this.append(element);
+    return element;
+  }
+  createSpan({ cls, attr }: { cls: string; attr: Record<string, string> }): FakeElement {
+    const element = new FakeElement(this.ownerDocument);
+    element.classList.add(cls);
+    Object.entries(attr).forEach(([name, value]) => element.setAttribute(name, value));
+    this.append(element);
+    return element;
   }
   after(element: FakeElement): void { this.afterElements.push(element); }
   before(element: FakeElement): void { this.beforeElements.push(element); }

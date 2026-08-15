@@ -42,7 +42,7 @@ preview（切换白纸预览）**，只有当前 Markdown leaf 会切到白纸�
 自动清除。它不会写 frontmatter，也不会保存插件数据。相同的亮色 reset 也会在
 Obsidian 处于深色模式时保护 PDF 导出。
 
-旧版 macOS 和 Windows 矩阵仅保留为历史参考，不计入当前发布验收。0.3.1
+旧版 macOS 和 Windows 矩阵仅保留为历史参考，不计入当前发布验收。0.3.2
 使用隔离的真实 Obsidian 1.13.7 进程和受版本控制的合成 `visual-vault`，完成了
 10 张当前 macOS 候选截图。截图覆盖 Default 与 Kami Reader、明暗配色、
 Reading 与 Editing、单双 pane、双 pane Focus、Reading Stage，以及 Default Dark 与 Kami

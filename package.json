@@ -1,6 +1,6 @@
 {
   "name": "kami-reader-companion",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "packageManager": "npm@10.9.2",
   "scripts": {
@@ -19,7 +19,7 @@
     "@types/node": "22.15.17",
     "esbuild": "0.25.5",
     "eslint": "9.39.4",
-    "eslint-plugin-obsidianmd": "0.4.0",
+    "eslint-plugin-obsidianmd": "0.4.1",
     "globals": "17.6.0",
     "jiti": "2.6.1",
     "jpeg-js": "^0.4.4",

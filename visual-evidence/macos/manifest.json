@@ -20,15 +20,15 @@
     ]
   },
   "candidate": {
-    "version": "0.3.1",
+    "version": "0.3.2",
     "hashEncoding": {
       "main.js": "raw-v1",
       "manifest.json": "utf8-lf-v1",
       "styles.css": "utf8-lf-v1"
     },
     "sha256": {
-      "main.js": "fe45b5f4c2aac6ed8c4ac5025a17bae1a4e3ad3256bd18a4018edde6303a0264",
-      "manifest.json": "2d9db5e5227679163d4e7e65ff2c8f7490924597b9df718bb8bbe672c282473d",
+      "main.js": "8a1532c432f6afd80da09735fe4e9ec751b75f90d2cde2d0b22cb733883097e7",
+      "manifest.json": "f2e00df10b28ef7e9bb87e58664840afc30be67c567f24ac1cd9adbbf6409633",
       "styles.css": "140bf806656a0fbdee360e4ed82510f752db622d379a4151002266e4daafb154"
     }
   },

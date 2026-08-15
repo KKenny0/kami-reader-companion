@@ -1,7 +1,7 @@
 # Kami Reader Companion immersive workspace handoff
 
 Status: Typography, navigation, print, and transient white-page-preview changes
-are implemented in the local `0.3.1` candidate. The older macOS and Windows
+are implemented in the local `0.3.2` candidate. The older macOS and Windows
 matrices are retained as historical references only. Current release acceptance is
 a ten-state macOS matrix captured from an isolated
 real Obsidian 1.13.7 process using the tracked synthetic `visual-vault`,
