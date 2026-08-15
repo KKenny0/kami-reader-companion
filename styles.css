@@ -1164,15 +1164,6 @@ body.kami-focus-open:not(.is-mobile)
 
 body.kami-focus-open:not(.is-mobile)
   .workspace-leaf-content.kami-focus-active
-  .kami-focus-block:has(
-    + .kami-focus-block:is(:hover, :focus-within, .kami-focus-current)
-  ),
-body.kami-focus-open:not(.is-mobile)
-  .workspace-leaf-content.kami-focus-active
-  .kami-focus-block:is(:hover, :focus-within, .kami-focus-current)
-  + .kami-focus-block,
-body.kami-focus-open:not(.is-mobile)
-  .workspace-leaf-content.kami-focus-active
   .kami-focus-block.kami-focus-near {
   opacity: 0.78;
 }
@@ -1202,12 +1193,7 @@ body.kami-focus-open:not(.is-mobile)
 body.kami-focus-open:not(.is-mobile)
   .workspace-leaf-content.kami-focus-active
   .markdown-source-view.mod-cm6
-  .cm-line:has(+ :is(.cm-activeLine, .cm-active)),
-body.kami-focus-open:not(.is-mobile)
-  .workspace-leaf-content.kami-focus-active
-  .markdown-source-view.mod-cm6
-  .cm-line:is(.cm-activeLine, .cm-active)
-  + .cm-line {
+  .cm-line.kami-focus-near {
   opacity: 0.78;
 }
 

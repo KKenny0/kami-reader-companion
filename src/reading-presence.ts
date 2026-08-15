@@ -11,6 +11,7 @@ const FOCUS_CURRENT_CLASS = "kami-focus-current";
 const FOCUS_NEAR_CLASS = "kami-focus-near";
 const FOCUS_TABSTOP_ATTRIBUTE = "data-kami-focus-tabstop";
 const READING_FOCUS_BLOCK_SELECTOR = ".markdown-preview-section > div:not(.mod-ui):not(.markdown-preview-pusher)";
+const EDITOR_FOCUS_LINE_SELECTOR = ".markdown-source-view.mod-cm6 .cm-line";
 const STAGE_SHIFT_X = "--kami-reading-stage-shift-x";
 const STAGE_SHIFT_Y = "--kami-reading-stage-shift-y";
 const ESCAPE_OWNER_SELECTOR = ".modal-container, .menu, .prompt, .suggestion-container, .popover";
@@ -33,6 +34,7 @@ export class ReadingPresence {
   private focusBlock: HTMLElement | null = null;
   private focusBlocks = new Set<HTMLElement>();
   private focusMarked = new Set<HTMLElement>();
+  private editorFocusLines = new Set<HTMLElement>();
 
   configure(view: MarkdownView | null): void {
     const body = view?.containerEl.ownerDocument.body ?? null;
@@ -51,7 +53,7 @@ export class ReadingPresence {
       : null;
     if (next && this.sameTarget(next)) {
       if (view) this.decorate(view, next.mode);
-      if (this.focusOpen) this.ensureReadingFocusBlock(false);
+      if (this.focusOpen) this.syncFocusContext(false);
       this.alignStage();
       return;
     }
@@ -60,6 +62,10 @@ export class ReadingPresence {
     next.body.classList.add(BODY_CLASS);
     next.stage.classList.add(STAGE_CLASS);
     next.body.ownerDocument.addEventListener("keydown", this.onKeyDown);
+    next.body.ownerDocument.addEventListener("pointerover", this.onReadingFocusContext);
+    next.body.ownerDocument.addEventListener("pointerout", this.onReadingFocusContext);
+    next.body.ownerDocument.addEventListener("focusin", this.onReadingFocusContext);
+    next.body.ownerDocument.addEventListener("selectionchange", this.onSelectionChange);
     this.keyDocument = next.body.ownerDocument;
     this.target = next;
     if (view) this.decorate(view, next.mode);
@@ -89,8 +95,8 @@ export class ReadingPresence {
     this.focusOpen = opening;
     this.target.body.classList.toggle(FOCUS_OPEN_CLASS, opening);
     this.target.stage.classList.toggle(FOCUS_ACTIVE_CLASS, opening);
-    if (opening) this.ensureReadingFocusBlock(true);
-    else this.clearReadingFocusBlock();
+    if (opening) this.syncFocusContext(true);
+    else this.clearFocusContext();
     this.updateModeLabel();
     return opening;
   }
@@ -103,7 +109,7 @@ export class ReadingPresence {
 
   exitFocus(): void {
     this.focusOpen = false;
-    this.clearReadingFocusBlock();
+    this.clearFocusContext();
     this.target?.body.classList.remove(FOCUS_OPEN_CLASS);
     this.target?.stage.classList.remove(FOCUS_ACTIVE_CLASS);
     this.updateModeLabel();
@@ -143,6 +149,30 @@ export class ReadingPresence {
     this.moveReadingFocus(event.key === "ArrowDown" ? 1 : -1, origin, blocks);
   };
 
+  private onReadingFocusContext = (event: Event): void => {
+    if (!this.focusOpen || this.target?.mode !== "preview") return;
+    const view = this.keyDocument?.defaultView;
+    if (!view?.Element || !(event.target instanceof view.Element)) return;
+    const blocks = this.readingFocusBlocks();
+    const block = event.target.closest(READING_FOCUS_BLOCK_SELECTOR);
+    if (!block || !block.instanceOf(view.HTMLElement) || block.closest(".markdown-embed") || !blocks.includes(block)) return;
+    if (event.type === "pointerout") {
+      const related = (event as PointerEvent).relatedTarget;
+      if (related instanceof view.Element && related.closest(READING_FOCUS_BLOCK_SELECTOR) === block) return;
+      if (this.focusBlock) this.markReadingFocusContext(this.focusBlock, blocks);
+      return;
+    }
+    if (event.type === "focusin") this.setReadingFocusBlock(block, false, blocks);
+    else this.markReadingFocusContext(block, blocks);
+  };
+
+  private onSelectionChange = (): void => this.syncEditorFocusLines();
+
+  private syncFocusContext(moveFocus: boolean): void {
+    if (this.target?.mode === "preview") this.ensureReadingFocusBlock(moveFocus);
+    else this.syncEditorFocusLines();
+  }
+
   private readingFocusBlocks(): HTMLElement[] {
     return this.target?.mode === "preview"
       ? Array.from(this.target.stage.querySelectorAll<HTMLElement>(READING_FOCUS_BLOCK_SELECTOR))
@@ -179,24 +209,39 @@ export class ReadingPresence {
   }
 
   private setReadingFocusBlock(block: HTMLElement, moveFocus: boolean, blocks: HTMLElement[]): void {
-    const current = blocks.indexOf(block);
-    const marked = new Set(blocks.filter((_candidate, index) => Math.abs(index - current) <= 1));
-    new Set([...this.focusMarked, ...marked]).forEach((candidate) => {
-      const index = blocks.indexOf(candidate);
-      candidate.classList.toggle(FOCUS_CURRENT_CLASS, index === current);
-      candidate.classList.toggle(FOCUS_NEAR_CLASS, Math.abs(index - current) === 1);
-    });
-    this.focusMarked = marked;
     this.clearOwnedTabstop();
+    this.focusBlock = block;
+    this.markReadingFocusContext(block, blocks);
     if (!block.hasAttribute("tabindex")) {
       block.setAttribute("tabindex", "0");
       block.setAttribute(FOCUS_TABSTOP_ATTRIBUTE, "");
     }
-    this.focusBlock = block;
     if (moveFocus) {
       block.focus({ preventScroll: true });
       block.scrollIntoView({ block: "nearest" });
     }
+  }
+
+  private markReadingFocusContext(block: HTMLElement, blocks: HTMLElement[]): void {
+    const context = blocks.indexOf(block);
+    const current = this.focusBlock && blocks.includes(this.focusBlock) ? this.focusBlock : block;
+    const marked = new Set(blocks.filter((candidate, index) => candidate === current || Math.abs(index - context) === 1));
+    new Set([...this.focusMarked, ...marked]).forEach((candidate) => {
+      candidate.classList.toggle(FOCUS_CURRENT_CLASS, candidate === current);
+      candidate.classList.toggle(FOCUS_NEAR_CLASS, candidate !== current && marked.has(candidate));
+    });
+    this.focusMarked = marked;
+  }
+
+  private syncEditorFocusLines(): void {
+    if (!this.focusOpen || this.target?.mode !== "source") return;
+    const lines = Array.from(this.target.stage.querySelectorAll<HTMLElement>(EDITOR_FOCUS_LINE_SELECTOR));
+    const active = lines.findIndex((line) => line.classList.contains("cm-activeLine") || line.classList.contains("cm-active"));
+    const marked = new Set(active < 0 ? [] : lines.filter((_line, index) => Math.abs(index - active) === 1));
+    new Set([...this.editorFocusLines, ...marked]).forEach((line) => {
+      line.classList.toggle(FOCUS_NEAR_CLASS, marked.has(line));
+    });
+    this.editorFocusLines = marked;
   }
 
   private syncReadingFocusBlocks(blocks: HTMLElement[]): void {
@@ -222,6 +267,16 @@ export class ReadingPresence {
     this.focusMarked.clear();
     this.clearOwnedTabstop();
     this.focusBlock = null;
+  }
+
+  private clearEditorFocusLines(): void {
+    this.editorFocusLines.forEach((line) => line.classList.remove(FOCUS_NEAR_CLASS));
+    this.editorFocusLines.clear();
+  }
+
+  private clearFocusContext(): void {
+    this.clearReadingFocusBlock();
+    this.clearEditorFocusLines();
   }
 
   private alignStage(): void {
@@ -335,6 +390,10 @@ export class ReadingPresence {
     this.exitFocus();
     this.clearDecorations();
     this.keyDocument?.removeEventListener("keydown", this.onKeyDown);
+    this.keyDocument?.removeEventListener("pointerover", this.onReadingFocusContext);
+    this.keyDocument?.removeEventListener("pointerout", this.onReadingFocusContext);
+    this.keyDocument?.removeEventListener("focusin", this.onReadingFocusContext);
+    this.keyDocument?.removeEventListener("selectionchange", this.onSelectionChange);
     this.keyDocument = null;
     this.target?.body.classList.remove(BODY_CLASS);
     this.target?.stage.classList.remove(STAGE_CLASS);

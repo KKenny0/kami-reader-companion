@@ -22,19 +22,21 @@ class FakeDocument {
   focused: FakeElement | null = null;
   get activeElement(): FakeElement { return this.focused?.isConnected ? this.focused : this.body; }
   defaultView = { Element: FakeElement, HTMLElement: FakeElement };
-  private keydown = new Set<(event: KeyboardEvent) => void>();
+  private listeners = new Map<string, Set<(event: Event) => void>>();
 
-  addEventListener(_type: string, listener: (event: KeyboardEvent) => void): void {
-    this.keydown.add(listener);
+  addEventListener(type: string, listener: (event: Event) => void): void {
+    const listeners = this.listeners.get(type) ?? new Set();
+    listeners.add(listener);
+    this.listeners.set(type, listeners);
   }
 
-  removeEventListener(_type: string, listener: (event: KeyboardEvent) => void): void {
-    this.keydown.delete(listener);
+  removeEventListener(type: string, listener: (event: Event) => void): void {
+    this.listeners.get(type)?.delete(listener);
   }
 
   escape(target: FakeElement): void {
     const event = { key: "Escape", defaultPrevented: false, target } as unknown as KeyboardEvent;
-    this.keydown.forEach((listener) => listener(event));
+    this.dispatch("keydown", event);
   }
 
   arrow(key: "ArrowUp" | "ArrowDown", target: FakeElement): boolean {
@@ -49,12 +51,21 @@ class FakeDocument {
       shiftKey: false,
       preventDefault(): void { prevented = true; }
     } as unknown as KeyboardEvent;
-    this.keydown.forEach((listener) => listener(event));
+    this.dispatch("keydown", event);
     return prevented;
   }
 
-  listenerCount(): number { return this.keydown.size; }
+  context(type: "pointerover" | "pointerout" | "focusin" | "focusout", target: FakeElement, relatedTarget: FakeElement | null = null): void {
+    this.dispatch(type, { type, target, relatedTarget } as unknown as Event);
+  }
+
+  selectionChange(): void { this.dispatch("selectionchange", { type: "selectionchange" } as Event); }
+  listenerCount(type = "keydown"): number { return this.listeners.get(type)?.size ?? 0; }
   createElement(): FakeElement { return new FakeElement(this); }
+
+  private dispatch(type: string, event: Event): void {
+    this.listeners.get(type)?.forEach((listener) => listener(event));
+  }
 }
 
 class FakeElement {
@@ -302,6 +313,58 @@ describe("reading presence", () => {
     expect(second.classList.contains("kami-focus-current")).toBe(false);
     expect(second.classList.contains("kami-focus-block")).toBe(false);
     expect(second.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("moves neighbor context with a pointed Reading block and restores keyboard context on leave", () => {
+    const presence = new ReadingPresence();
+    const current = target();
+    const blocks = Array.from({ length: 4 }, () => new FakeElement(current.document));
+    current.stage.attach(".markdown-preview-view", new FakeElement(current.document));
+    current.stage.attachAll(
+      ".markdown-preview-section > div:not(.mod-ui):not(.markdown-preview-pusher)",
+      blocks
+    );
+
+    presence.configure(current.view);
+    presence.toggleFocus();
+    current.document.context("pointerover", blocks[3]);
+
+    expect(blocks[0].classList.contains("kami-focus-current")).toBe(true);
+    expect(blocks[1].classList.contains("kami-focus-near")).toBe(false);
+    expect(blocks[2].classList.contains("kami-focus-near")).toBe(true);
+
+    current.document.context("pointerout", blocks[3]);
+    expect(blocks[1].classList.contains("kami-focus-near")).toBe(true);
+    expect(blocks[2].classList.contains("kami-focus-near")).toBe(false);
+
+    current.document.context("focusin", blocks[2]);
+    expect(blocks[2].classList.contains("kami-focus-current")).toBe(true);
+    expect(blocks[1].classList.contains("kami-focus-near")).toBe(true);
+    expect(blocks[3].classList.contains("kami-focus-near")).toBe(true);
+  });
+
+  it("tracks the lines adjacent to the active editor line without relational CSS", () => {
+    const presence = new ReadingPresence();
+    const current = target("note.md", new FakeDocument(), "source");
+    const lines = Array.from({ length: 4 }, () => new FakeElement(current.document));
+    lines[1].classList.add("cm-activeLine");
+    current.stage.attachAll(".markdown-source-view.mod-cm6 .cm-line", lines);
+
+    presence.configure(current.view);
+    presence.toggleFocus();
+    expect(lines[0].classList.contains("kami-focus-near")).toBe(true);
+    expect(lines[2].classList.contains("kami-focus-near")).toBe(true);
+
+    lines[1].classList.remove("cm-activeLine");
+    lines[2].classList.add("cm-activeLine");
+    current.document.selectionChange();
+    expect(lines[0].classList.contains("kami-focus-near")).toBe(false);
+    expect(lines[1].classList.contains("kami-focus-near")).toBe(true);
+    expect(lines[3].classList.contains("kami-focus-near")).toBe(true);
+
+    presence.exitFocus();
+    expect(lines[1].classList.contains("kami-focus-near")).toBe(false);
+    expect(lines[3].classList.contains("kami-focus-near")).toBe(false);
   });
 
   it("moves from the block that actually owns keyboard focus", () => {

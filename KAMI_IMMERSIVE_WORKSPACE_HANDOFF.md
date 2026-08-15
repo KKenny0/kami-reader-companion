@@ -1,17 +1,17 @@
 # Kami Reader Companion immersive workspace handoff
 
 Status: Typography, navigation, print, and transient white-page-preview changes
-are implemented in the local `0.3.0` candidate. The older macOS and Windows
+are implemented in the local `0.3.1` candidate. The older macOS and Windows
 matrices are retained as historical references only. Current release acceptance is
-a seven-state macOS matrix plus two white-preview states captured from an isolated
+a ten-state macOS matrix captured from an isolated
 real Obsidian 1.13.7 process using the tracked synthetic `visual-vault`,
 and is bound to both Companion assets and the paired Kami Reader 0.3.0
-release-candidate `theme.css`. Public delivery is governed by the explicit authorization in the
+release `theme.css`. Public delivery is governed by the explicit authorization in the
 active implementation thread.
 
 Date: 2026-08-12
 
-Related theme: [Kami Reader](https://github.com/KKenny0/obsidian-kami), local 0.3.0 release candidate
+Related theme: [Kami Reader](https://github.com/KKenny0/obsidian-kami), released as 0.3.0
 
 ## Purpose
 
@@ -290,7 +290,7 @@ View; they must be removed on identity change and unload:
 | `kami-focus-open` | the same owner document body | Optional Focus Mode is active in this window. |
 | `kami-focus-active` | the same active container | This Markdown leaf owns the focus treatment. |
 | `kami-focus-current` | current native Reading block wrapper | Keyboard-owned current Reading block. |
-| `kami-focus-near` | adjacent native Reading block wrappers | Neighbor context around the current Reading block. |
+| `kami-focus-near` | adjacent native Reading block wrappers or CodeMirror lines | Neighbor context around the current Reading block or active editor line. |
 | `kami-white-page-preview-active` | the active `MarkdownView.containerEl` | This one Reading or Editing leaf uses white paper and light document tokens. |
 
 Continue using `kami-companion-outline-active`, `kami-outline-current`,
