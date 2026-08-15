@@ -64,6 +64,10 @@ const currentRequired = new Map([
     state: ["Kami Reader", "dark", "editing", "split", "base"],
     assertions: ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar", "pane-gutter-visible"]
   }],
+  ["macos-kami-light-editing-focus-split", {
+    state: ["Kami Reader", "light", "editing", "split", "focus"],
+    assertions: ["theme-font-inherited", "frameless-titlebar-safe-area", "focus-pane-priority", "pane-gutter-visible"]
+  }],
   ["macos-kami-light-reading-single", {
     state: ["Kami Reader", "light", "reading", "single", "base"],
     assertions: ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar"]
@@ -132,7 +136,8 @@ const requiredChecklist = [
   "status-bar-placement",
   "theme-font-contract",
   "white-page-preview-boundary",
-  "pane-gutter-visible"
+  "pane-gutter-visible",
+  "focus-pane-priority"
 ];
 const textHashEncoding = "utf8-lf-v1";
 const rawHashEncoding = "raw-v1";

@@ -94,7 +94,8 @@ Header. Ephemeral labels and metadata are derived from the current file and rend
 removed on identity change or unload, and never write to the note. Automated
 verification proves selectors, lifecycle, canonical cross-platform hashing, and
 provenance rules; the current nine-state macOS matrix provides candidate bitmap
-acceptance. The older macOS and Windows matrices are not counted toward the current release.
+acceptance. The current matrix also covers split-pane Focus priority. The older
+macOS and Windows matrices are not counted toward the current release.
 
 The 2026-08-07 boundary correction makes the desktop Shell a stylesheet-owned
 baseline rather than an active-Markdown state. This prevents New Tab and other
@@ -341,7 +342,7 @@ must not fix sidebar widths, reorder native controls, or replace drag and AX
 targets.
 
 Durable real-app bitmap evidence is stored under `visual-evidence/`. The
-`visual-evidence/macos/manifest.json` candidate binds nine current captures
+`visual-evidence/macos/manifest.json` candidate binds ten current captures
 to `main.js`, `styles.css`, `manifest.json`, the paired Kami Reader 0.3.0 tag,
 and its canonical UTF-8/LF `theme.css` hash. It records the real viewport,
 scale factor, synthetic fixture identity, and human-review checklist.

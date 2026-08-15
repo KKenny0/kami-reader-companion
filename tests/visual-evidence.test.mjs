@@ -125,6 +125,8 @@ beforeAll(() => {
       ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar", "pane-gutter-visible"]],
     ["macos-kami-dark-editing-split", "Kami Reader", "dark", "editing", "split", "base",
       ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar", "pane-gutter-visible"]],
+    ["macos-kami-light-editing-focus-split", "Kami Reader", "light", "editing", "split", "focus",
+      ["theme-font-inherited", "frameless-titlebar-safe-area", "focus-pane-priority", "pane-gutter-visible"]],
     ["macos-kami-light-reading-single", "Kami Reader", "light", "reading", "single", "base",
       ["theme-font-inherited", "frameless-titlebar-safe-area", "native-status-bar"]],
     ["macos-kami-dark-reading-single", "Kami Reader", "dark", "reading", "single", "base",
@@ -177,7 +179,8 @@ beforeAll(() => {
         "status-bar-placement",
         "theme-font-contract",
         "white-page-preview-boundary",
-        "pane-gutter-visible"
+        "pane-gutter-visible",
+        "focus-pane-priority"
       ]
     },
     candidate: {
@@ -202,7 +205,7 @@ beforeAll(() => {
     },
     artifacts: macosArtifacts
   };
-  const windowsArtifacts = macosArtifacts.map((artifact) => {
+  const windowsArtifacts = macosArtifacts.filter((artifact) => artifact.scenario !== "focus").map((artifact) => {
     const id = artifact.id.replace("macos-", "windows-");
     const file = `${id}.jpg`;
     writeFileSync(join(windowsEvidence, file), readFileSync(join(macosEvidence, artifact.file)));
@@ -229,7 +232,7 @@ describe("visual evidence gate", () => {
     const result = run(structuredClone(manifest));
     expect(result.stderr).toBe("");
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain("9 current macOS candidate captures");
+    expect(result.stdout).toContain("10 current macOS candidate captures");
   }, 30_000);
 
   it("rejects missing candidate asset hashes", () => {

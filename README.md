@@ -50,10 +50,10 @@ writes frontmatter or saved plugin data. The same light reset also protects
 Obsidian PDF export when the app is in Dark mode.
 
 The older macOS and Windows matrices are retained as historical references and
-are not counted as current release acceptance. Version 0.3.0 uses nine current
+are not counted as current release acceptance. Version 0.3.0 uses ten current
 Obsidian 1.13.7 macOS captures from an isolated real app process and the tracked synthetic `visual-vault`: the
 Default and Kami Reader themes, light and dark schemes, Reading and Editing,
-single and split layouts, Reading Stage, and white-page preview under both
+single and split layouts, split-pane Focus, Reading Stage, and white-page preview under both
 Default Dark and Kami Reader Dark. The split captures also verify the approved
 26px whitespace gutter. The gate binds those reviewed
 pixels to the exact Companion assets and the paired Kami Reader 0.3.0

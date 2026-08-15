@@ -44,8 +44,8 @@ Obsidian 处于深色模式时保护 PDF 导出。
 
 旧版 macOS 和 Windows 矩阵仅保留为历史参考，不计入当前发布验收。0.3.0
 使用隔离的真实 Obsidian 1.13.7 进程和受版本控制的合成 `visual-vault`，完成了
-9 张当前 macOS 候选截图。截图覆盖 Default 与 Kami Reader、明暗配色、
-Reading 与 Editing、单双 pane、Reading Stage，以及 Default Dark 与 Kami
+10 张当前 macOS 候选截图。截图覆盖 Default 与 Kami Reader、明暗配色、
+Reading 与 Editing、单双 pane、双 pane Focus、Reading Stage，以及 Default Dark 与 Kami
 Reader Dark 下的白纸预览。双 pane 截图还验证了 26px 留白沟槽。门禁把人工审过
 的像素绑定到 Companion 发布资产，以及配套的 Kami Reader 0.3.0 候选
 `theme.css`。发布工作流从 `0.3.0` 标签获取同一份主题资产；Reader 标签不存在时，

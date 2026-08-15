@@ -1124,6 +1124,21 @@ body.kami-focus-open:not(.is-mobile)
 }
 
 body.kami-focus-open:not(.is-mobile)
+  .workspace-split.mod-root
+  .workspace-leaf-content[data-type="markdown"]:not(.kami-focus-active)
+  > .view-content {
+  opacity: 0.62;
+  transition: opacity 160ms ease-out;
+}
+
+body.kami-focus-open:not(.is-mobile)
+  .workspace-split.mod-root
+  .workspace-leaf-content[data-type="markdown"]:not(.kami-focus-active):is(:hover, :focus-within)
+  > .view-content {
+  opacity: 0.78;
+}
+
+body.kami-focus-open:not(.is-mobile)
   .workspace-leaf-content.kami-focus-active
   .kami-focus-block {
   position: relative;
