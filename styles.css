@@ -1603,6 +1603,10 @@ body:not(.is-mobile)
       .workspace-split.mod-root > .workspace-tabs > .workspace-tab-header-container
     ),
   body.kami-focus-open:not(.is-mobile)
+    .workspace-split.mod-root
+    .workspace-leaf-content[data-type="markdown"]:not(.kami-focus-active)
+    > .view-content,
+  body.kami-focus-open:not(.is-mobile)
     .workspace-leaf-content.kami-focus-active
     :is(.kami-focus-block, .markdown-source-view.mod-cm6 .cm-line) {
     transition: none;

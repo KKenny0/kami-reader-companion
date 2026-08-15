@@ -93,7 +93,7 @@ not synthesize a second file path or absolutely position text over the View
 Header. Ephemeral labels and metadata are derived from the current file and rendered DOM, are
 removed on identity change or unload, and never write to the note. Automated
 verification proves selectors, lifecycle, canonical cross-platform hashing, and
-provenance rules; the current nine-state macOS matrix provides candidate bitmap
+provenance rules; the current ten-state macOS matrix provides candidate bitmap
 acceptance. The current matrix also covers split-pane Focus priority. The older
 macOS and Windows matrices are not counted toward the current release.
 
@@ -443,7 +443,9 @@ semantically distinct; the ink-blue accent is not used to erase those meanings.
 
 #### Other root leaves
 
-- Every non-stage root leaf keeps its content fully opaque and readable.
+- Every non-stage root leaf stays readable. During Focus, inactive Markdown panes
+  recede to 62% opacity and recover to 78% on hover or keyboard focus so the active
+  document retains priority; other root views remain fully opaque.
 - New Tab preserves the Folio Shell but receives no breadcrumb, mode capsule,
   display title, deck, metadata, Outline sync, or wide-content treatment.
 - Companion may quiet its Obsidian-owned header and outer leaf shell, but does
@@ -759,9 +761,10 @@ native row exposes it. Ambiguous duplicate rows fail closed to native Outline
 highlighting.
 
 Current candidate evidence is never inferred from the carried-forward matrices.
-The macOS matrix covers Default light Editing split, Default dark Reading
-single, Kami light/dark Editing split, Kami light/dark Reading single, and Kami
-light Reading Stage single. Every capture comes from the tracked synthetic vault
+The ten-state macOS matrix covers Default light Editing split, Default dark
+Reading single, Kami light/dark Editing split, Kami light split-pane Focus,
+Kami light/dark Reading single, Kami light Reading Stage single, and Default/Kami
+dark White Page Preview. Every capture comes from the tracked synthetic vault
 and keeps both sidebars expanded. The evidence checker validates candidate and
 theme provenance, canonical text hashes, viewport/DPI consistency, required
 states, JPEG dimensions, and image hashes; recorded human bitmap review remains

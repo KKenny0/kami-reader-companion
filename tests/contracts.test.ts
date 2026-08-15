@@ -103,6 +103,7 @@ describe("folio shell CSS contracts", () => {
     expect(styles).toMatch(/\.kami-focus-block\s*\{[^}]+opacity:\s*0\.62;/s);
     expect(styles).toMatch(/\.workspace-leaf-content\[data-type="markdown"\]:not\(\.kami-focus-active\)[^{]+> \.view-content\s*\{[^}]*opacity:\s*0\.62;/s);
     expect(styles).toMatch(/\.workspace-leaf-content\[data-type="markdown"\]:not\(\.kami-focus-active\):is\(:hover, :focus-within\)[^{]+> \.view-content\s*\{[^}]*opacity:\s*0\.78;/s);
+    expect(styles).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.workspace-leaf-content\[data-type="markdown"\]:not\(\.kami-focus-active\)[^{]+> \.view-content,[\s\S]*?transition:\s*none;/);
     expect(styles).not.toMatch(/\.markdown-preview-section\s*> div[^}]+opacity:/s);
     expect(styles).not.toMatch(/body\.kami-focus-open[^}]+opacity:\s*0\.38/s);
     expect(styles).not.toMatch(/display:\s*none[^}]*kami-focus/s);
