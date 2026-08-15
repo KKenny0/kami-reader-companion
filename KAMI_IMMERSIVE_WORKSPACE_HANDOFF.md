@@ -311,18 +311,19 @@ Reading View and Obsidian-owned shell to match the prototype; arbitrary Canvas,
 Search, Graph, PDF, Bases, and community-plugin content remains owner-controlled.
 
 The Shell uses explicit prototype tokens so the accepted bitmap does not drift
-with broad theme aliases: light paper `#f5f4ed`, light ink `#141413`, dark paper
-`#141413`, dark ink `#e8e3d2`, and the Kami ink-blue accents `#1b365d` and
-`#2d5a8a`. It has no blur, gradient, texture, wallpaper, rounded pane cards, or
+with broad theme aliases: light paper `#f4f1e8`, light ink `#141413`, dark paper
+`#151513`, dark ink `#e8e3d2`, and the Kami ink-blue accents `#1b365d` and
+`#477baa`. It has no blur, gradient, texture, wallpaper, rounded pane cards, or
 hard shadows.
 
 The prototype is a composition reference, not visual acceptance evidence.
 
-`prototypes/tonal-workspace/index.html` is the authoritative visual and spatial
-reference for the two-level shell, icon density, local spacing and active ink
-rails. Companion owns the prototype's 32px Folio Strip, 32px View Header, 22px
-status line, 32px Tool Spine, and 30px native control boxes. Sidebar widths stay
-user-resizable because the visual system does not require a single fixed width.
+`designs/continuous-folio-field/Continuous Folio Field.html` is the authoritative
+visual and spatial reference for One Field, icon density, local spacing, and
+active ink rails. Companion owns the prototype's 32px Folio Strip, 32px View
+Header, 22px status line, 32px Tool Spine, 30px native control boxes, and 26px
+pane gutter. Sidebar and pane widths stay user-resizable; below 940px the gutter
+contracts to 16px.
 
 The 32px strip is mapped to native Obsidian containers rather than simulated
 with replacement controls. Root tabs retain Obsidian's flexible
@@ -548,7 +549,7 @@ Expected implementation files:
 | File | Change |
 | --- | --- |
 | `KAMI_IMMERSIVE_WORKSPACE_HANDOFF.md` | Own the current application-geometry and evidence contract. |
-| `prototypes/tonal-workspace/index.html` | Model the native breadcrumb and collision-safe Reading/Editing stamp. |
+| `designs/continuous-folio-field/Continuous Folio Field.html` | Model One Field, native pane geometry, and whitespace gutters. |
 | `src/main.ts`, `src/reading-presence.ts`, `src/paper-preview.ts` | Register the three transient commands, own their lifecycle, and keep document decoration idempotent. |
 | `src/contracts.ts`, `src/outline-sync.ts` | Preserve fail-closed Outline matching and native tree semantics. |
 | `styles.css` | Own component-scoped Shell surfaces and active-leaf treatment without fixing resizable pane widths. |
@@ -556,7 +557,7 @@ Expected implementation files:
 | `scripts/check-visual-evidence.mjs`, `tests/visual-evidence.test.mjs` | Verify the structural integrity and candidate binding of the required real-app capture matrix. |
 | `visual-evidence/` | Store candidate provenance and real-app captures. |
 | `package.json`, `package-lock.json` | Keep the JPEG decoder as a development-only verification dependency. |
-| `.github/workflows/release.yml` | Require automated checks and the protected visual-review environment before release; the full matrix remains an independent final-acceptance gate. |
+| `.github/workflows/release.yml` | Require automated checks and the protected visual-review environment before release; the current macOS matrix remains the independent final-acceptance gate. |
 | `README.md`, `README.zh-CN.md`, `manifest.json` | State only the compatibility proven by the final matrix. |
 
 Runtime behavior remains in four peer controllers under `src/`; the only new
@@ -793,9 +794,9 @@ the semantic acceptance gate.
 - **Key decisions:** active paper plane before chrome dimming; shell stays
   readable; Stage overlays rather than rearranges; keyboard changes are
   immediate; pointer reveals animate only transform/opacity; foreground UI wins.
-- **Unknowns:** Windows and Linux remain contract-tested but lack current bitmap
-  acceptance. The macOS page capture validates the frameless titlebar safe area,
-  but not OS-native traffic-light pixels outside the app webcontents.
-  Mobile Stage remains deferred and the manifest must not advertise mobile
-  compatibility until that matrix exists. README claims remain provisional until
-  the full desktop bitmap and interaction matrix passes.
+- **Platform evidence:** macOS is the primary release acceptance platform.
+  Windows and Linux remain contract-tested and retain historical bitmap references,
+  but this release makes no platform-specific pixel claim for them. The macOS page
+  capture validates the frameless titlebar safe area, not OS-native traffic-light
+  pixels outside the app webcontents. Mobile Stage remains deferred and the
+  manifest must not advertise mobile compatibility until that matrix exists.

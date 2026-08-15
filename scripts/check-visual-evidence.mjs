@@ -86,6 +86,45 @@ const currentRequired = new Map([
   }]
 ]);
 
+const historicalWindowsRequired = new Map([
+  ["windows-default-light-editing-split", {
+    state: ["Default", "light", "editing", "split", "base"],
+    assertions: ["default-font-preserved", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-default-dark-reading-single", {
+    state: ["Default", "dark", "reading", "single", "base"],
+    assertions: ["default-font-preserved", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-light-editing-split", {
+    state: ["Kami Reader", "light", "editing", "split", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-dark-editing-split", {
+    state: ["Kami Reader", "dark", "editing", "split", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-light-reading-single", {
+    state: ["Kami Reader", "light", "reading", "single", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-dark-reading-single", {
+    state: ["Kami Reader", "dark", "reading", "single", "base"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "native-status-bar"]
+  }],
+  ["windows-kami-light-reading-stage-single", {
+    state: ["Kami Reader", "light", "reading", "single", "stage"],
+    assertions: ["theme-font-inherited", "caption-controls-clear", "stage-status-overlay"]
+  }],
+  ["windows-default-dark-white-page-preview", {
+    state: ["Default", "dark", "reading", "single", "white-page-preview"],
+    assertions: ["default-font-preserved", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"]
+  }],
+  ["windows-kami-dark-white-page-preview", {
+    state: ["Kami Reader", "dark", "reading", "single", "white-page-preview"],
+    assertions: ["theme-font-inherited", "white-document-paper", "dark-shell-retained", "warm-document-surfaces"]
+  }]
+]);
+
 const requiredChecklist = [
   "fixture-only-content",
   "mode-and-layout-match",
@@ -264,11 +303,12 @@ const macosCount = await validateArtifacts({
   required: currentRequired,
   label: "current macOS"
 });
-const windowsRequired = new Map(windowsManifest.artifacts.map((artifact) => [artifact.id, {
-  state: [artifact.theme, artifact.colorScheme, artifact.mode, artifact.layout, artifact.scenario],
-  assertions: artifact.assertions
-}]));
-const windowsCount = await validateArtifacts({ manifest: windowsManifest, evidence: windowsEvidence, required: windowsRequired, label: "historical Windows" });
+const windowsCount = await validateArtifacts({
+  manifest: windowsManifest,
+  evidence: windowsEvidence,
+  required: historicalWindowsRequired,
+  label: "historical Windows"
+});
 
 console.log(`Retained ${historicalCount} historical macOS reference captures (not current acceptance).`);
 console.log(`Retained ${windowsCount} historical Windows reference captures (not current acceptance).`);

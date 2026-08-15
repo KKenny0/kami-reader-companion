@@ -206,7 +206,10 @@ beforeAll(() => {
     const id = artifact.id.replace("macos-", "windows-");
     const file = `${id}.jpg`;
     writeFileSync(join(windowsEvidence, file), readFileSync(join(macosEvidence, artifact.file)));
-    return { ...artifact, id, file };
+    const assertions = artifact.assertions
+      .filter((assertion) => assertion !== "pane-gutter-visible")
+      .map((assertion) => assertion === "frameless-titlebar-safe-area" ? "caption-controls-clear" : assertion);
+    return { ...artifact, id, file, assertions };
   });
   windowsManifest = {
     kind: "historical-windows-matrix",
@@ -289,6 +292,15 @@ describe("visual evidence gate", () => {
     const result = run(structuredClone(manifest), candidate);
     expect(result.status).not.toBe(0);
     expect(result.stderr).toContain("assertions mismatch");
+  });
+
+  it("rejects a historical Windows matrix with missing states", () => {
+    const original = windowsManifest.artifacts;
+    windowsManifest.artifacts = [];
+    const result = run(structuredClone(manifest));
+    windowsManifest.artifacts = original;
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("historical Windows visual evidence must contain exactly 9 artifacts");
   });
 
   it("uses canonical UTF-8/LF hashes for text assets", () => {
