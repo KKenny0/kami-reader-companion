@@ -1,0 +1,55 @@
+### Result
+[
+  {
+    "name": "main Focus opens",
+    "ok": true
+  },
+  {
+    "name": "real popout created",
+    "ok": true
+  },
+  {
+    "name": "new window starts without Focus",
+    "ok": true
+  },
+  {
+    "name": "popout Focus opens",
+    "ok": true
+  },
+  {
+    "name": "popout Focus closes independently",
+    "ok": true
+  },
+  {
+    "name": "main Focus intent preserved",
+    "ok": true
+  },
+  {
+    "name": "popout off state preserved",
+    "ok": true
+  },
+  {
+    "name": "non-Markdown in other window preserves main Focus",
+    "ok": true
+  },
+  {
+    "name": "main explicit close",
+    "ok": true
+  },
+  {
+    "name": "main controls cleared after exit",
+    "ok": true
+  },
+  {
+    "name": "popout has independent Focus exit",
+    "ok": true
+  },
+  {
+    "name": "popout exit removes controls",
+    "ok": true
+  },
+  {
+    "name": "unload removes all controls",
+    "ok": true
+  }
+]

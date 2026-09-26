@@ -1,0 +1,31 @@
+async () => {
+ const results=[];
+ const check=(ok,name,details)=>{results.push({name,ok,details}); if(!ok) throw Error(name+' '+JSON.stringify(details));};
+ const wait=()=>new Promise(r=>setTimeout(r,220));
+ const ws=app.workspace;
+ const original=ws.getLeavesOfType('markdown')[0];
+ ws.getLeavesOfType('markdown').slice(1).forEach(l=>l.detach());
+ const file='Welcome.md';
+ await original.setViewState({type:'markdown',state:{file,mode:'preview'}});
+ const secondary=ws.createLeafBySplit(original,'vertical');
+ await secondary.setViewState({type:'markdown',state:{file:'Reference/Layout Contract.md',mode:'preview'}});
+ ws.setActiveLeaf(original,{focus:true}); await wait();
+ const geometry=l=>{const p=l.view.containerEl.querySelector('.markdown-preview-view');const s=p?.querySelector('.markdown-preview-sizer'); const h=p?.querySelector('h1');const css=s&&getComputedStyle(s);return {width:s?.getBoundingClientRect().width,top:h?.getBoundingClientRect().top,font:h&&getComputedStyle(h).fontSize,scroll:p?.scrollTop,margin:css?.margin,padding:p&&getComputedStyle(p).padding};};
+ for(const modes of [['preview','preview'],['source','source'],['preview','source']]) {
+  await original.setViewState({type:'markdown',state:{file,mode:modes[0]}});await secondary.setViewState({type:'markdown',state:{file:'Reference/Layout Contract.md',mode:modes[1]}}); ws.setActiveLeaf(original,{focus:true});await wait();
+  const measure=l=>modes[[original,secondary].indexOf(l)]==='preview'?geometry(l):{width:l.view.containerEl.querySelector('.cm-content').getBoundingClientRect().width,font:getComputedStyle(l.view.containerEl.querySelector('.inline-title')).fontSize,scroll:l.view.containerEl.querySelector('.cm-scroller').scrollTop};
+  const before=[measure(original),measure(secondary)];ws.setActiveLeaf(secondary,{focus:true});await wait();const after=[measure(original),measure(secondary)];check(JSON.stringify(before)===JSON.stringify(after),'stable '+modes.join('/'),{before,after});
+ }
+ check(document.querySelectorAll('.kami-folio-meta,.kami-folio-deck,.kami-folio-inline-title-context').length===0,'no content decorations');
+ ws.setActiveLeaf(original,{focus:true});await wait();
+ app.commands.executeCommandById('kami-reader-companion:toggle-focus-mode');await wait();check(document.body.classList.contains('kami-focus-open'),'focus opens');
+ ws.setActiveLeaf(secondary,{focus:true});await wait();check(document.body.classList.contains('kami-focus-open'),'focus follows pane');
+ check(getComputedStyle(original.view.containerEl.querySelector('.view-content')).opacity==='1','reference pane readable');
+ await secondary.setViewState({type:'markdown',state:{file,mode:'preview'}});await wait();check(document.body.classList.contains('kami-focus-open'),'focus follows mode/file');
+ await secondary.setViewState({type:'empty'});await wait();check(!document.body.classList.contains('kami-focus-open'),'focus pauses non-Markdown');
+ await secondary.setViewState({type:'markdown',state:{file,mode:'preview'}});await wait();check(document.body.classList.contains('kami-focus-open'),'focus resumes');
+ app.commands.executeCommandById('kami-reader-companion:toggle-reading-stage');await wait();check(document.body.classList.contains('kami-reading-stage-open'),'stage opens');
+ secondary.view.containerEl.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await wait();check(!document.body.classList.contains('kami-reading-stage-open')&&document.body.classList.contains('kami-focus-open'),'Escape exits Stage first');
+ secondary.view.containerEl.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));await wait();check(!document.body.classList.contains('kami-focus-open'),'Escape exits Focus second');
+ window.kamiReviewLeaves=[original,secondary];return results;
+}

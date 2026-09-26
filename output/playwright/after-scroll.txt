@@ -1,0 +1,24 @@
+### Result
+{
+  "pureScrollEvents": {
+    "calls": 0,
+    "refreshMs": 0,
+    "elapsedMs": 940.5,
+    "scrollTop": 0
+  },
+  "movingScroll": {
+    "calls": 11,
+    "refreshMs": 1.5000001192092896,
+    "elapsedMs": 947.8000000715256,
+    "scrollTop": 7120
+  },
+  "viewport": [
+    1024,
+    800
+  ],
+  "appVersion": "Scroll Fixture - visual-vault - Obsidian 1.13.7"
+}
+### Ran Playwright code
+```js
+await page.evaluate('async () => {\n  const plugin = app.plugins.plugins[\'kami-reader-companion\'];\n  const preview = app.workspace.activeLeaf.view.containerEl.querySelector(\'.markdown-preview-view\');\n  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));\n  preview.scrollTop = 0;\n  await sleep(800);\n  const original = plugin.adaptive.refresh;\n  const stats = { calls: 0, refreshMs: 0 };\n  plugin.adaptive.refresh = function(...args) {\n    stats.calls++;\n    const start = performance.now();\n    try { return original.apply(this, args); }\n    finally { stats.refreshMs += performance.now() - start; }\n  };\n  const run = async moving => {\n    stats.calls = 0; stats.refreshMs = 0;\n    const start = performance.now();\n    for (let i = 0; i < 90; i++) {\n      if (moving) preview.scrollTop = i * 80;\n      preview.dispatchEvent(new Event(\'scroll\'));\n      await new Promise(requestAnimationFrame);\n    }\n    await sleep(200);\n    return {...stats, elapsedMs: performance.now() - start, scrollTop: preview.scrollTop};\n  };\n  try { return {pureScrollEvents: await run(false), movingScroll: await run(true), viewport: [innerWidth, innerHeight], appVersion: document.title}; }\n  finally { plugin.adaptive.refresh = original; }\n}\n');
+```

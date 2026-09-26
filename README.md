@@ -4,7 +4,8 @@
 
 A desktop-first Obsidian 1.13+ plugin that keeps the workspace on one continuous
 Kami-inspired Folio Shell across New Tab, Reading, Editing, Graph, Canvas, and
-other root views. Active Markdown views additionally receive:
+other root views. Markdown pane typography stays stable across focus changes;
+the current document additionally receives:
 
 - continuous Reading and Editing presentation;
 - exact current-heading highlighting in the core Outline when its rendered rows
@@ -26,15 +27,39 @@ No theme detection or integration setting is required.
 Companion writes no note content, stores no workspace state, and restores the
 active theme when disabled.
 
+Version 0.4.0 has maintainer acceptance on macOS and an explicitly approved
+single-platform release exception. **Windows and Linux are not validated for this
+version.** Ticket 07 remains open; the 0.3.2 screenshots below are historical.
+See the [release notes](./docs/releases/0.4.0.md) and [acceptance record](./docs/workspace-phase2-review.md).
+
+Pane focus does not change document typography or add an automatic deck or date.
+Companion and Reading Stage respect user font, maximum width, background, and
+accent settings. White-page preview temporarily overrides only the active document palette.
+
 ## Reading Stage, Focus Mode, and White Page Preview
+
+Open the document's **More options (⋯)** menu to toggle Reading Stage, Focus Mode,
+and White page preview. Checkmarks reflect current state; existing commands remain
+available. Each active mode has its own exit button in the document header. In a
+narrow pane, use Tab to reach each button and Enter or Space to exit. Escape closes
+foreground menus or dialogs before exiting Stage, then Focus.
+
+Pane width controls whitespace and heading scale without shrinking the user's body
+font. Wide content uses spare pane space; nested list and callout content stays local.
 
 Open the Command Palette and run **Kami Reader Companion: Toggle focus mode**
 to enter the optional focus treatment in either Editing or Reading View. In
 Editing View it follows CodeMirror's active line. In Reading View, point to or
 keyboard-focus a block to bring it and its neighbors forward; use `Arrow Up`
-and `Arrow Down` to move between blocks. Workspace chrome returns to full
+and `Arrow Down` to move between blocks. Workspace chrome remains
 contrast-safe throughout; hovered, active, or keyboard-focused controls become
-the strongest chrome within their group.
+the strongest chrome within their group. Reference panes and surrounding text
+retain full readability; markers emphasize the current content.
+
+Focus is temporary per-window intent: it survives Markdown file, pane, and
+Reading/Editing changes, pauses on Graph, Canvas, or New Tab, and resumes on
+Markdown. Windows are independent. Explicit exit, Escape, window close, or
+plugin unload clears it; restarting does not restore it.
 
 **Toggle reading stage** remains Reading-only and changes the workspace's
 spatial presentation. The two modes can be combined: Reading Stage controls
@@ -49,18 +74,11 @@ file, leaf, mode, or owner window changes, or when Companion unloads. It never
 writes frontmatter or saved plugin data. The same light reset also protects
 Obsidian PDF export when the app is in Dark mode.
 
-The older macOS and Windows matrices are retained as historical references and
-are not counted as current release acceptance. Version 0.3.2 uses ten current
-Obsidian 1.13.7 macOS captures from an isolated real app process and the tracked synthetic `visual-vault`: the
-Default and Kami Reader themes, light and dark schemes, Reading and Editing,
-single and split layouts, split-pane Focus, Reading Stage, and white-page preview under both
-Default Dark and Kami Reader Dark. The split captures also verify the approved
-26px whitespace gutter. The gate binds those reviewed
-pixels to the exact Companion assets and the paired Kami Reader 0.3.0
-release `theme.css`. The release workflow resolves that same asset
-from the `0.3.0` tag, so Companion cannot release before the paired Reader tag
-exists. The gate records structure and provenance; it does not replace human
-pixel review.
+Historical screenshots and fingerprints remain unchanged. The 0.4.0 release check
+binds its assets to the reviewed implementation and the paired Kami Reader 0.3.1
+theme file. `npm run check:release` validates this approved exception;
+`npm run check:visual` retains the full visual matrix gate. Later versions do not
+inherit the exception.
 
 ## Showcase
 
@@ -93,8 +111,8 @@ npm run dev:injector
 `check:visual` also needs the exact paired theme asset:
 
 ```sh
-KAMI_VISUAL_THEME_CSS=/path/to/obsidian-kami-0.3.0/theme.css \
-npm run check:visual
+KAMI_VISUAL_THEME_CSS=/path/to/obsidian-kami-0.3.1/theme.css \
+npm run check:release
 ```
 
 On PowerShell, set `$env:KAMI_VISUAL_THEME_CSS` to the same `theme.css` path
@@ -103,7 +121,8 @@ before running `npm run check:visual`.
 Release screenshots must contain only files and text from
 `tests/fixtures/visual-vault`; never capture a personal or production vault.
 
-Companion inherits `--font-text-theme` for body copy and the optional
+Companion inherits native `--font-text` (falling back to `--font-text-theme`)
+for body copy and the optional
 `--font-heading-theme` contract for headings. Themes without the heading token,
 including Obsidian Default, safely fall back to their body font.
 

@@ -1,0 +1,24 @@
+### Result
+{
+  "before": [
+    {
+      "scroll": 1400,
+      "width": 122.203125
+    },
+    {
+      "scroll": 2100,
+      "width": 122.203125
+    }
+  ],
+  "after": [
+    {
+      "scroll": 1400,
+      "width": 122.203125
+    },
+    {
+      "scroll": 2100,
+      "width": 122.203125
+    }
+  ],
+  "idleRefreshes": 0
+}

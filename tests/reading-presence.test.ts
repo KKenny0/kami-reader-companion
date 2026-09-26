@@ -20,8 +20,14 @@ class FakeClassList {
 class FakeDocument {
   body!: FakeElement;
   focused: FakeElement | null = null;
+  foreground: Array<{ getClientRects(): unknown[] }> = [];
+  querySelectorAll(): Array<{ getClientRects(): unknown[] }> { return this.foreground; }
   get activeElement(): FakeElement { return this.focused?.isConnected ? this.focused : this.body; }
-  defaultView = { Element: FakeElement, HTMLElement: FakeElement };
+  defaultView = {
+    Element: FakeElement, HTMLElement: FakeElement,
+    addEventListener: (type: string, listener: (event: Event) => void) => this.addEventListener(type, listener),
+    removeEventListener: (type: string, listener: (event: Event) => void) => this.removeEventListener(type, listener)
+  };
   private listeners = new Map<string, Set<(event: Event) => void>>();
 
   addEventListener(type: string, listener: (event: Event) => void): void {
@@ -59,6 +65,7 @@ class FakeDocument {
     this.dispatch(type, { type, target, relatedTarget } as unknown as Event);
   }
 
+  close(): void { this.dispatch("pagehide", { type: "pagehide" } as Event); }
   selectionChange(): void { this.dispatch("selectionchange", { type: "selectionchange" } as Event); }
   listenerCount(type = "keydown"): number { return this.listeners.get(type)?.size ?? 0; }
   private dispatch(type: string, event: Event): void {
@@ -169,97 +176,54 @@ describe("reading presence", () => {
     expect(current.body.classList.contains("kami-reading-stage-open")).toBe(false);
   });
 
-  it("adds reversible folio labels from the active file", () => {
+  it("keeps the mode label reversible and idempotent without decorating note content", () => {
     const presence = new ReadingPresence();
-    const current = target("Product/Kami/Note.md");
+    const current = target();
     const header = new FakeElement(current.document);
     const actions = new FakeElement(current.document);
-    const title = new FakeElement(current.document);
-    const deck = new FakeElement(current.document);
     header.attach(".view-actions", actions);
     current.stage.attach(".view-header", header);
-    current.stage.attach(".inline-title", title);
-    current.stage.attach(".markdown-preview-section > .el-p > p", deck);
-    Object.assign(current.view.file!, { stat: { mtime: Date.UTC(2026, 7, 5) } });
-
     presence.configure(current.view);
-    const modeLabel = actions.beforeElements[0];
-    expect(modeLabel.textContent).toBe("READING");
-    expect(modeLabel.getAttribute("aria-hidden")).toBe("true");
-    expect(deck.classList.contains("kami-folio-deck")).toBe(true);
-    expect(deck.afterElements[0].textContent).toBe("READING NOTE   2026.08.05");
-
+    const label = actions.beforeElements[0];
+    presence.configure(current.view);
+    expect(actions.beforeElements).toEqual([label]);
+    expect(label.textContent).toBe("READING");
+    expect(label.getAttribute("aria-hidden")).toBe("true");
     presence.destroy();
-    expect(modeLabel.removed).toBe(true);
-    expect(deck.classList.contains("kami-folio-deck")).toBe(false);
-    expect(deck.afterElements[0].removed).toBe(true);
+    expect(label.removed).toBe(true);
   });
 
-  it("keeps same-target decoration idempotent", () => {
-    const presence = new ReadingPresence();
-    const current = target("Product/Kami/Note.md");
-    const header = new FakeElement(current.document);
-    const actions = new FakeElement(current.document);
-    const title = new FakeElement(current.document);
-    const deck = new FakeElement(current.document);
-    header.attach(".view-actions", actions);
-    current.stage.attach(".view-header", header);
-    current.stage.attach(".inline-title", title);
-    current.stage.attach(".markdown-preview-section > .el-p > p", deck);
-
-    presence.configure(current.view);
-    const modeLabel = actions.beforeElements[0];
-    const meta = deck.afterElements[0];
-    presence.configure(current.view);
-
-    expect(actions.beforeElements).toEqual([modeLabel]);
-    expect(deck.afterElements).toEqual([meta]);
-    expect(modeLabel.removed).toBe(false);
-    expect(meta.removed).toBe(false);
-  });
-
-  it("keeps a document H1 primary and treats the inline filename as context", () => {
+  it.each(["with H1", "without H1", "hidden inline title"])("preserves native content relationships: %s", (variant) => {
     const presence = new ReadingPresence();
     const current = target();
     const title = new FakeElement(current.document);
     const heading = new FakeElement(current.document);
-    title.textContent = "The same title";
-    heading.textContent = "The   same title";
-    current.stage.attach(".inline-title", title);
-    current.stage.attach(".markdown-preview-section > .el-h1 > h1", heading);
-
-    presence.configure(current.view);
-    expect(title.classList.contains("kami-folio-inline-title-context")).toBe(true);
-    expect(title.classList.contains("kami-folio-inline-title")).toBe(false);
-
-    presence.configure(null);
-    expect(title.classList.contains("kami-folio-inline-title-context")).toBe(false);
-  });
-
-  it("treats the filename as context whenever the document has a direct H1", () => {
-    const presence = new ReadingPresence();
-    const current = target();
-    const title = new FakeElement(current.document);
-    const heading = new FakeElement(current.document);
+    const paragraph = new FakeElement(current.document);
+    const properties = new FakeElement(current.document);
     title.textContent = "Meeting notes";
     heading.textContent = "Quarterly plan";
-    current.stage.attach(".inline-title", title);
-    current.stage.attach(".markdown-preview-section > .el-h1 > h1", heading);
-
+    paragraph.textContent = "An ordinary first paragraph.";
+    if (variant !== "hidden inline title") current.stage.attach(".inline-title", title);
+    if (variant === "with H1") current.stage.attach(".markdown-preview-section > .el-h1 > h1", heading);
+    current.stage.attach(".markdown-preview-section > .el-p > p", paragraph);
+    current.stage.attach(".metadata-container", properties);
+    Object.assign(current.view.file!, { stat: { mtime: Date.UTC(2026, 7, 5) } });
     presence.configure(current.view);
-    expect(title.classList.contains("kami-folio-inline-title")).toBe(false);
-    expect(title.classList.contains("kami-folio-inline-title-context")).toBe(true);
-  });
-
-  it("keeps the inline filename as the display title when no direct H1 exists", () => {
-    const presence = new ReadingPresence();
-    const current = target();
-    const title = new FakeElement(current.document);
-    current.stage.attach(".inline-title", title);
-
+    presence.toggleStage();
     presence.configure(current.view);
-    expect(title.classList.contains("kami-folio-inline-title")).toBe(true);
-    expect(title.classList.contains("kami-folio-inline-title-context")).toBe(false);
+    presence.configure(target("another.md", current.document).view);
+    presence.configure(current.view);
+    for (const node of [title, heading, paragraph, properties]) {
+      expect(node.appendedElements).toEqual([]);
+      expect(node.afterElements).toEqual([]);
+      expect(node.classList.contains("kami-folio-inline-title")).toBe(false);
+      expect(node.classList.contains("kami-folio-inline-title-context")).toBe(false);
+      expect(node.classList.contains("kami-folio-deck")).toBe(false);
+    }
+    expect(title.textContent).toBe("Meeting notes");
+    expect(heading.textContent).toBe("Quarterly plan");
+    expect(paragraph.textContent).toBe("An ordinary first paragraph.");
+    presence.destroy();
   });
 
   it("keeps the shell in Editing View while exiting the Reading-only stage", () => {
@@ -290,8 +254,8 @@ describe("reading presence", () => {
 
     const readingAgain = target("note.md", document);
     presence.configure(readingAgain.view);
-    expect(readingAgain.body.classList.contains("kami-focus-open")).toBe(false);
-    expect(readingAgain.stage.classList.contains("kami-focus-active")).toBe(false);
+    expect(readingAgain.body.classList.contains("kami-focus-open")).toBe(true);
+    expect(readingAgain.stage.classList.contains("kami-focus-active")).toBe(true);
 
     presence.configure(null);
     expect(readingAgain.body.classList.contains("kami-reading-presence")).toBe(false);
@@ -475,7 +439,7 @@ describe("reading presence", () => {
     expect(current.stage.querySelectorAllCount - queriesBefore).toBe(1);
   });
 
-  it("does not migrate top-of-document decorations while the preview is virtualized", () => {
+  it("does not add decorations after virtualization or a return to the top", () => {
     const presence = new ReadingPresence();
     const current = target();
     const preview = new FakeElement(current.document);
@@ -501,7 +465,9 @@ describe("reading presence", () => {
     preview.scrollTop = 0;
     middleHeading.textContent = title.textContent;
     presence.configure(current.view);
-    expect(middleParagraph.classList.contains("kami-folio-deck")).toBe(true);
+    expect(middleParagraph.classList.contains("kami-folio-deck")).toBe(false);
+    expect(middleParagraph.afterElements).toEqual([]);
+    expect(topDeck.afterElements).toEqual([]);
   });
 
   it("starts Reading Focus from the first visible block", () => {
@@ -555,12 +521,12 @@ describe("reading presence", () => {
     presence.toggleFocus();
     presence.toggleStage();
 
-    current.document.escape(current.body);
+    presence.handleEscape({ target: current.body } as unknown as KeyboardEvent);
     expect(current.body.classList.contains("kami-reading-stage-open")).toBe(false);
     expect(current.body.classList.contains("kami-focus-open")).toBe(true);
     expect(actions.beforeElements[0].textContent).toBe("READING · FOCUS");
 
-    current.document.escape(current.body);
+    presence.handleEscape({ target: current.body } as unknown as KeyboardEvent);
     expect(current.body.classList.contains("kami-focus-open")).toBe(false);
     expect(current.stage.classList.contains("kami-focus-active")).toBe(false);
     expect(actions.beforeElements[0].textContent).toBe("READING");
@@ -589,9 +555,13 @@ describe("reading presence", () => {
     presence.configure(current.view);
     presence.toggleStage();
 
-    current.document.escape(new FakeElement(current.document, true));
+    presence.handleEscape({ target: new FakeElement(current.document, true) } as unknown as KeyboardEvent);
     expect(current.body.classList.contains("kami-reading-stage-open")).toBe(true);
-    current.document.escape(current.body);
+    current.document.foreground = [{ getClientRects: () => [{}] }];
+    presence.handleEscape({ target: current.body } as unknown as KeyboardEvent);
+    expect(current.body.classList.contains("kami-reading-stage-open")).toBe(true);
+    current.document.foreground = [];
+    presence.handleEscape({ target: current.body } as unknown as KeyboardEvent);
     expect(current.body.classList.contains("kami-reading-stage-open")).toBe(false);
   });
 
@@ -613,5 +583,67 @@ describe("reading presence", () => {
     presence.destroy();
     expect(second.body.classList.contains("kami-reading-presence")).toBe(false);
     expect(second.document.listenerCount()).toBe(0);
+  });
+  it("pauses Focus for non-Markdown, resumes across files, and exits while paused", () => {
+    const presence = new ReadingPresence();
+    const first = target("one.md");
+    const second = target("two.md", first.document);
+    presence.configure(first.view);
+    presence.toggleFocus();
+    presence.configure(null, first.document as unknown as Document);
+    expect(first.stage.classList.contains("kami-focus-active")).toBe(false);
+    expect(first.body.classList.contains("kami-focus-open")).toBe(false);
+    expect(presence.canToggleFocus()).toBe(true);
+    presence.configure(second.view);
+    expect(second.stage.classList.contains("kami-focus-active")).toBe(true);
+    presence.configure(null, first.document as unknown as Document);
+    presence.handleEscape({ target: first.body } as unknown as KeyboardEvent);
+    presence.configure(first.view);
+    expect(first.stage.classList.contains("kami-focus-active")).toBe(false);
+    expect(first.document.arrow("ArrowDown", first.body)).toBe(false);
+    presence.destroy();
+  });
+
+  it("keeps window intent independent when moving a document and clears closed windows", () => {
+    const presence = new ReadingPresence();
+    const first = target("one.md");
+    const moved = target("one.md");
+    presence.configure(first.view);
+    presence.toggleFocus();
+    presence.configure(moved.view);
+    expect(first.stage.classList.contains("kami-focus-active")).toBe(false);
+    expect(moved.stage.classList.contains("kami-focus-active")).toBe(false);
+    presence.toggleFocus();
+    presence.configure(first.view);
+    expect(first.stage.classList.contains("kami-focus-active")).toBe(true);
+    presence.exitFocus();
+    presence.configure(moved.view);
+    expect(moved.stage.classList.contains("kami-focus-active")).toBe(true);
+    moved.document.close();
+    expect(moved.stage.classList.contains("kami-focus-active")).toBe(false);
+    expect(moved.document.listenerCount("pagehide")).toBe(0);
+    presence.configure(moved.view);
+    expect(moved.stage.classList.contains("kami-focus-active")).toBe(false);
+    presence.toggleFocus();
+    presence.destroy();
+    expect(moved.document.listenerCount()).toBe(0);
+    expect(moved.document.listenerCount("pagehide")).toBe(0);
+    presence.configure(moved.view);
+    expect(moved.stage.classList.contains("kami-focus-active")).toBe(false);
+    presence.destroy();
+  });
+
+  it("leaves Escape untouched when no mode is active", () => {
+    const presence = new ReadingPresence();
+    const current = target();
+    presence.configure(current.view);
+    expect(presence.handleEscape({ target: current.body } as unknown as KeyboardEvent)).toBe(false);
+    presence.toggleFocus();
+    const other = target("other-window.md");
+    expect(presence.handleEscape({ target: other.body } as unknown as KeyboardEvent)).toBe(false);
+    expect(presence.isFocusOpen()).toBe(true);
+    expect(presence.handleEscape({ target: current.body } as unknown as KeyboardEvent)).toBe(true);
+    expect(presence.handleEscape({ target: current.body } as unknown as KeyboardEvent)).toBe(false);
+    presence.destroy();
   });
 });

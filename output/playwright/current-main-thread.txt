@@ -1,0 +1,2 @@
+### Result
+{"measurements":{"pureScrollEvents":{"calls":0,"refreshMs":0,"elapsedMs":917.1999999284744,"scrollTop":0},"movingScroll":{"calls":11,"refreshMs":1.4000002145767212,"elapsedMs":910.6000000238419,"scrollTop":7120},"viewport":[1024,800],"appVersion":"Scroll Fixture - visual-vault - Obsidian 1.13.7"},"mainThreadMilliseconds":{"TaskDuration":221.39199999999997,"ScriptDuration":88.447,"LayoutDuration":9.288,"RecalcStyleDuration":20.983999999999998}}

@@ -1,0 +1,27 @@
+async () => {
+ const result=[];const wait=()=>new Promise(r=>setTimeout(r,240));
+ const check=(ok,name,data)=>{result.push({name,ok,data});if(!ok)throw Error(name+' '+JSON.stringify(data));};
+ const theme=document.head.createEl('style',{attr:{'data-review-theme':'true'}});
+ const leaf=window.kamiReviewLeaves[1];const ref=window.kamiReviewLeaves[0];app.workspace.setActiveLeaf(leaf,{focus:true});await wait();
+ const themeCss=THEME_CSS;
+ for(const mode of ['theme-light','theme-dark'])for(const combo of ['Default','Kami Reader']) {
+  document.body.classList.remove('theme-light','theme-dark');document.body.classList.add(mode);theme.textContent=combo==='Kami Reader'?themeCss:'';
+  for(const [k,v]of Object.entries({'--font-text-theme':'Georgia','--file-line-width':'900px','--background-primary':'#fefefe','--text-accent':'#187a35'}))document.body.style.setProperty(k,v);
+  for(const stage of [false,true]) {
+   if(stage)app.commands.executeCommandById('kami-reader-companion:toggle-reading-stage');await wait();
+   const css=getComputedStyle(leaf.view.containerEl.querySelector('.markdown-preview-view'));
+   const sizer=leaf.view.containerEl.querySelector('.markdown-preview-sizer');
+   check(css.fontFamily.includes('Georgia'),combo+' '+mode+' font '+stage,css.fontFamily);
+   check(css.backgroundColor==='rgb(254, 254, 254)'||getComputedStyle(leaf.view.containerEl.querySelector('.view-content')).backgroundColor==='rgb(254, 254, 254)',combo+' background '+stage,css.backgroundColor);
+   check(css.getPropertyValue('--kami-folio-accent').trim()==='#187a35',combo+' accent '+stage,css.getPropertyValue('--kami-folio-accent'));
+   check(getComputedStyle(sizer).maxWidth==='900px'&&sizer.getBoundingClientRect().width<=900,combo+' width '+stage,sizer.getBoundingClientRect().width);
+   app.commands.executeCommandById('kami-reader-companion:toggle-white-page-preview');await wait();
+   check(getComputedStyle(leaf.view.containerEl.querySelector('.view-content')).backgroundColor==='rgb(255, 255, 255)',combo+' white preview');
+   check(getComputedStyle(ref.view.containerEl.querySelector('.view-content')).backgroundColor==='rgb(254, 254, 254)',combo+' reference unaffected');
+   app.commands.executeCommandById('kami-reader-companion:toggle-white-page-preview');await wait();
+   check(getComputedStyle(leaf.view.containerEl.querySelector('.view-content')).backgroundColor==='rgb(254, 254, 254)',combo+' preview restores');
+   if(stage)app.commands.executeCommandById('kami-reader-companion:toggle-reading-stage');
+  }
+ }
+ document.body.removeAttribute('style');theme.remove();document.body.classList.remove('theme-dark');document.body.classList.add('theme-light');return result;
+}

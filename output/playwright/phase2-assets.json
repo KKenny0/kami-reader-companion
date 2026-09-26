@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-26",
+  "platform": "macOS",
+  "obsidian": "1.13.7",
+  "assets": {
+    "main.js": "0a73634ae269c937bf400b00b1ae9e92fb1cc7e149ad205b60e5540e8139a999",
+    "styles.css": "e7a0e41af2cf6e00319334a5e4150e1e45ebcb24caecd87ee0eade0d3ed9e541",
+    "manifest.json": "f2e00df10b28ef7e9bb87e58664840afc30be67c567f24ac1cd9adbbf6409633",
+    "../kami-obsidian/theme.css": "ba4f8c903ca3fde0e96d17504fdcc7cf51dfd310a464f6b7bd14b4c1ed4f8d1c"
+  },
+  "scope": "local review; not cross-platform release acceptance"
+}

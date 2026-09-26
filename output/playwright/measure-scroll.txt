@@ -1,0 +1,28 @@
+async () => {
+  const plugin = app.plugins.plugins['kami-reader-companion'];
+  const preview = app.workspace.activeLeaf.view.containerEl.querySelector('.markdown-preview-view');
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  preview.scrollTop = 0;
+  await sleep(800);
+  const original = plugin.adaptive.refresh;
+  const stats = { calls: 0, refreshMs: 0 };
+  plugin.adaptive.refresh = function(...args) {
+    stats.calls++;
+    const start = performance.now();
+    try { return original.apply(this, args); }
+    finally { stats.refreshMs += performance.now() - start; }
+  };
+  const run = async moving => {
+    stats.calls = 0; stats.refreshMs = 0;
+    const start = performance.now();
+    for (let i = 0; i < 90; i++) {
+      if (moving) preview.scrollTop = i * 80;
+      preview.dispatchEvent(new Event('scroll'));
+      await new Promise(requestAnimationFrame);
+    }
+    await sleep(200);
+    return {...stats, elapsedMs: performance.now() - start, scrollTop: preview.scrollTop};
+  };
+  try { return {pureScrollEvents: await run(false), movingScroll: await run(true), viewport: [innerWidth, innerHeight], appVersion: document.title}; }
+  finally { plugin.adaptive.refresh = original; }
+}

@@ -1,6 +1,6 @@
 {
   "name": "kami-reader-companion",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "packageManager": "npm@10.9.2",
   "scripts": {
@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "check": "npm run lint && npm test && npm run build",
     "check:visual": "node scripts/check-visual-evidence.mjs",
-    "dev:injector": "npm run build && node scripts/build-dev-injector.mjs"
+    "dev:injector": "npm run build && node scripts/build-dev-injector.mjs",
+    "check:release": "node scripts/check-release-acceptance.mjs"
   },
   "devDependencies": {
     "@emnapi/core": "2.0.0-alpha.3",

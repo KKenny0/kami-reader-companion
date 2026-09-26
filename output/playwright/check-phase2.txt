@@ -1,0 +1,29 @@
+async () => {
+ if(document.hidden)throw Error("Hidden fixture; restart isolated app");
+ const out=[], wait=()=>new Promise(r=>setTimeout(r,180));
+ const check=(ok,name,data)=>{out.push({ok,name,data});if(!ok)throw Error(name+JSON.stringify(data));};
+ const ws=app.workspace, [left,right]=window.phase2Leaves;
+ const command=id=>app.commands.executeCommandById('kami-reader-companion:toggle-'+id);
+ const buttons=()=>[...document.querySelectorAll('.kami-mode-controls button')].map(e=>e.textContent);
+ const menuFor=view=>{let menu;const ref=ws.on('file-menu',m=>{menu=m;m.setUseNativeMenu(false)});view.containerEl.querySelector('[aria-label="More options"]').dispatchEvent(new MouseEvent('click',{bubbles:true}));ws.offref(ref);return menu;};
+ const items=m=>m.items.filter(i=>i.section==='kami-modes');
+ ws.setActiveLeaf(left,{focus:true});await wait();
+ let menu=menuFor(left.view);check(items(menu).length===3,'real document menu has three entries');menu.hide();
+ command('focus-mode');command('white-page-preview');await wait();
+ menu=menuFor(left.view);check(items(menu).map(i=>i.checked).join()==='false,true,true','commands reflected in menu');menu.hide();
+ const before=left.view.containerEl.querySelector('.markdown-preview-sizer').clientWidth;
+ command('reading-stage');await wait();check(buttons().length===3,'three independent exits',buttons());
+ command('reading-stage');await wait();check(left.view.containerEl.querySelector('.markdown-preview-sizer').clientWidth===before,'Stage width restored');
+ menu=menuFor(right.view);items(menu)[2].callback();menu.hide();await wait();
+ check(ws.activeLeaf===right && right.view.containerEl.classList.contains('kami-white-page-preview-active')&&!left.view.containerEl.classList.contains('kami-white-page-preview-active'),'inactive pane menu targets actual pane');
+ check(buttons().length===2,'Focus continues and Paper follows explicit target',buttons());
+ document.querySelector('[aria-label="Exit Paper"]').click();await wait();
+ await right.setViewState({type:'markdown',state:{file:'Reference/Layout Contract.md',mode:'source'}});await wait();
+ menu=menuFor(right.view);check(items(menu)[0].disabled,'Stage disabled in editor');menu.hide();
+ await right.setViewState({type:'empty'});await wait();check(buttons().includes('Focus paused ×'),'Focus paused indicator',buttons());
+ document.querySelector('[aria-label="Exit Focus paused"]').click();await wait();check(buttons().length===0,'paused Focus directly exits');
+ await right.setViewState({type:'markdown',state:{file:'Reference/Layout Contract.md',mode:'preview'}});ws.setActiveLeaf(left,{focus:true});await wait();
+ command('focus-mode');command('white-page-preview');await wait();
+ window.phase2MenuFor=menuFor;
+ return out;
+}

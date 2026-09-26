@@ -1,0 +1,51 @@
+### Result
+[
+  {
+    "ok": true,
+    "name": "real document menu has three entries"
+  },
+  {
+    "ok": true,
+    "name": "commands reflected in menu"
+  },
+  {
+    "ok": true,
+    "name": "three independent exits",
+    "data": [
+      "Stage ×",
+      "Focus ×",
+      "Paper ×"
+    ]
+  },
+  {
+    "ok": true,
+    "name": "Stage width restored"
+  },
+  {
+    "ok": true,
+    "name": "inactive pane menu targets actual pane"
+  },
+  {
+    "ok": true,
+    "name": "Focus continues and Paper follows explicit target",
+    "data": [
+      "Focus ×",
+      "Paper ×"
+    ]
+  },
+  {
+    "ok": true,
+    "name": "Stage disabled in editor"
+  },
+  {
+    "ok": true,
+    "name": "Focus paused indicator",
+    "data": [
+      "Focus paused ×"
+    ]
+  },
+  {
+    "ok": true,
+    "name": "paused Focus directly exits"
+  }
+]

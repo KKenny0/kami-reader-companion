@@ -1,0 +1,12 @@
+{
+  "os": "macOS",
+  "appVersion": "1.13.7",
+  "fixtureVault": "visual-vault",
+  "sha256": {
+    "main.js": "e219067b917c6d0ac6835dd04ed0650bacad529109c4f264e7843c8dc0120206",
+    "styles.css": "ad1a4ea21740ad9fb9284755351c5f46e82cb1f3fbcb9cd447fcebb32dc200dc",
+    "manifest.json": "f2e00df10b28ef7e9bb87e58664840afc30be67c567f24ac1cd9adbbf6409633",
+    "paired-theme.css": "4b75ebfa35c5eec91689c133a8ae9e0d78f3cbc2e201a43928f963468fb07f40"
+  },
+  "status": "local-review-not-release-acceptance"
+}

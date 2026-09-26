@@ -1,0 +1,158 @@
+### Result
+[
+  {
+    "name": "stable preview/preview",
+    "ok": true,
+    "details": {
+      "before": [
+        {
+          "width": 122.203125,
+          "top": 543.7890625,
+          "font": "34px",
+          "scroll": 0,
+          "margin": "0px 48px",
+          "padding": "100px 86.4px 128px"
+        },
+        {
+          "width": 122.203125,
+          "top": 250.21875,
+          "font": "34px",
+          "scroll": 0,
+          "margin": "0px 48px",
+          "padding": "100px 86.4px 128px"
+        }
+      ],
+      "after": [
+        {
+          "width": 122.203125,
+          "top": 543.7890625,
+          "font": "34px",
+          "scroll": 0,
+          "margin": "0px 48px",
+          "padding": "100px 86.4px 128px"
+        },
+        {
+          "width": 122.203125,
+          "top": 250.21875,
+          "font": "34px",
+          "scroll": 0,
+          "margin": "0px 48px",
+          "padding": "100px 86.4px 128px"
+        }
+      ]
+    }
+  },
+  {
+    "name": "stable source/source",
+    "ok": true,
+    "details": {
+      "before": [
+        {
+          "width": 327,
+          "font": "46px",
+          "scroll": 0
+        },
+        {
+          "width": 327,
+          "font": "46px",
+          "scroll": 0
+        }
+      ],
+      "after": [
+        {
+          "width": 327,
+          "font": "46px",
+          "scroll": 0
+        },
+        {
+          "width": 327,
+          "font": "46px",
+          "scroll": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "stable preview/source",
+    "ok": true,
+    "details": {
+      "before": [
+        {
+          "width": 122.203125,
+          "top": 543.7890625,
+          "font": "34px",
+          "scroll": 0,
+          "margin": "0px 48px",
+          "padding": "100px 86.4px 128px"
+        },
+        {
+          "width": 327,
+          "font": "46px",
+          "scroll": 0
+        }
+      ],
+      "after": [
+        {
+          "width": 122.203125,
+          "top": 543.7890625,
+          "font": "34px",
+          "scroll": 0,
+          "margin": "0px 48px",
+          "padding": "100px 86.4px 128px"
+        },
+        {
+          "width": 327,
+          "font": "46px",
+          "scroll": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "no content decorations",
+    "ok": true
+  },
+  {
+    "name": "focus opens",
+    "ok": true
+  },
+  {
+    "name": "focus follows pane",
+    "ok": true
+  },
+  {
+    "name": "reference pane readable",
+    "ok": true
+  },
+  {
+    "name": "focus follows mode/file",
+    "ok": true
+  },
+  {
+    "name": "focus pauses non-Markdown",
+    "ok": true
+  },
+  {
+    "name": "focus resumes",
+    "ok": true
+  },
+  {
+    "name": "stage opens",
+    "ok": true
+  },
+  {
+    "name": "Escape exits Stage first",
+    "ok": true
+  },
+  {
+    "name": "Escape exits Focus second",
+    "ok": true
+  }
+]
+### Ran Playwright code
+```js
+await page.evaluate('async () => {\n const results=[];\n const check=(ok,name,details)=>{results.push({name,ok,details}); if(!ok) throw Error(name+\' \'+JSON.stringify(details));};\n const wait=()=>new Promise(r=>setTimeout(r,220));\n const ws=app.workspace;\n const original=ws.getLeavesOfType(\'markdown\')[0];\n ws.getLeavesOfType(\'markdown\').slice(1).forEach(l=>l.detach());\n const file=\'Welcome.md\';\n await original.setViewState({type:\'markdown\',state:{file,mode:\'preview\'}});\n const secondary=ws.createLeafBySplit(original,\'vertical\');\n await secondary.setViewState({type:\'markdown\',state:{file:\'Reference/Layout Contract.md\',mode:\'preview\'}});\n ws.setActiveLeaf(original,{focus:true}); await wait();\n const geometry=l=>{const p=l.view.containerEl.querySelector(\'.markdown-preview-view\');const s=p?.querySelector(\'.markdown-preview-sizer\'); const h=p?.querySelector(\'h1\');const css=s&&getComputedStyle(s);return {width:s?.getBoundingClientRect().width,top:h?.getBoundingClientRect().top,font:h&&getComputedStyle(h).fontSize,scroll:p?.scrollTop,margin:css?.margin,padding:p&&getComputedStyle(p).padding};};\n for(const modes of [[\'preview\',\'preview\'],[\'source\',\'source\'],[\'preview\',\'source\']]) {\n  await original.setViewState({type:\'markdown\',state:{file,mode:modes[0]}});await secondary.setViewState({type:\'markdown\',state:{file:\'Reference/Layout Contract.md\',mode:modes[1]}}); ws.setActiveLeaf(original,{focus:true});await wait();\n  const measure=l=>modes[[original,secondary].indexOf(l)]===\'preview\'?geometry(l):{width:l.view.containerEl.querySelector(\'.cm-content\').getBoundingClientRect().width,font:getComputedStyle(l.view.containerEl.querySelector(\'.inline-title\')).fontSize,scroll:l.view.containerEl.querySelector(\'.cm-scroller\').scrollTop};\n  const before=[measure(original),measure(secondary)];ws.setActiveLeaf(secondary,{focus:true});await wait();const after=[measure(original),measure(secondary)];check(JSON.stringify(before)===JSON.stringify(after),\'stable \'+modes.join(\'/\'),{before,after});\n }\n check(document.querySelectorAll(\'.kami-folio-meta,.kami-folio-deck,.kami-folio-inline-title-context\').length===0,\'no content decorations\');\n ws.setActiveLeaf(original,{focus:true});await wait();\n app.commands.executeCommandById(\'kami-reader-companion:toggle-focus-mode\');await wait();check(document.body.classList.contains(\'kami-focus-open\'),\'focus opens\');\n ws.setActiveLeaf(secondary,{focus:true});await wait();check(document.body.classList.contains(\'kami-focus-open\'),\'focus follows pane\');\n check(getComputedStyle(original.view.containerEl.querySelector(\'.view-content\')).opacity===\'1\',\'reference pane readable\');\n await secondary.setViewState({type:\'markdown\',state:{file,mode:\'preview\'}});await wait();check(document.body.classList.contains(\'kami-focus-open\'),\'focus follows mode/file\');\n await secondary.setViewState({type:\'empty\'});await wait();check(!document.body.classList.contains(\'kami-focus-open\'),\'focus pauses non-Markdown\');\n await secondary.setViewState({type:\'markdown\',state:{file,mode:\'preview\'}});await wait();check(document.body.classList.contains(\'kami-focus-open\'),\'focus resumes\');\n app.commands.executeCommandById(\'kami-reader-companion:toggle-reading-stage\');await wait();check(document.body.classList.contains(\'kami-reading-stage-open\'),\'stage opens\');\n secondary.view.containerEl.dispatchEvent(new KeyboardEvent(\'keydown\',{key:\'Escape\',bubbles:true}));await wait();check(!document.body.classList.contains(\'kami-reading-stage-open\')&&document.body.classList.contains(\'kami-focus-open\'),\'Escape exits Stage first\');\n secondary.view.containerEl.dispatchEvent(new KeyboardEvent(\'keydown\',{key:\'Escape\',bubbles:true}));await wait();check(!document.body.classList.contains(\'kami-focus-open\'),\'Escape exits Focus second\');\n window.kamiReviewLeaves=[original,secondary];return results;\n}\n');
+```
+### Page
+- Page URL: app://obsidian.md/index.html
+- Page Title: Welcome - visual-vault - Obsidian 1.13.7

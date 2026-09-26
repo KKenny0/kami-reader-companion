@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   app: null as unknown,
   layoutReady: null as (() => void) | null,
   observerCount: 0,
+  mutationCallbacks: [] as MutationCallback[],
   observerOptions: null as MutationObserverInit | null,
   workspaceEvents: 0,
   commandIds: [] as string[],
@@ -14,6 +15,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("obsidian", () => ({
   MarkdownView: class MarkdownView {},
+  View: class View {},
   Plugin: class Plugin {
     app = mocks.app;
     register(): void {}
@@ -25,9 +27,15 @@ vi.mock("obsidian", () => ({
 
 import KamiReaderCompanion from "../src/main";
 import { AdaptiveContent } from "../src/adaptive-content";
+import { ReadingPresence } from "../src/reading-presence";
+import { OutlineSync } from "../src/outline-sync";
+import { PaperPreview } from "../src/paper-preview";
+import { MarkdownView } from "obsidian";
 
 describe("plugin lifecycle", () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
+    mocks.mutationCallbacks = [];
     mocks.layoutReady = null;
     mocks.observerCount = 0;
     mocks.observerOptions = null;
@@ -37,6 +45,7 @@ describe("plugin lifecycle", () => {
     mocks.resizeCallback = null;
     mocks.observedElements = [];
     mocks.app = {
+      scope: { register: () => ({}), unregister: () => undefined },
       metadataCache: { getCache: () => null },
       workspace: {
         onLayoutReady: (callback: () => void) => { mocks.layoutReady = callback; },
@@ -47,6 +56,7 @@ describe("plugin lifecycle", () => {
       }
     };
     vi.stubGlobal("MutationObserver", class {
+      constructor(callback: MutationCallback) { mocks.mutationCallbacks.push(callback); }
       disconnect(): void {}
       observe(_target: Node, options: MutationObserverInit): void { mocks.observerOptions = options; }
     });
@@ -108,6 +118,87 @@ describe("plugin lifecycle", () => {
 
     adaptive.destroy();
     expect(removed).toEqual(["load"]);
+  });
+
+  it("scrolls Outline without scanning Markdown panes, but sizes only the changed pane", () => {
+    vi.spyOn(ReadingPresence.prototype, "configure").mockImplementation(() => undefined);
+    vi.spyOn(PaperPreview.prototype, "configure").mockImplementation(() => undefined);
+    const refresh = vi.spyOn(AdaptiveContent.prototype, "refresh").mockImplementation(() => undefined);
+    const outlineRefresh = vi.spyOn(OutlineSync.prototype, "refresh");
+    const listeners = new Map<string, EventListener>();
+    const ownerDocument = { defaultView: window, querySelectorAll: () => [] } as unknown as Document;
+    const preview = {
+      ownerDocument,
+      isConnected: true,
+      scrollTop: 0,
+      addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback),
+      removeEventListener: (name: string) => listeners.delete(name),
+      querySelector: () => null,
+      closest: () => preview
+    } as unknown as HTMLElement;
+    const reference = { ...preview, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as HTMLElement;
+    const makeView = (element: HTMLElement) => Object.assign(new MarkdownView(null as never), {
+      file: { path: "long-note.md" },
+      getMode: () => "preview",
+      containerEl: { ownerDocument, querySelector: () => element }
+    });
+    const view = makeView(preview);
+    const workspace = (mocks.app as { workspace: Record<string, unknown> }).workspace;
+    workspace.getActiveViewOfType = () => view;
+    const leaves = vi.fn(() => [{ view }, { view: makeView(reference) }]);
+    workspace.getLeavesOfType = leaves;
+    const PluginUnderTest = KamiReaderCompanion as unknown as new () => KamiReaderCompanion;
+    const plugin = new PluginUnderTest();
+    plugin.onload();
+    mocks.layoutReady?.();
+    mocks.animationCallback?.(0);
+    refresh.mockClear();
+    outlineRefresh.mockClear();
+    leaves.mockClear();
+
+    for (let index = 0; index < 3; index += 1) {
+      listeners.get("scroll")?.({} as Event);
+      mocks.animationCallback?.(index);
+    }
+    expect(refresh).not.toHaveBeenCalled();
+    expect(outlineRefresh).toHaveBeenCalledTimes(3);
+    expect(leaves).not.toHaveBeenCalled();
+
+    mocks.resizeCallback?.([{ target: preview }] as unknown as ResizeObserverEntry[], {} as ResizeObserver);
+    mocks.animationCallback?.(4);
+    expect(refresh).toHaveBeenCalledExactlyOnceWith(preview);
+    expect(leaves).not.toHaveBeenCalled();
+    plugin.onunload();
+    expect(listeners.has("scroll")).toBe(false);
+  });
+
+  it("invalidates only the preview containing new content or loaded media", () => {
+    const schedule = vi.fn();
+    const mediaHandlers: EventListener[] = [];
+    const child = {} as Node;
+    const first = {
+      contains: (node: Node) => node === child,
+      addEventListener: (_name: string, handler: EventListener) => mediaHandlers.push(handler),
+      removeEventListener: () => undefined
+    } as unknown as HTMLElement;
+    const second = { ...first, contains: () => false } as unknown as HTMLElement;
+    const adaptive = new AdaptiveContent(schedule);
+    adaptive.configure(new Set([first, second]));
+    mocks.mutationCallbacks.at(-1)?.([{ target: child }] as MutationRecord[], {} as MutationObserver);
+    expect(schedule).toHaveBeenCalledExactlyOnceWith(first);
+    schedule.mockClear();
+    mediaHandlers[1]({ currentTarget: second } as unknown as Event);
+    expect(schedule).toHaveBeenCalledExactlyOnceWith(second);
+    adaptive.destroy();
+  });
+
+  it("cancels deferred postprocessing when unloaded", () => {
+    const cancel = vi.spyOn(window, "cancelAnimationFrame");
+    const adaptive = new AdaptiveContent(() => undefined);
+    const element = { ownerDocument: { defaultView: window } } as HTMLElement;
+    adaptive.process(element, { getSectionInfo: () => ({}) } as never);
+    adaptive.destroy();
+    expect(cancel).toHaveBeenCalledWith(1);
   });
 
   it("leaves native status-bar geometry untouched", () => {

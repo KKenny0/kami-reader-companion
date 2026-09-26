@@ -1,0 +1,18 @@
+async()=>{
+ const ws=app.workspace;const wait=()=>new Promise(r=>setTimeout(r,300));
+ const left=ws.getLeavesOfType('markdown')[0];ws.getLeavesOfType('markdown').slice(1).forEach(l=>l.detach());
+ await left.setViewState({type:'markdown',state:{file:'Scroll Fixture.md',mode:'preview'}});
+ const right=ws.createLeafBySplit(left,'vertical');
+ await right.setViewState({type:'markdown',state:{file:'Scroll Fixture.md',mode:'preview'}});
+ ws.setActiveLeaf(left,{focus:true});await wait();
+ const previews=[left,right].map(l=>l.view.containerEl.querySelector('.markdown-preview-view'));
+ previews[0].scrollTop=1400;previews[1].scrollTop=2100;await wait();
+ const measure=()=>previews.map(p=>({scroll:p.scrollTop,width:p.querySelector('.markdown-preview-sizer').getBoundingClientRect().width}));
+ const before=measure();if(before.some(p=>p.width<=0))throw Error('Non-visible document width');ws.setActiveLeaf(right,{focus:true});await wait();const after=measure();
+ if(JSON.stringify(before)!==JSON.stringify(after))throw Error(JSON.stringify({before,after}));
+ const plugin=app.plugins.plugins['kami-reader-companion'];const original=plugin.adaptive.refresh;let calls=0;
+ plugin.adaptive.refresh=function(...args){calls++;return original.apply(this,args);};
+ await new Promise(r=>setTimeout(r,1000));plugin.adaptive.refresh=original;
+ if(calls!==0)throw Error('Idle resize loop '+calls);
+ return {before,after,idleRefreshes:calls};
+}

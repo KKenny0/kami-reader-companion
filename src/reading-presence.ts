@@ -22,21 +22,30 @@ type ReadingTarget = {
   filePath: string;
   mode: "preview" | "source";
   modeLabel: HTMLElement | null;
-  title: HTMLElement | null;
-  deck: HTMLElement | null;
-  meta: HTMLElement | null;
 };
 
 export class ReadingPresence {
   private target: ReadingTarget | null = null;
   private keyDocument: Document | null = null;
   private focusOpen = false;
+  private focusWindows = new Map<Document, () => void>();
   private focusBlock: HTMLElement | null = null;
   private focusBlocks = new Set<HTMLElement>();
   private focusMarked = new Set<HTMLElement>();
   private editorFocusLines = new Set<HTMLElement>();
 
-  configure(view: MarkdownView | null): void {
+  constructor(private readonly onChange: () => void = () => {}) {}
+
+  isStageOpen(view?: MarkdownView): boolean {
+    return (!view || view.containerEl === this.target?.stage) &&
+      !!this.target?.body.classList.contains(STAGE_OPEN_CLASS);
+  }
+
+  isFocusOpen(document = this.keyDocument): boolean {
+    return !!document && this.focusWindows.has(document);
+  }
+
+  configure(view: MarkdownView | null, ownerDocument: Document | null = null): void {
     const body = view?.containerEl.ownerDocument.body ?? null;
     const mode = view?.getMode();
     const next = view?.file && body && !body.classList.contains("is-mobile") && (mode === "preview" || mode === "source")
@@ -45,30 +54,35 @@ export class ReadingPresence {
           stage: view.containerEl,
           filePath: view.file.path,
           mode,
-          modeLabel: null,
-          title: null,
-          deck: null,
-          meta: null
+          modeLabel: null
         }
       : null;
     if (next && this.sameTarget(next)) {
-      if (view) this.decorate(view, next.mode);
+      if (view) this.decorateMode(view, next.mode);
       if (this.focusOpen) this.syncFocusContext(false);
       this.alignStage();
       return;
     }
+    const document = view?.containerEl.ownerDocument ?? ownerDocument ?? this.keyDocument;
     this.clear();
+    this.keyDocument = document;
+    document?.addEventListener("keydown", this.onKeyDown);
+    this.focusOpen = !!document && this.focusWindows.has(document);
     if (!next) return;
     next.body.classList.add(BODY_CLASS);
     next.stage.classList.add(STAGE_CLASS);
-    next.body.ownerDocument.addEventListener("keydown", this.onKeyDown);
     next.body.ownerDocument.addEventListener("pointerover", this.onReadingFocusContext);
     next.body.ownerDocument.addEventListener("pointerout", this.onReadingFocusContext);
     next.body.ownerDocument.addEventListener("focusin", this.onReadingFocusContext);
     next.body.ownerDocument.addEventListener("selectionchange", this.onSelectionChange);
     this.keyDocument = next.body.ownerDocument;
     this.target = next;
-    if (view) this.decorate(view, next.mode);
+    if (this.focusOpen) {
+      next.body.classList.add(FOCUS_OPEN_CLASS);
+      next.stage.classList.add(FOCUS_ACTIVE_CLASS);
+      this.syncFocusContext(false);
+    }
+    if (view) this.decorateMode(view, next.mode);
   }
 
   canToggleStage(): boolean {
@@ -82,41 +96,63 @@ export class ReadingPresence {
     this.target.stage.classList.toggle(STAGE_ACTIVE_CLASS, opening);
     if (opening) this.alignStage();
     else this.clearStageShift();
+    this.onChange();
     return opening;
   }
 
   canToggleFocus(): boolean {
-    return this.target !== null;
+    return this.target !== null || this.focusOpen;
   }
 
   toggleFocus(): boolean {
+    if (this.focusOpen) {
+      this.exitFocus();
+      return false;
+    }
     if (!this.target) return false;
-    const opening = !this.focusOpen;
-    this.focusOpen = opening;
-    this.target.body.classList.toggle(FOCUS_OPEN_CLASS, opening);
-    this.target.stage.classList.toggle(FOCUS_ACTIVE_CLASS, opening);
-    if (opening) this.syncFocusContext(true);
-    else this.clearFocusContext();
+    const document = this.target.body.ownerDocument;
+    const close = () => {
+      if (this.keyDocument === document) this.clear();
+      this.forgetFocus(document);
+      this.onChange();
+    };
+    this.focusWindows.set(document, close);
+    document.defaultView?.addEventListener?.("pagehide", close);
+    this.focusOpen = true;
+    this.target.body.classList.add(FOCUS_OPEN_CLASS);
+    this.target.stage.classList.add(FOCUS_ACTIVE_CLASS);
+    this.syncFocusContext(true);
     this.updateModeLabel();
-    return opening;
+    this.onChange();
+    return true;
   }
 
   exitStage(): void {
     this.target?.body.classList.remove(STAGE_OPEN_CLASS);
     this.target?.stage.classList.remove(STAGE_ACTIVE_CLASS);
     this.clearStageShift();
+    this.onChange();
   }
 
   exitFocus(): void {
+    if (this.keyDocument) this.forgetFocus(this.keyDocument);
     this.focusOpen = false;
     this.clearFocusContext();
     this.target?.body.classList.remove(FOCUS_OPEN_CLASS);
     this.target?.stage.classList.remove(FOCUS_ACTIVE_CLASS);
     this.updateModeLabel();
+    this.onChange();
   }
 
   destroy(): void {
     this.clear();
+    for (const document of this.focusWindows.keys()) this.forgetFocus(document);
+  }
+
+  private forgetFocus(document: Document): void {
+    const close = this.focusWindows.get(document);
+    if (close) document.defaultView?.removeEventListener?.("pagehide", close);
+    this.focusWindows.delete(document);
   }
 
   private sameTarget(next: ReadingTarget): boolean {
@@ -127,18 +163,25 @@ export class ReadingPresence {
       this.target.mode === next.mode;
   }
 
+  handleEscape(event: KeyboardEvent): boolean {
+    if (event.defaultPrevented || (event.view && event.view.document !== this.keyDocument)) return false;
+    if (event.target && "ownerDocument" in event.target && event.target.ownerDocument !== this.keyDocument) return false;
+    const view = this.keyDocument?.defaultView;
+    if (view?.Element && event.target instanceof view.Element && event.target.closest(ESCAPE_OWNER_SELECTOR)) return false;
+    if (Array.from(this.keyDocument?.querySelectorAll<HTMLElement>(ESCAPE_OWNER_SELECTOR) ?? [])
+      .some((element) => element.getClientRects().length > 0)) return false;
+    if (this.isStageOpen()) {
+      this.exitStage();
+      return true;
+    }
+    if (!this.focusOpen) return false;
+    this.exitFocus();
+    return true;
+  }
+
   private onKeyDown = (event: KeyboardEvent): void => {
     if (event.defaultPrevented) return;
     const view = this.keyDocument?.defaultView;
-    if (view?.Element && event.target instanceof view.Element && event.target.closest(ESCAPE_OWNER_SELECTOR)) return;
-    if (event.key === "Escape") {
-      if (this.target?.body.classList.contains(STAGE_OPEN_CLASS)) {
-        this.exitStage();
-        return;
-      }
-      this.exitFocus();
-      return;
-    }
     if (!this.focusOpen || this.target?.mode !== "preview" || (event.key !== "ArrowUp" && event.key !== "ArrowDown")) return;
     if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (!view?.Element || !(event.target instanceof view.Element)) return;
@@ -293,48 +336,6 @@ export class ReadingPresence {
     this.target?.stage.style.removeProperty(STAGE_SHIFT_Y);
   }
 
-  private decorate(view: MarkdownView, mode: "preview" | "source"): void {
-    if (!this.target) return;
-    this.decorateMode(view, mode);
-    if (mode !== "preview") {
-      this.clearReadingDecorations();
-      return;
-    }
-    const preview = view.containerEl.querySelector<HTMLElement>(".markdown-preview-view");
-    if ((preview?.scrollTop ?? 0) > 32) return;
-    const mtime = view.file?.stat?.mtime;
-    const date = typeof mtime === "number" && Number.isFinite(mtime)
-      ? new Date(mtime).toISOString().slice(0, 10).replaceAll("-", ".")
-      : "";
-    const metaText = ["READING NOTE", date].filter(Boolean).join("   ");
-    const title = view.containerEl.querySelector<HTMLElement>(".inline-title");
-    const heading = view.containerEl.querySelector<HTMLElement>(".markdown-preview-section > .el-h1 > h1");
-    const deck = view.containerEl.querySelector<HTMLElement>(".markdown-preview-section > .el-p > p");
-    if (!title) {
-      this.clearReadingDecorations();
-      return;
-    }
-    const currentMeta = this.target.meta;
-    const contextTitle = heading !== null;
-    const sameNodes = this.target.title === title &&
-      this.target.deck === deck &&
-      title.classList.contains("kami-folio-inline-title-context") === contextTitle &&
-      currentMeta?.isConnected;
-    if (sameNodes && currentMeta) {
-      if (currentMeta.textContent !== metaText) currentMeta.textContent = metaText;
-      return;
-    }
-    this.clearReadingDecorations();
-    title.classList.add(contextTitle ? "kami-folio-inline-title-context" : "kami-folio-inline-title");
-    if (deck) deck.classList.add("kami-folio-deck");
-    const meta = title.createDiv({ cls: "kami-folio-meta", text: metaText });
-    if (deck) deck.after(meta);
-    else title.after(meta);
-    this.target.title = title;
-    this.target.deck = deck;
-    this.target.meta = meta;
-  }
-
   private decorateMode(view: MarkdownView, mode: "preview" | "source"): void {
     if (!this.target) return;
     const header = view.containerEl.querySelector<HTMLElement>(".view-header");
@@ -371,22 +372,14 @@ export class ReadingPresence {
   private clearDecorations(): void {
     this.target?.modeLabel?.remove();
     if (this.target) this.target.modeLabel = null;
-    this.clearReadingDecorations();
-  }
-
-  private clearReadingDecorations(): void {
-    if (!this.target) return;
-    this.target.title?.classList.remove("kami-folio-inline-title", "kami-folio-inline-title-context");
-    this.target.deck?.classList.remove("kami-folio-deck");
-    this.target.meta?.remove();
-    this.target.title = null;
-    this.target.deck = null;
-    this.target.meta = null;
   }
 
   private clear(): void {
     this.exitStage();
-    this.exitFocus();
+    this.clearFocusContext();
+    this.target?.body.classList.remove(FOCUS_OPEN_CLASS);
+    this.target?.stage.classList.remove(FOCUS_ACTIVE_CLASS);
+    this.focusOpen = false;
     this.clearDecorations();
     this.keyDocument?.removeEventListener("keydown", this.onKeyDown);
     this.keyDocument?.removeEventListener("pointerover", this.onReadingFocusContext);

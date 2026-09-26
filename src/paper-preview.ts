@@ -12,6 +12,15 @@ type PaperPreviewTarget = {
 export class PaperPreview {
   private target: PaperPreviewTarget | null = null;
 
+  isActive(view?: MarkdownView): boolean {
+    return (!view || view.containerEl === this.target?.container) &&
+      !!this.target?.container.classList.contains(WHITE_PAGE_PREVIEW_CLASS);
+  }
+
+  exit(): void {
+    this.target?.container.classList.remove(WHITE_PAGE_PREVIEW_CLASS);
+  }
+
   configure(view: MarkdownView | null): void {
     const mode = view?.getMode();
     const container = view?.containerEl ?? null;

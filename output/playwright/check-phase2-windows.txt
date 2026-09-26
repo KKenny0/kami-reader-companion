@@ -1,0 +1,38 @@
+async () => {
+ const results=[];const wait=()=>new Promise(r=>setTimeout(r,500));
+ const check=(ok,name,data)=>{results.push({name,ok,data});if(!ok)throw Error(name+' '+JSON.stringify(data));};
+ const mainLeaf=window.phase2Leaves[0];const ws=app.workspace;
+ ws.setActiveLeaf(mainLeaf,{focus:true});await wait();
+ app.commands.executeCommandById('kami-reader-companion:toggle-focus-mode');await wait();
+ check(document.body.classList.contains('kami-focus-open'),'main Focus opens');
+ const pop=ws.openPopoutLeaf({size:{width:900,height:700}});
+ await pop.setViewState({type:'markdown',state:{file:'Welcome.md',mode:'preview'},active:true});await wait();await wait();
+ ws.setActiveLeaf(pop,{focus:true});await wait();
+ const doc=pop.view.containerEl.ownerDocument;
+ check(doc!==document,'real popout created');
+ check(!doc.body.classList.contains('kami-focus-open'),'new window starts without Focus');
+ app.commands.executeCommandById('kami-reader-companion:toggle-focus-mode');await wait();
+ check(doc.body.classList.contains('kami-focus-open'),'popout Focus opens');
+ app.commands.executeCommandById('kami-reader-companion:toggle-focus-mode');await wait();
+ check(!doc.body.classList.contains('kami-focus-open'),'popout Focus closes independently');
+ ws.setActiveLeaf(mainLeaf,{focus:true});await wait();
+ check(document.body.classList.contains('kami-focus-open'),'main Focus intent preserved');
+ ws.setActiveLeaf(pop,{focus:true});await wait();
+ check(!doc.body.classList.contains('kami-focus-open'),'popout off state preserved');
+ await pop.setViewState({type:'empty'});await wait();
+ ws.setActiveLeaf(mainLeaf,{focus:true});await wait();
+ check(document.body.classList.contains('kami-focus-open'),'non-Markdown in other window preserves main Focus');
+ app.commands.executeCommandById('kami-reader-companion:toggle-focus-mode');await wait();
+ check(!document.body.classList.contains('kami-focus-open'),'main explicit close');
+ check(!!mainLeaf.view.containerEl.ownerDocument.querySelector('.kami-mode-controls') === false,'main controls cleared after exit');
+ ws.setActiveLeaf(pop,{focus:true});await wait();
+ await pop.setViewState({type:'markdown',state:{file:'Welcome.md',mode:'preview'}});await wait();
+ app.commands.executeCommandById('kami-reader-companion:toggle-focus-mode');await wait();
+ check(!!doc.querySelector('[aria-label="Exit Focus"]'),'popout has independent Focus exit');
+ doc.querySelector('[aria-label="Exit Focus"]').click();await wait();
+ check(!doc.querySelector('.kami-mode-controls'),'popout exit removes controls');
+ await app.plugins.unloadPlugin('kami-reader-companion');
+ check(!document.querySelector('.kami-mode-controls')&&!doc.querySelector('.kami-mode-controls'),'unload removes all controls');
+ window.kamiReviewPopout=pop;
+ return results;
+}

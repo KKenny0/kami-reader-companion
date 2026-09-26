@@ -1,0 +1,259 @@
+### Result
+[
+  {
+    "name": "Default theme-light font false",
+    "ok": true,
+    "data": "\"??\", Georgia, ui-sans-serif, -apple-system, \"system-ui\", system-ui, \"Segoe UI\", \"Google Sans Flex\", Roboto, \"Inter Variable\", Inter, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", sans-serif"
+  },
+  {
+    "name": "Default background false",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Default accent false",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Default width false",
+    "ok": true,
+    "data": 122.203125
+  },
+  {
+    "name": "Default white preview",
+    "ok": true
+  },
+  {
+    "name": "Default reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Default preview restores",
+    "ok": true
+  },
+  {
+    "name": "Default theme-light font true",
+    "ok": true,
+    "data": "\"??\", Georgia, ui-sans-serif, -apple-system, \"system-ui\", system-ui, \"Segoe UI\", \"Google Sans Flex\", Roboto, \"Inter Variable\", Inter, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", sans-serif"
+  },
+  {
+    "name": "Default background true",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Default accent true",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Default width true",
+    "ok": true,
+    "data": 900
+  },
+  {
+    "name": "Default white preview",
+    "ok": true
+  },
+  {
+    "name": "Default reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Default preview restores",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader theme-light font false",
+    "ok": true,
+    "data": "\"??\", Georgia, Inter, -apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  },
+  {
+    "name": "Kami Reader background false",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Kami Reader accent false",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Kami Reader width false",
+    "ok": true,
+    "data": 122.203125
+  },
+  {
+    "name": "Kami Reader white preview",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader preview restores",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader theme-light font true",
+    "ok": true,
+    "data": "\"??\", Georgia, Inter, -apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  },
+  {
+    "name": "Kami Reader background true",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Kami Reader accent true",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Kami Reader width true",
+    "ok": true,
+    "data": 900
+  },
+  {
+    "name": "Kami Reader white preview",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader preview restores",
+    "ok": true
+  },
+  {
+    "name": "Default theme-dark font false",
+    "ok": true,
+    "data": "\"??\", Georgia, ui-sans-serif, -apple-system, \"system-ui\", system-ui, \"Segoe UI\", \"Google Sans Flex\", Roboto, \"Inter Variable\", Inter, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", sans-serif"
+  },
+  {
+    "name": "Default background false",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Default accent false",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Default width false",
+    "ok": true,
+    "data": 122.203125
+  },
+  {
+    "name": "Default white preview",
+    "ok": true
+  },
+  {
+    "name": "Default reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Default preview restores",
+    "ok": true
+  },
+  {
+    "name": "Default theme-dark font true",
+    "ok": true,
+    "data": "\"??\", Georgia, ui-sans-serif, -apple-system, \"system-ui\", system-ui, \"Segoe UI\", \"Google Sans Flex\", Roboto, \"Inter Variable\", Inter, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", sans-serif"
+  },
+  {
+    "name": "Default background true",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Default accent true",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Default width true",
+    "ok": true,
+    "data": 900
+  },
+  {
+    "name": "Default white preview",
+    "ok": true
+  },
+  {
+    "name": "Default reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Default preview restores",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader theme-dark font false",
+    "ok": true,
+    "data": "\"??\", Georgia, Inter, -apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  },
+  {
+    "name": "Kami Reader background false",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Kami Reader accent false",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Kami Reader width false",
+    "ok": true,
+    "data": 122.203125
+  },
+  {
+    "name": "Kami Reader white preview",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader preview restores",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader theme-dark font true",
+    "ok": true,
+    "data": "\"??\", Georgia, Inter, -apple-system, \"system-ui\", \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+  },
+  {
+    "name": "Kami Reader background true",
+    "ok": true,
+    "data": "rgba(0, 0, 0, 0)"
+  },
+  {
+    "name": "Kami Reader accent true",
+    "ok": true,
+    "data": "#187a35"
+  },
+  {
+    "name": "Kami Reader width true",
+    "ok": true,
+    "data": 900
+  },
+  {
+    "name": "Kami Reader white preview",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader reference unaffected",
+    "ok": true
+  },
+  {
+    "name": "Kami Reader preview restores",
+    "ok": true
+  }
+]
