@@ -36,3 +36,5 @@ Escape 改为注册 Obsidian 原生 App.scope，由前台菜单与弹窗先处�
 ## 0.4.0 发布例外
 
 维护者随后明确授权“允许 macOS 验收例外，发布并明确 Windows 未验收”。本次通过 `visual-evidence/release-0.4.0.json` 记录，绑定原复审的 main.js、styles.css 和主题 SHA-256；manifest 仅提升发布版本。完整视觉矩阵检查保持独立，旧截图指纹未变，后续版本不继承此例外。
+
+最终发布版本为 0.4.1：0.4.0 的 CI 在既有 JPEG 证据测试的 5 秒限时失败，保留失败标签、不创建该版本 Release。0.4.1 将该测试预算对齐其他完整图片检查的 30 秒；插件 main.js、styles.css 和配套主题与已验收实现完全一致，沿用同一次维护者授权，Windows 仍未验收。

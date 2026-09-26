@@ -316,7 +316,7 @@ describe("visual evidence gate", () => {
     expect(result.stderr).toBe("");
     expect(result.status).toBe(0);
     writeFileSync(join(directory, "styles.css"), "styles");
-  });
+  }, 30_000);
 
   it("rejects a theme asset that does not match the paired release candidate", () => {
     const original = readFileSync(themePath);

@@ -42,7 +42,7 @@ jobs:
           node --input-type=module <<'NODE'
           import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
           const { version } = JSON.parse(readFileSync("./manifest.json", "utf8"));
-          const evidence = version === "0.4.0" ? "./visual-evidence/release-0.4.0.json" : "./visual-evidence/macos/manifest.json";
+          const evidence = version === "0.4.1" ? "./visual-evidence/release-0.4.1.json" : "./visual-evidence/macos/manifest.json";
           const { themeDependency } = JSON.parse(readFileSync(evidence, "utf8"));
           const response = await fetch(
             `https://raw.githubusercontent.com/${themeDependency.repository}/${themeDependency.tag}/${themeDependency.asset}`
@@ -52,7 +52,7 @@ jobs:
           writeFileSync(".visual-dependencies/theme.css", Buffer.from(await response.arrayBuffer()));
           NODE
 
-      - name: Verify release acceptance (0.4.0 macOS exception)
+      - name: Verify release acceptance (0.4.1 macOS exception)
         env:
           KAMI_VISUAL_THEME_CSS: .visual-dependencies/theme.css
         run: npm run check:release

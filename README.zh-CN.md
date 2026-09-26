@@ -23,9 +23,9 @@ Graph、Canvas 以及其他根视图共享同一套受 Kami 启发的连续 Foli
 
 Companion 不会写入笔记内容，也不会保存工作区状态；禁用后会恢复当前主题。
 
-0.4.0 已获维护者 macOS 实机验收，并经明确授权按单平台验收例外发布。
+0.4.1 已获维护者 macOS 实机验收，并经明确授权按单平台验收例外发布。
 **Windows 和 Linux 尚未完成当前版本实机验收。** 07 仍保持未完成；下方 0.3.2
-截图仅作历史参考。见 [发布说明](./docs/releases/0.4.0.md)和[验收记录](./docs/workspace-phase2-review.md)。
+截图仅作历史参考。见 [发布说明](./docs/releases/0.4.1.md)和[验收记录](./docs/workspace-phase2-review.md)。
 
 正文排版不随活动焦点改变，不自动添加导语或阅读日期。Companion 与 Reading Stage
 继承用户的字体、宽度上限、背景和强调色；白纸预览仅临时覆盖当前文档配色。
@@ -62,7 +62,7 @@ preview（切换白纸预览）**，只有当前 Markdown leaf 会切到白纸�
 自动清除。它不会写 frontmatter，也不会保存插件数据。相同的亮色 reset 也会在
 Obsidian 处于深色模式时保护 PDF 导出。
 
-历史截图和指纹保持原样。0.4.0 的发布校验绑定当前插件资产、已复审实现和
+历史截图和指纹保持原样。0.4.1 的发布校验绑定当前插件资产、已复审实现和
 配套 Kami Reader 0.3.1 的主题文件，不将旧截图计入新验收。
 `npm run check:release` 校验本次经授权的例外；`npm run check:visual` 仍保留完整
 视觉矩阵门禁。本次例外不会自动延续到后续版本。

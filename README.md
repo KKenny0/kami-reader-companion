@@ -27,10 +27,10 @@ No theme detection or integration setting is required.
 Companion writes no note content, stores no workspace state, and restores the
 active theme when disabled.
 
-Version 0.4.0 has maintainer acceptance on macOS and an explicitly approved
+Version 0.4.1 has maintainer acceptance on macOS and an explicitly approved
 single-platform release exception. **Windows and Linux are not validated for this
 version.** Ticket 07 remains open; the 0.3.2 screenshots below are historical.
-See the [release notes](./docs/releases/0.4.0.md) and [acceptance record](./docs/workspace-phase2-review.md).
+See the [release notes](./docs/releases/0.4.1.md) and [acceptance record](./docs/workspace-phase2-review.md).
 
 Pane focus does not change document typography or add an automatic deck or date.
 Companion and Reading Stage respect user font, maximum width, background, and
@@ -74,7 +74,7 @@ file, leaf, mode, or owner window changes, or when Companion unloads. It never
 writes frontmatter or saved plugin data. The same light reset also protects
 Obsidian PDF export when the app is in Dark mode.
 
-Historical screenshots and fingerprints remain unchanged. The 0.4.0 release check
+Historical screenshots and fingerprints remain unchanged. The 0.4.1 release check
 binds its assets to the reviewed implementation and the paired Kami Reader 0.3.1
 theme file. `npm run check:release` validates this approved exception;
 `npm run check:visual` retains the full visual matrix gate. Later versions do not

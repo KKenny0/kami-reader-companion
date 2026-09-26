@@ -1,0 +1,20 @@
+{
+  "version": "0.4.1",
+  "date": "2026-09-26",
+  "macos": "maintainer-accepted",
+  "windows": "not-validated",
+  "linux": "not-validated",
+  "exception": "maintainer-approved-macos-only-release",
+  "approval": "Maintainer explicitly accepted macOS and authorized release with Windows not validated on 2026-09-26. Ticket 07 remains open. The unpublished 0.4.0 attempt hit a test timeout; 0.4.1 changes only that test budget and release metadata, retaining reviewed runtime assets.",
+  "sha256": {
+    "main.js": "0a73634ae269c937bf400b00b1ae9e92fb1cc7e149ad205b60e5540e8139a999",
+    "manifest.json": "da390bc0d0026738899ba750190b4f2b71287b59cef562cb2747ab3f25564daa",
+    "styles.css": "e7a0e41af2cf6e00319334a5e4150e1e45ebcb24caecd87ee0eade0d3ed9e541"
+  },
+  "themeDependency": {
+    "repository": "KKenny0/obsidian-kami",
+    "tag": "0.3.1",
+    "asset": "theme.css",
+    "sha256": "ba4f8c903ca3fde0e96d17504fdcc7cf51dfd310a464f6b7bd14b4c1ed4f8d1c"
+  }
+}
