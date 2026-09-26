@@ -29,7 +29,7 @@ active theme when disabled.
 
 Version 0.4.1 has maintainer acceptance on macOS and an explicitly approved
 single-platform release exception. **Windows and Linux are not validated for this
-version.** Ticket 07 remains open; the 0.3.2 screenshots below are historical.
+version.** Ticket 07 remains open.
 See the [release notes](./docs/releases/0.4.1.md) and [acceptance record](./docs/workspace-phase2-review.md).
 
 Pane focus does not change document typography or add an automatic deck or date.
@@ -82,23 +82,15 @@ inherit the exception.
 
 ## Showcase
 
-### One Field works with Default and Kami Reader
+Current macOS captures using synthetic example notes. Obsidian 1.13.7, Kami Reader 0.3.1, Companion 0.4.1; the last image uses the Default theme.
 
-| Default · Light · Editing Split | Kami Reader · Light · Editing Split |
+| Reading and layout | Interaction and detail |
 |---|---|
-|![Default Light Editing Split](./visual-evidence/macos/macos-default-light-editing-split.jpg)|![Kami Reader Light Editing Split](./visual-evidence/macos/macos-kami-light-editing-split.jpg)|
+| **Light split panes**<br>![Light split panes](./output/playwright/showcase-0.4.1/light-split.png) | **Dark split panes**<br>![Dark split panes](./output/playwright/showcase-0.4.1/dark-split.png) |
+| **Mode menu and exit controls**<br>![Mode menu and exit controls](./output/playwright/showcase-0.4.1/mode-menu.png) | **Reading Stage**<br>![Reading Stage](./output/playwright/showcase-0.4.1/reading-stage.png) |
+| **White preview in a dark workspace**<br>![White preview in a dark workspace](./output/playwright/showcase-0.4.1/white-preview.png) | **Default theme compatibility**<br>![Default theme compatibility](./output/playwright/showcase-0.4.1/default-split.png) |
 
-### Reading and Editing share the same dark field
-
-| Kami Reader · Dark · Editing Split | Kami Reader · Dark · Reading |
-|---|---|
-|![Kami Reader Dark Editing Split](./visual-evidence/macos/macos-kami-dark-editing-split.jpg)|![Kami Reader Dark Reading](./visual-evidence/macos/macos-kami-dark-reading-single.jpg)|
-
-### Stage and white-page preview keep intentional boundaries
-
-| Reading Stage · Light | White-page Preview · Dark |
-|---|---|
-|![Kami Reader Light Reading Stage](./visual-evidence/macos/macos-kami-light-reading-stage-single.jpg)|![Kami Reader Dark White-page Preview](./visual-evidence/macos/macos-kami-dark-white-page-preview.jpg)|
+[Capture record](./output/playwright/showcase-0.4.1/README.md). These examples do not establish Windows acceptance.
 
 ## Local development
 

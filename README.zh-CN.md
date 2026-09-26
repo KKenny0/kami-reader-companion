@@ -24,8 +24,7 @@ Graph、Canvas 以及其他根视图共享同一套受 Kami 启发的连续 Foli
 Companion 不会写入笔记内容，也不会保存工作区状态；禁用后会恢复当前主题。
 
 0.4.1 已获维护者 macOS 实机验收，并经明确授权按单平台验收例外发布。
-**Windows 和 Linux 尚未完成当前版本实机验收。** 07 仍保持未完成；下方 0.3.2
-截图仅作历史参考。见 [发布说明](./docs/releases/0.4.1.md)和[验收记录](./docs/workspace-phase2-review.md)。
+**Windows 和 Linux 尚未完成当前版本实机验收。** 07 仍保持未完成。见 [发布说明](./docs/releases/0.4.1.md)和[验收记录](./docs/workspace-phase2-review.md)。
 
 正文排版不随活动焦点改变，不自动添加导语或阅读日期。Companion 与 Reading Stage
 继承用户的字体、宽度上限、背景和强调色；白纸预览仅临时覆盖当前文档配色。
@@ -69,23 +68,15 @@ Obsidian 处于深色模式时保护 PDF 导出。
 
 ## 效果展示
 
-### Default 与 Kami Reader 都使用 One Field
+以下为当前版本的 macOS 实机截图，使用合成示例笔记。Obsidian 1.13.7，Kami Reader 0.3.1，Companion 0.4.1；最后一张使用 Default 主题。
 
-| Default · 浅色 · 双 pane 编辑 | Kami Reader · 浅色 · 双 pane 编辑 |
+| 阅读与布局 | 交互与细节 |
 |---|---|
-| ![Default 浅色双 pane 编辑](./visual-evidence/macos/macos-default-light-editing-split.jpg) | ![Kami Reader 浅色双 pane 编辑](./visual-evidence/macos/macos-kami-light-editing-split.jpg) |
+| **浅色双窗格**<br>![浅色双窗格](./output/playwright/showcase-0.4.1/light-split.png) | **深色双窗格**<br>![深色双窗格](./output/playwright/showcase-0.4.1/dark-split.png) |
+| **模式菜单与退出按钮**<br>![模式菜单与退出按钮](./output/playwright/showcase-0.4.1/mode-menu.png) | **Reading Stage**<br>![Reading Stage](./output/playwright/showcase-0.4.1/reading-stage.png) |
+| **深色环境中的白纸预览**<br>![深色环境中的白纸预览](./output/playwright/showcase-0.4.1/white-preview.png) | **Default 主题兼容**<br>![Default 主题兼容](./output/playwright/showcase-0.4.1/default-split.png) |
 
-### Reading 与 Editing 共享同一个深色纸面场
-
-| Kami Reader · 深色 · 双 pane 编辑 | Kami Reader · 深色 · Reading |
-|---|---|
-| ![Kami Reader 深色双 pane 编辑](./visual-evidence/macos/macos-kami-dark-editing-split.jpg) | ![Kami Reader 深色 Reading](./visual-evidence/macos/macos-kami-dark-reading-single.jpg) |
-
-### Reading Stage 与白纸预览保留必要边界
-
-| Reading Stage · 浅色 | 白纸预览 · 深色 |
-|---|---|
-| ![Kami Reader 浅色 Reading Stage](./visual-evidence/macos/macos-kami-light-reading-stage-single.jpg) | ![Kami Reader 深色白纸预览](./visual-evidence/macos/macos-kami-dark-white-page-preview.jpg) |
+[截图记录](./output/playwright/showcase-0.4.1/README.md)。这些展示图不替代 Windows 验收。
 
 ## 本地开发
 
